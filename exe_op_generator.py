@@ -9,15 +9,17 @@ op = sys.argv[1]
 vl = 64
 _vx = ['v', 'x']
 _suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
-          '16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
-          '32m1', '32m2', '32m4', '32m8', '32mf2',
-          '64m1', '64m2', '64m4', '64m8']
+           '16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
+           '32m1', '32m2', '32m4', '32m8', '32mf2',
+           '64m1', '64m2', '64m4', '64m8']
 IntegerOpList = ['vadc', 'vadd', 'vand', 'vdiv', 'vdivu', 'vmacc', 'vmadc', 'vmadd', 'vmax', 'vmaxu', 'vmerge', 'vmin',
                  'vminu', 'vmsbc', 'vmseq', 'vmsge', 'vmsgeu', 'vmsgt', 'vmsgtu', 'vmsle', 'vmsleu', 'vmslt', 'vmsltu',
                  'vmsne', 'vmul', 'vmulh', 'vmulhsu', 'vmulhu', 'vmv', 'vneg', 'vnmsac', 'vnmsub', 'vnot', 'vnsra',
                  'vnsrl', 'vor', 'vrem', 'vremu', 'vrsub', 'vsbc', 'vsext', 'vsll', 'vsra', 'vsrl', 'vsub', 'vwadd',
                  'vwaddu', 'vwmacc', 'vwmaccsu', 'vwmaccu', 'vwmaccus', 'vwmul', 'vwmulsu', 'vwmulu', 'vwsub', 'vwsubu',
                  'vxor', 'vzext']
+
+
 class Node:
     def __init__(self):
         self.op = op
@@ -32,10 +34,12 @@ class Node:
         self.golden = [0] * vl
         self.random_gen()
         self.compute()
+
     def random_gen(self):
         for i in range(vl):
             self.data1[i] = random.randint(0, 0xff)
             self.data2[i] = random.randint(0, 0xff)
+
     def C_write(self, fd):
         def specific_operator_C():
             if self.op != None:
@@ -43,6 +47,10 @@ class Node:
                     case 'vadd':
                         return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
                     case 'vsub':
+                        return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
+                    case 'vmul':
+                        return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
+                    case 'vdiv':
                         return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
             # todo: generate all the operate by default
             # else:
@@ -92,6 +100,8 @@ class Node:
         op_list = {
             "vadd": operator_py_function.add_op,
             "vsub": operator_py_function.sub_op,
+            "vmul": operator_py_function.mul_op,
+            "vdiv": operator_py_function.div_op
         }
         for i in range(vl):
             self.golden[i] = op_list[op](self.data1[i], self.data2[i])
