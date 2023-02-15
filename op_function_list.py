@@ -226,7 +226,7 @@ def single_width_right_shift_logical_sew64(self):
         return
     else:
         if self.immediate:
-            uimm = immediate & 0b111111
+            uimm = self.immediate & 0b111111
             self.val = self.input_ops[0].val >> uimm
         else:
             shift = self.input_ops[1] & 0b111111
@@ -345,7 +345,7 @@ def narrowing_width_right_shift_logical_sew64(self):
         return
     else:
         if self.immediate:
-            uimm = immediate & 0b111111
+            uimm = self.immediate & 0b111111
             self.val = self.input_ops[0].val >> uimm & 0b11111
         else:
             shift = self.input_ops[1] & 0b111111

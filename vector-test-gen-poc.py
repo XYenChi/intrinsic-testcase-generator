@@ -58,7 +58,7 @@ class Node:
         if random_immediate:
             self.immediate_bit = None
             self.immediate_sign = None
-            self.immediate = random_randint(0, 4095)  # set 12 bit immediate as default
+            self.immediate = random.randint(0, 4095)  # set 12 bit immediate as default
         else:
             return
 

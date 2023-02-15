@@ -1,6 +1,7 @@
 """
 Generate execute file by operator
 """
+import operator_py_function
 import random
 import sys
 
@@ -17,12 +18,6 @@ IntegerOpList = ['vadc', 'vadd', 'vand', 'vdiv', 'vdivu', 'vmacc', 'vmadc', 'vma
                  'vnsrl', 'vor', 'vrem', 'vremu', 'vrsub', 'vsbc', 'vsext', 'vsll', 'vsra', 'vsrl', 'vsub', 'vwadd',
                  'vwaddu', 'vwmacc', 'vwmaccsu', 'vwmaccu', 'vwmaccus', 'vwmul', 'vwmulsu', 'vwmulu', 'vwsub', 'vwsubu',
                  'vxor', 'vzext']
-
-
-def add_op(a, b):
-    return a + b
-
-
 class Node:
     def __init__(self):
         self.op = op
@@ -43,19 +38,23 @@ class Node:
             self.data2[i] = random.randint(0, 0xff)
     def C_write(self, fd):
         def specific_operator_C():
-            if op != None:
-                match op:
-                    case vadd:
+            if self.op != None:
+                match self.op:
+                    case 'vadd':
                         return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
-                    # case vadc:
-                    #    ;
+                    case 'vsub':
+                        return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
+            # todo: generate all the operate by default
+            # else:
+            #    for op in IntegerOpList:
+            #        return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
 
         fd.write("/* { dg-do run } */\n")
         fd.write("/* { dg-options \"-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2\" } */\n")
         fd.write("#include <stdlib.h>\n")
         fd.write("#include <stdio.h>\n")
         fd.write("#include <string.h>\n")
-        fd.write("#include <riscv_vector.h>\n")
+        fd.write("#include \"riscv_vector.h\"\n")
         fd.write("int main(){\n")
         fd.write("    int data1[] = {\n")
         fd.write("  %s\n" % ", ".join(map(lambda x: str(x), self.data1)))
@@ -67,7 +66,6 @@ class Node:
         fd.write("  int out_data[%d];\n" % (vl))
         fd.write("  int *out = &out_data[0];\n")
         fd.write("  for (int n = %d, Q_element = 4;n >= 0; n -= Q_element) {\n" % vl)
-
         fd.write(specific_operator_C())
         fd.write("    in1 += Q_element;\n")
         fd.write("    out += Q_element;\n")
@@ -76,23 +74,24 @@ class Node:
         fd.write("  %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
         fd.write("  };\n")
         fd.write("  int fail = 0;\n")
-        fd.write("  for (int i = 0; i < %d; ++i)\n" % (vl))
+        fd.write("  for (int i = 0; i < %d; i++)\n" % vl)
         fd.write("     if (golden0[i] != out0_data[i]) {\n")
         fd.write("       printf (\"idx=%d golden=%d out=%d\\n\", i, golden0[i], out0[i]);\n")
         fd.write("       fail++;\n")
         fd.write("     }\n")
         fd.write("  if (fail) {\n")
-        fd.write("    printf(\"FAIL\\n\");\n")
+        # fd.write("    printf(\"FAIL\\n\");\n")
         fd.write("    return 1;\n")
         fd.write("  } else {\n")
-        fd.write("    printf(\"PASS\\n\");\n")
+        # fd.write("    printf(\"PASS\\n\");\n")
         fd.write("    return 0;\n")
         fd.write("  }\n")
         fd.write("}\n")
 
     def compute(self):
         op_list = {
-            "vadd": add_op
+            "vadd": operator_py_function.add_op,
+            "vsub": operator_py_function.sub_op,
         }
         for i in range(vl):
             self.golden[i] = op_list[op](self.data1[i], self.data2[i])
@@ -103,4 +102,5 @@ for suffix in _suffix:
         filename = "%s_v%s_i%s.c" % (op, vx, suffix)
         with open(filename, 'w') as fd:
             a.random_gen()
+            a.compute()
             a.C_write(fd)
