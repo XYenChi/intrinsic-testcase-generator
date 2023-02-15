@@ -52,6 +52,12 @@ class Node:
                         return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
                     case 'vdiv':
                         return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
+                    case 'vmax':
+                        return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
+                    case 'vmin':
+                        return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
+                    case 'vrem':
+                        return "    vint%s_t out = __riscv_%s_v%s_i%s (data1, data2);\n" % (suffix, op, vx, suffix)
             # todo: generate all the operate by default
             # else:
             #    for op in IntegerOpList:
@@ -101,7 +107,10 @@ class Node:
             "vadd": operator_py_function.add_op,
             "vsub": operator_py_function.sub_op,
             "vmul": operator_py_function.mul_op,
-            "vdiv": operator_py_function.div_op
+            "vdiv": operator_py_function.div_op,
+            "vmax": operator_py_function.max_op,
+            "vmin": operator_py_function.min_op,
+            "vrem": operator_py_function.reminder
         }
         for i in range(vl):
             self.golden[i] = op_list[op](self.data1[i], self.data2[i])
