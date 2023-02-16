@@ -32,6 +32,7 @@ class Node:
         self.masked = [0] * vl
         self.data1 = [0] * vl
         self.data2 = [0] * vl
+        self.vd_default =[0] * vl
         self.out = []
         self.val = None
         self.golden = [0] * vl
@@ -69,7 +70,7 @@ class Node:
         fd.write("        in1 += Q_element;\n")
         fd.write("        in2 += Q_element;\n")
         fd.write("        out += Q_element;\n")
-        fd.write("  }\n")
+        fd.write("      }\n")
 
     def report_write(self):
         fd.write("    int fail = 0;\n")
@@ -91,6 +92,7 @@ class Node:
         for i in range(vl):
             self.data1[i] = random.randint(0, 0xff)
             self.data2[i] = random.randint(0, 0xff)
+            self.vd_default[i] = random.randint(0, 0xff)
 
     def mask_gen(self):
         for i in range(vl):
@@ -116,7 +118,11 @@ class Node:
     def vd_declaration_write(self):
         fd.write("    vint%s_t out_data[%s];\n" % (suffix, vl))
         fd.write("    vint%s_t *out = &out_data[0];\n" % suffix)
-
+    def vd_default_write(self):
+        fd.write("    vint%s_t out_data[] = {\n" % suffix)
+        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
+        fd.write("    };\n")
+        fd.write("    vint%s_t *out = &out_data[0];\n" % suffix)
     def mask_data_write(self):
         # todo: mask type
         fd.write("    int masked[] = {\n")
@@ -168,9 +174,7 @@ class Node:
                 self.golden[i] = op_list[op](self.data1[i], self.data2[i])
         else:
             for i in range(vl):
-                self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.masked[i])
-
-
+                self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
 a = Node()
 a.op = op
 for suffix in _suffix:
@@ -180,6 +184,7 @@ for suffix in _suffix:
             with open(filename, 'w') as fd:
                 if mask != '_m':
                     a.mask = 1
+                    # don't hava mask
                     a.compiler_option_write()
                     a.c_header_file_write()
                     a.c_main_entry_write()
@@ -196,13 +201,15 @@ for suffix in _suffix:
                     a.report_write()
                 else:
                     a.mask = 0
+                    # mask and have v0.mask[i] value
                     a.compiler_option_write()
                     a.c_header_file_write()
                     a.c_main_entry_write()
                     a.random_gen()
                     a.vs2_data_write()
                     a.vs1_data_write()
-                    a.vd_declaration_write()
+                    a.vd_default_write()
+                    # set vd default value if v0.mask[i] = 0, golden = default
                     a.mask_gen()
                     a.mask_data_write()
                     a.pointer_iterator_write()
