@@ -74,8 +74,8 @@ class Node:
     def report_write(self):
         fd.write("    int fail = 0;\n")
         fd.write("    for (int i = 0; i < %d; i++)\n" % vl)
-        fd.write("        if (golden0[i] != out0_data[i]) {\n")
-        fd.write("            printf (\"idx=%d golden=%d out=%d\\n\", i, golden0[i], out0[i]);\n")
+        fd.write("        if (golden[i] != out_data[i]) {\n")
+        fd.write("            printf (\"idx=%d golden=%d out=%d\\n\", i, golden[i], out[i]);\n")
         fd.write("            fail++;\n")
         fd.write("            }\n")
         fd.write("    if (fail) {\n")
@@ -102,29 +102,30 @@ class Node:
                 self.masked[i] = random.randint(0, 1)
 
     def vs2_data_write(self):
-        fd.write("    int data1[] = {\n")
+        fd.write("    vint%s_t data1[] = {\n" % suffix)
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data1)))
         fd.write("    };\n")
-        fd.write("    const int *in1 = &data1[0];\n")
+        fd.write("    const vint%s_t *in1 = &data1[0];\n" % suffix)
 
     def vs1_data_write(self):
-        fd.write("    int data2[] = {\n")
+        fd.write("    vint%s_t data2[] = {\n" % suffix)
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data2)))
         fd.write("    };\n")
-        fd.write("    const int *in2 = &data2[0];\n")
+        fd.write("    const vint%s_t *in2 = &data2[0];\n" % suffix)
 
     def vd_declaration_write(self):
-        fd.write("    int out_data[%s];\n" % vl)
-        fd.write("    int *out = &out_data[0];\n")
+        fd.write("    vint%s_t out_data[%s];\n" % (suffix, vl))
+        fd.write("    vint%s_t *out = &out_data[0];\n" % suffix)
 
     def mask_data_write(self):
+        # todo: mask type
         fd.write("    int masked[] = {\n")
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.masked)))
         fd.write("    };\n")
         fd.write("    const int *mask = &masked[0];\n")
 
     def golden_by_python_write(self):
-        fd.write("   int golden[] = {\n")
+        fd.write("   vint%s_t golden[] = {\n" % suffix)
         fd.write("   %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
         fd.write("   };\n")
 
@@ -158,10 +159,16 @@ class Node:
             "vdiv": operator_py_function.div_op,
             "vmax": operator_py_function.max_op,
             "vmin": operator_py_function.min_op,
-            "vrem": operator_py_function.reminder
+            "vrem": operator_py_function.reminder,
+            "vadc": operator_py_function.add_with_carry_op,
+            "vsbc": operator_py_function.sub_with_borrow_op
         }
-        for i in range(vl):
-            self.golden[i] = op_list[op](self.data1[i], self.data2[i])
+        if self.mask:
+            for i in range(vl):
+                self.golden[i] = op_list[op](self.data1[i], self.data2[i])
+        else:
+            for i in range(vl):
+                self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.masked[i])
 
 
 a = Node()
@@ -169,7 +176,7 @@ a.op = op
 for suffix in _suffix:
     for vx in _vx:
         for mask in _mask:
-            filename = "%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
+            filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
             with open(filename, 'w') as fd:
                 if mask != '_m':
                     a.mask = 1
