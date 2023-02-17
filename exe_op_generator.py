@@ -55,9 +55,10 @@ class Node:
     def pointer_iterator_write(self):
         fd.write("    for (int n = %d, Q_element = 4;n >= 0; n -= Q_element) {\n" % vl)
 
-    def intrinsic_parameter_write(self):
+    def intrinsic_data_write(self):
         fd.write("data1, data2")
-        fd.write(", %s);\n" % vl)
+    def intrinsic_vl_write(self):
+        fd.write("%s);\n" % vl)
 
     def jump_to_next_write_mask(self):
         fd.write("        in1 += Q_element;\n")
@@ -152,6 +153,12 @@ class Node:
                     fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
                 case 'vrem':
                     fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
+                case 'vadc':
+                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
+                case 'vsbc':
+                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
+                case 'vmerge':
+                    fd.write("        vint%s_t out = __riscv_%s_vv%s_i%s%s (" % (suffix, op, vx, suffix, mask))
         # todo: generate all the operate by default
         # else:
         #    for op in IntegerOpList:
@@ -160,6 +167,7 @@ class Node:
     def compute(self):
         op_list = {
             "vadd": operator_py_function.add_op,
+            "vand": operator_py_function.and_op,
             "vsub": operator_py_function.sub_op,
             "vmul": operator_py_function.mul_op,
             "vdiv": operator_py_function.div_op,
@@ -167,56 +175,92 @@ class Node:
             "vmin": operator_py_function.min_op,
             "vrem": operator_py_function.reminder,
             "vadc": operator_py_function.add_with_carry_op,
-            "vsbc": operator_py_function.sub_with_borrow_op
+            "vsbc": operator_py_function.sub_with_borrow_op,
+            "vmerge": operator_py_function.merge_op
         }
         if self.mask:
             for i in range(vl):
                 self.golden[i] = op_list[op](self.data1[i], self.data2[i])
         else:
-            for i in range(vl):
-                self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
+            if op == 'vmerge':
+                for i in range(vl):
+                    self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.masked[i])
+            else:
+                for i in range(vl):
+                    self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
 a = Node()
 a.op = op
 for suffix in _suffix:
     for vx in _vx:
         for mask in _mask:
             filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
-            with open(filename, 'w') as fd:
-                if mask != '_m':
-                    a.mask = 1
-                    # don't hava mask
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
-                    a.random_gen()
-                    a.vs2_data_write()
-                    a.vs1_data_write()
-                    a.vd_declaration_write()
-                    a.pointer_iterator_write()
-                    a.specific_operator_c()
-                    a.intrinsic_parameter_write()
-                    a.jump_to_next_write_wo_mask()
-                    a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
+            if mask != '_m':
+                with open(filename, 'w') as fd:
+                    if op == 'vmerge':
+                        a.mask = 0
+                        # mask and have v0.mask[i] value
+                        a.compiler_option_write()
+                        a.c_header_file_write()
+                        a.c_main_entry_write()
+                        a.random_gen()
+                        a.vs2_data_write()
+                        a.vs1_data_write()
+                        a.mask_gen()
+                        a.mask_data_write()
+                        a.pointer_iterator_write()
+                        a.specific_operator_c()
+                        a.intrinsic_data_write()
+                        fd.write(", mask, ")
+                        a.intrinsic_vl_write()
+                        fd.write(")")
+                        a.jump_to_next_write_mask()
+                        a.compute()
+                        a.golden_by_python_write()
+                        a.report_write()
+                    else:
+                        a.mask = 1
+                        # don't hava mask
+                        a.compiler_option_write()
+                        a.c_header_file_write()
+                        a.c_main_entry_write()
+                        a.random_gen()
+                        a.vs2_data_write()
+                        a.vs1_data_write()
+                        a.vd_declaration_write()
+                        a.pointer_iterator_write()
+                        a.specific_operator_c()
+                        a.intrinsic_data_write()
+                        fd.write(", ")
+                        a.intrinsic_vl_write()
+                        fd.write(")")
+                        a.jump_to_next_write_wo_mask()
+                        a.compute()
+                        a.golden_by_python_write()
+                        a.report_write()
+            else:
+                if op == 'vmerge':
+                    break
                 else:
-                    a.mask = 0
-                    # mask and have v0.mask[i] value
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
-                    a.random_gen()
-                    a.vs2_data_write()
-                    a.vs1_data_write()
-                    a.vd_default_write()
-                    # set vd default value if v0.mask[i] = 0, golden = default
-                    a.mask_gen()
-                    a.mask_data_write()
-                    a.pointer_iterator_write()
-                    a.specific_operator_c()
-                    fd.write("mask, ")
-                    a.intrinsic_parameter_write()
-                    a.jump_to_next_write_mask()
-                    a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
+                    with open(filename, 'w') as fd:
+                        a.mask = 0
+                        # mask and have v0.mask[i] value
+                        a.compiler_option_write()
+                        a.c_header_file_write()
+                        a.c_main_entry_write()
+                        a.random_gen()
+                        a.vs2_data_write()
+                        a.vs1_data_write()
+                        a.vd_default_write()
+                        # set vd default value if v0.mask[i] = 0, golden = default
+                        a.mask_gen()
+                        a.mask_data_write()
+                        a.pointer_iterator_write()
+                        a.specific_operator_c()
+                        fd.write(", mask, ")
+                        a.intrinsic_data_write()
+                        a.intrinsic_vl_write()
+                        fd.write(")")
+                        a.jump_to_next_write_mask()
+                        a.compute()
+                        a.golden_by_python_write()
+                        a.report_write()

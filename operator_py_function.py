@@ -66,3 +66,18 @@ def sub_with_borrow_op(a, b, c=None, m=None):
         return a - b - m
     else:
         return a - b
+
+
+def and_op(a, b, c=None, m=None):
+    if m == 0:
+        return c
+    else:
+        return a and b
+
+
+def merge_op(a, b, m):
+    # always should be masked
+    if m == 0:
+        return a
+    else:
+        return b
