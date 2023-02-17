@@ -32,7 +32,7 @@ class Node:
         self.masked = [0] * vl
         self.data1 = [0] * vl
         self.data2 = [0] * vl
-        self.vd_default =[0] * vl
+        self.vd_default = [0] * vl
         self.out = []
         self.val = None
         self.golden = [0] * vl
@@ -131,9 +131,9 @@ class Node:
         fd.write("    const int *mask = &masked[0];\n")
 
     def golden_by_python_write(self):
-        fd.write("   vint%s_t golden[] = {\n" % suffix)
-        fd.write("   %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
-        fd.write("   };\n")
+        fd.write("    vint%s_t golden[] = {\n" % suffix)
+        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
+        fd.write("    };\n")
 
     def specific_operator_c(self):
         if self.op is not None:
