@@ -4,9 +4,15 @@ Generate execute file by operator
 import operator_py_function
 import random
 import sys
+import math
+
+# ELEN = 64 bit
+# the SEW (min) = 8 bit
+# VLMAX = 512 bit
 
 op = sys.argv[1]
-vl = 64
+
+ELEN = 64
 _vx = ['v', 'x']
 _suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
            '16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
@@ -29,13 +35,13 @@ class Node:
         self.mask = None
         # If _mask = '_m', vm = 0, masked, calculate if mask array[i] = 1
         self.sign = None
-        self.masked = [0] * vl
-        self.data1 = [0] * vl
-        self.data2 = [0] * vl
-        self.vd_default = [0] * vl
+        self.masked = [0] * ELEN
+        self.data1 = [0] * ELEN
+        self.data2 = [0] * ELEN
+        self.vd_default = [0] * ELEN
         self.out = []
         self.val = None
-        self.golden = [0] * vl
+        self.golden = [0] * ELEN
         self.random_gen()
         self.compute()
 
@@ -53,12 +59,12 @@ class Node:
         fd.write("int main(){\n")
 
     def pointer_iterator_write(self):
-        fd.write("    for (int n = %d, Q_element = 4;n >= 0; n -= Q_element) {\n" % vl)
+        fd.write("    for (int n = %d, Q_element = 4;n >= 0; n -= Q_element) {\n" % ELEN)
 
     def intrinsic_data_write(self):
         fd.write("data1, data2")
-    def intrinsic_vl_write(self):
-        fd.write("%s);\n" % vl)
+    def intrinsic_ELEN_write(self):
+        fd.write("%s" % ELEN)
 
     def jump_to_next_write_mask(self):
         fd.write("        in1 += Q_element;\n")
@@ -75,11 +81,12 @@ class Node:
 
     def report_write(self):
         fd.write("    int fail = 0;\n")
-        fd.write("    for (int i = 0; i < %d; i++)\n" % vl)
+        fd.write("    for (int i = 0; i < %d; i++){\n" % ELEN)
         fd.write("        if (golden[i] != out_data[i]) {\n")
         fd.write("            printf (\"idx=%d golden=%d out=%d\\n\", i, golden[i], out[i]);\n")
         fd.write("            fail++;\n")
         fd.write("            }\n")
+        fd.write("        }\n")
         fd.write("    if (fail) {\n")
         # fd.write("    printf(\"FAIL\\n\");\n")
         fd.write("        return 1;\n")
@@ -87,16 +94,16 @@ class Node:
         # fd.write("    printf(\"PASS\\n\");\n")
         fd.write("        return 0;\n")
         fd.write("    }\n")
-        fd.write("}\n")
+
 
     def random_gen(self):
-        for i in range(vl):
+        for i in range(ELEN):
             self.data1[i] = random.randint(0, 0xff)
             self.data2[i] = random.randint(0, 0xff)
             self.vd_default[i] = random.randint(0, 0xff)
 
     def mask_gen(self):
-        for i in range(vl):
+        for i in range(ELEN):
             if self.mask:
                 # if vm = 1, no matter what v0.mask[i] is equal to, calculate will continue, so do nothing and return.
                 self.masked[i] = 1
@@ -117,7 +124,7 @@ class Node:
         fd.write("    const vint%s_t *in2 = &data2[0];\n" % suffix)
 
     def vd_declaration_write(self):
-        fd.write("    vint%s_t out_data[%s];\n" % (suffix, vl))
+        fd.write("    vint%s_t out_data[%s];\n" % (suffix, ELEN))
         fd.write("    vint%s_t *out = &out_data[0];\n" % suffix)
     def vd_default_write(self):
         fd.write("    vint%s_t out_data[] = {\n" % suffix)
@@ -179,14 +186,14 @@ class Node:
             "vmerge": operator_py_function.merge_op
         }
         if self.mask:
-            for i in range(vl):
+            for i in range(ELEN):
                 self.golden[i] = op_list[op](self.data1[i], self.data2[i])
         else:
             if op == 'vmerge':
-                for i in range(vl):
+                for i in range(ELEN):
                     self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.masked[i])
             else:
-                for i in range(vl):
+                for i in range(ELEN):
                     self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
 a = Node()
 a.op = op
@@ -211,8 +218,8 @@ for suffix in _suffix:
                         a.specific_operator_c()
                         a.intrinsic_data_write()
                         fd.write(", mask, ")
-                        a.intrinsic_vl_write()
-                        fd.write(")")
+                        a.intrinsic_ELEN_write()
+                        fd.write(");\n")
                         a.jump_to_next_write_mask()
                         a.compute()
                         a.golden_by_python_write()
@@ -231,8 +238,8 @@ for suffix in _suffix:
                         a.specific_operator_c()
                         a.intrinsic_data_write()
                         fd.write(", ")
-                        a.intrinsic_vl_write()
-                        fd.write(")")
+                        a.intrinsic_ELEN_write()
+                        fd.write(");\n")
                         a.jump_to_next_write_wo_mask()
                         a.compute()
                         a.golden_by_python_write()
@@ -258,8 +265,8 @@ for suffix in _suffix:
                         a.specific_operator_c()
                         fd.write(", mask, ")
                         a.intrinsic_data_write()
-                        a.intrinsic_vl_write()
-                        fd.write(")")
+                        a.intrinsic_ELEN_write()
+                        fd.write(");\n")
                         a.jump_to_next_write_mask()
                         a.compute()
                         a.golden_by_python_write()
