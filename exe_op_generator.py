@@ -6,12 +6,10 @@ import random
 import sys
 import math
 
-# ELEN = 64 bit
-# the SEW (min) = 8 bit
-# VLMAX = 512 bit
+# set VLEN as 64 bit
 
 op = sys.argv[1]
-
+Q_array = 16
 ELEN = 64
 _vx = ['v', 'x']
 _suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
@@ -26,24 +24,39 @@ IntegerOpList = ['vadc', 'vadd', 'vand', 'vdiv', 'vdivu', 'vmacc', 'vmadc', 'vma
                  'vwaddu', 'vwmacc', 'vwmaccsu', 'vwmaccu', 'vwmaccus', 'vwmul', 'vwmulsu', 'vwmulu', 'vwsub', 'vwsubu',
                  'vxor', 'vzext']
 
+lmul_dict = {'1': 1, '2': 2, '4': 4, '8': 8, 'f2': 0.5, 'f4': 0.25, 'f8': 0.125}
+
 
 class Node:
     def __init__(self):
         self.op = op
-        self.lmul = ['1', '2', '4', '8', 'f2', 'f4', 'f8']
-        self.sew = ['8', '16', '32', '64']
+        self.lmul = 0.0
+        self.sew = 8
         self.mask = None
         # If _mask = '_m', vm = 0, masked, calculate if mask array[i] = 1
         self.sign = None
-        self.masked = [0] * ELEN
-        self.data1 = [0] * ELEN
-        self.data2 = [0] * ELEN
-        self.vd_default = [0] * ELEN
-        self.out = []
+        self.dynamic_arrayQuantity_elementRange()
+        self.Q_A_E = 64
+        self.Range = 1
+        self.masked = [0] * self.Q_A_E
+        self.data1 = [0] * self.Q_A_E
+        self.data2 = [0] * self.Q_A_E
+        self.vd_default = [0] * self.Q_A_E
+        self.out = [0] * self.Q_A_E
         self.val = None
-        self.golden = [0] * ELEN
+        self.golden = [0] * self.Q_A_E
         self.random_gen()
         self.compute()
+
+    def dynamic_arrayQuantity_elementRange(self):
+        self.Q_A_E = int(128 * self.lmul / self.sew)
+        # quantity of array element
+        self.Range = pow(2, self.sew)
+        self.masked = [0] * self.Q_A_E
+        self.data1 = [0] * self.Q_A_E
+        self.data2 = [0] * self.Q_A_E
+        self.vd_default = [0] * self.Q_A_E
+        self.golden = [0] * self.Q_A_E
 
     def compiler_option_write(self):
         fd.write("/* { dg-do run } */\n")
@@ -59,10 +72,11 @@ class Node:
         fd.write("int main(){\n")
 
     def pointer_iterator_write(self):
-        fd.write("    for (int n = %d, Q_element = 4;n >= 0; n -= Q_element) {\n" % ELEN)
+        fd.write("    for (int n = %d, Q_element = %s;n >= 0; n -= Q_element) {\n" % (a.Q_A_E, a.sew))
 
     def intrinsic_data_write(self):
         fd.write("data1, data2")
+
     def intrinsic_ELEN_write(self):
         fd.write("%s" % ELEN)
 
@@ -81,7 +95,7 @@ class Node:
 
     def report_write(self):
         fd.write("    int fail = 0;\n")
-        fd.write("    for (int i = 0; i < %d; i++){\n" % ELEN)
+        fd.write("    for (int i = 0; i < %d; i++){\n" % self.Q_A_E)
         fd.write("        if (golden[i] != out_data[i]) {\n")
         fd.write("            printf (\"idx=%d golden=%d out=%d\\n\", i, golden[i], out[i]);\n")
         fd.write("            fail++;\n")
@@ -94,16 +108,16 @@ class Node:
         # fd.write("    printf(\"PASS\\n\");\n")
         fd.write("        return 0;\n")
         fd.write("    }\n")
-
+        fd.write("}\n")
 
     def random_gen(self):
-        for i in range(ELEN):
-            self.data1[i] = random.randint(0, 0xff)
-            self.data2[i] = random.randint(0, 0xff)
-            self.vd_default[i] = random.randint(0, 0xff)
+        for i in range(self.Q_A_E):
+            self.data1[i] = random.randint(0, self.Range)
+            self.data2[i] = random.randint(0, self.Range)
+            self.vd_default[i] = random.randint(0, self.Range)
 
     def mask_gen(self):
-        for i in range(ELEN):
+        for i in range(self.Q_A_E):
             if self.mask:
                 # if vm = 1, no matter what v0.mask[i] is equal to, calculate will continue, so do nothing and return.
                 self.masked[i] = 1
@@ -126,11 +140,13 @@ class Node:
     def vd_declaration_write(self):
         fd.write("    vint%s_t out_data[%s];\n" % (suffix, ELEN))
         fd.write("    vint%s_t *out = &out_data[0];\n" % suffix)
+
     def vd_default_write(self):
         fd.write("    vint%s_t out_data[] = {\n" % suffix)
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
         fd.write("    };\n")
         fd.write("    vint%s_t *out = &out_data[0];\n" % suffix)
+
     def mask_data_write(self):
         # todo: mask type
         fd.write("    int masked[] = {\n")
@@ -186,18 +202,24 @@ class Node:
             "vmerge": operator_py_function.merge_op
         }
         if self.mask:
-            for i in range(ELEN):
+            for i in range(self.Q_A_E):
                 self.golden[i] = op_list[op](self.data1[i], self.data2[i])
         else:
             if op == 'vmerge':
-                for i in range(ELEN):
+                for i in range(self.Q_A_E):
                     self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.masked[i])
             else:
-                for i in range(ELEN):
+                for i in range(self.Q_A_E):
                     self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
+
+
 a = Node()
 a.op = op
 for suffix in _suffix:
+    divider = suffix.split('m')
+    a.sew = int(divider[0])
+    a.lmul = lmul_dict["%s" % divider[1]]
+    a.dynamic_arrayQuantity_elementRange()
     for vx in _vx:
         for mask in _mask:
             filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
