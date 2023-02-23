@@ -5,27 +5,31 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint16m4_t data1[] = {
-    35406, 16834, 24049, 36123, 3119, 31912, 50216, 37573, 37711, 35104, 35570, 24290, 42759, 5774, 29020, 27592, 51004, 33378, 12894, 25167, 9650, 59254, 20032, 58925, 63919, 13735, 18824, 2231, 5620, 55282, 9527, 32937
+    const int16_t data1[] = {
+    146, 198, 242, 1, 142, 71, 138, 231, 186, 212, 78, 25, 168, 147, 91, 118
     };
-    const vint16m4_t *in1 = &data1[0];
-    vint16m4_t data2[] = {
-    17292, 28021, 56755, 33111, 28175, 63957, 33502, 40621, 50717, 30880, 18478, 62923, 64044, 61680, 1912, 19555, 42782, 13576, 34349, 34979, 1817, 13453, 41269, 3335, 36676, 36118, 33508, 2440, 29998, 49372, 44198, 34859
+    const int16_t *in1 = &data1[0];
+    const int16_t data2[] = {
+    74, 107, 206, 153, 23, 48, 189, 72, 206, 174, 93, 110, 87, 54, 122, 109
     };
-    const vint16m4_t *in2 = &data2[0];
-    vint16m4_t out_data[64];
-    vint16m4_t *out = &out_data[0];
-    for (int n = 32, Q_element = 16;n >= 0; n -= Q_element) {
-        vint16m4_t out = __riscv_vadd_vx_i16m4 (data1, data2, 64);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
+    const int16_t *in2 = &data2[0];
+    const int16_t out_data[16];
+    int16_t *out = &out_data[0];
+    vint16m4_t __riscv_vle16_v_i16m4 (*in1, vl);
+    vint16m4_t __riscv_vle16_v_i16m4 (*in2, vl);
+    vint16m4_t __riscv_vle16_v_i16m4 (*out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        vint16m4_t out_data = __riscv_vadd_vx_i16m4 (data1, data2, vl)
+        vint16m4_t __riscv_vse16_v_i16m4 (out, out_data, vl);
+        in1 += 2;
+        in2 += 2;
+        out += 2;
       }
-    vint16m4_t golden[] = {
-    52698, 44855, 80804, 69234, 31294, 95869, 83718, 78194, 88428, 65984, 54048, 87213, 106803, 67454, 30932, 47147, 93786, 46954, 47243, 60146, 11467, 72707, 61301, 62260, 100595, 49853, 52332, 4671, 35618, 104654, 53725, 67796
+    int16_t golden[] = {
+    220, 305, 448, 154, 165, 119, 327, 303, 392, 386, 171, 135, 255, 201, 213, 227
     };
     int fail = 0;
-    for (int i = 0; i < 32; i++){
+    for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
             printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;

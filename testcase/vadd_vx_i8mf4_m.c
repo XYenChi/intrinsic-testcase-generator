@@ -5,34 +5,35 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint8mf4_t data1[] = {
-    170, 63, 200, 243
+    const int8_t data1[] = {
+    193, 49, 173, 94, 160, 8, 199, 98, 30, 218, 16, 14, 42, 133, 21, 32
     };
-    const vint8mf4_t *in1 = &data1[0];
-    vint8mf4_t data2[] = {
-    233, 241, 14, 62
+    const int8_t *in1 = &data1[0];
+    const int8_t data2[] = {
+    92, 215, 135, 23, 246, 140, 118, 210, 11, 85, 121, 5, 200, 231, 239, 228
     };
-    const vint8mf4_t *in2 = &data2[0];
-    vint8mf4_t out_data[] = {
-    115, 182, 208, 140
+    const int8_t *in2 = &data2[0];
+    const int out_data[] = {
+    96, 139, 34, 39, 67, 221, 185, 133, 196, 83, 3, 217, 137, 160, 247, 16
     };
-    vint8mf4_t *out = &out_data[0];
-    int masked[] = {
-    0, 0, 1, 1
+    int8_t *out = &out_data[0];
+    bool32_t masked[] = {
+    1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1
     };
     const int *mask = &masked[0];
-    for (int n = 4, Q_element = 8;n >= 0; n -= Q_element) {
-        vint8mf4_t out = __riscv_vadd_vx_i8mf4_m (, mask, data1, data264);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
-        mask += Q_element;
+    for (size_t n = 0; n < vl; n++) {
+        vint8mf4_t out_data = __riscv_vadd_vx_i8mf4_m (mask, data1, data2, vl)
+        vint8mf4_t __riscv_vse8_v_i8mf4 (out, out_data, vl);
+        in1 += 1;
+        in2 += 1;
+        out += 1;
+        mask += 1;
       }
-    vint8mf4_t golden[] = {
-    115, 182, 214, 305
+    int8_t golden[] = {
+    285, 139, 308, 39, 406, 221, 317, 308, 41, 303, 3, 217, 242, 160, 247, 260
     };
     int fail = 0;
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
             printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;

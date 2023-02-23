@@ -5,27 +5,31 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint32mf2_t data1[] = {
-    3295246541, 1210375608
+    const int32_t data1[] = {
+    144, 28, 37, 119, 107, 189, 248, 155, 26, 185, 207, 64, 119, 7, 0, 38
     };
-    const vint32mf2_t *in1 = &data1[0];
-    vint32mf2_t data2[] = {
-    2764740484, 2768135754
+    const int32_t *in1 = &data1[0];
+    const int32_t data2[] = {
+    237, 21, 158, 78, 118, 61, 141, 82, 238, 43, 21, 179, 122, 226, 78, 163
     };
-    const vint32mf2_t *in2 = &data2[0];
-    vint32mf2_t out_data[64];
-    vint32mf2_t *out = &out_data[0];
-    for (int n = 2, Q_element = 32;n >= 0; n -= Q_element) {
-        vint32mf2_t out = __riscv_vadd_vx_i32mf2 (data1, data2, 64);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
+    const int32_t *in2 = &data2[0];
+    const int32_t out_data[16];
+    int32_t *out = &out_data[0];
+    vint32mf2_t __riscv_vle32_v_i32mf2 (*in1, vl);
+    vint32mf2_t __riscv_vle32_v_i32mf2 (*in2, vl);
+    vint32mf2_t __riscv_vle32_v_i32mf2 (*out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        vint32mf2_t out_data = __riscv_vadd_vx_i32mf2 (data1, data2, vl)
+        vint32mf2_t __riscv_vse32_v_i32mf2 (out, out_data, vl);
+        in1 += 4;
+        in2 += 4;
+        out += 4;
       }
-    vint32mf2_t golden[] = {
-    6059987025, 3978511362
+    int32_t golden[] = {
+    381, 49, 195, 197, 225, 250, 389, 237, 264, 228, 228, 243, 241, 233, 78, 201
     };
     int fail = 0;
-    for (int i = 0; i < 2; i++){
+    for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
             printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;

@@ -5,27 +5,31 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint64m4_t data1[] = {
-    803728058175116839, 16557356224835718339, 3314008865496244769, 14699139361371009495, 4777175589570938654, 13427652389236093135, 18384462301016585392, 1096902810830761411
+    const int64_t data1[] = {
+    253, 179, 253, 86, 91, 72, 33, 119, 58, 225, 251, 105, 41, 88, 102, 47
     };
-    const vint64m4_t *in1 = &data1[0];
-    vint64m4_t data2[] = {
-    3882246278816744857, 5078226604405341595, 410441075272639299, 17542915600458059542, 12142308544888939191, 8005979582724269866, 15213817894855559839, 5527952740670863199
+    const int64_t *in1 = &data1[0];
+    const int64_t data2[] = {
+    245, 124, 104, 252, 5, 68, 157, 56, 151, 254, 36, 135, 39, 250, 96, 193
     };
-    const vint64m4_t *in2 = &data2[0];
-    vint64m4_t out_data[64];
-    vint64m4_t *out = &out_data[0];
-    for (int n = 8, Q_element = 64;n >= 0; n -= Q_element) {
-        vint64m4_t out = __riscv_vadd_vv_i64m4 (data1, data2, 64);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
+    const int64_t *in2 = &data2[0];
+    const int64_t out_data[16];
+    int64_t *out = &out_data[0];
+    vint64m4_t __riscv_vle64_v_i64m4 (*in1, vl);
+    vint64m4_t __riscv_vle64_v_i64m4 (*in2, vl);
+    vint64m4_t __riscv_vle64_v_i64m4 (*out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        vint64m4_t out_data = __riscv_vadd_vv_i64m4 (data1, data2, vl)
+        vint64m4_t __riscv_vse64_v_i64m4 (out, out_data, vl);
+        in1 += 8;
+        in2 += 8;
+        out += 8;
       }
-    vint64m4_t golden[] = {
-    4685974336991861696, 21635582829241059934, 3724449940768884068, 32242054961829069037, 16919484134459877845, 21433631971960363001, 33598280195872145231, 6624855551501624610
+    int64_t golden[] = {
+    498, 303, 357, 338, 96, 140, 190, 175, 209, 479, 287, 240, 80, 338, 198, 240
     };
     int fail = 0;
-    for (int i = 0; i < 8; i++){
+    for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
             printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;

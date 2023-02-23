@@ -5,24 +5,28 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint32m4_t data1[] = {
-    463289557, 3429950133, 2412298634, 717069797, 3697040954, 3214749948, 1621855625, 3076175476, 3656829032, 170869000, 1425864654, 4102813583, 1936549277, 1897519853, 3047783856, 227833134
+    const int32_t data1[] = {
+    97, 80, 86, 76, 111, 13, 231, 211, 127, 64, 13, 82, 137, 170, 61, 79
     };
-    const vint32m4_t *in1 = &data1[0];
-    vint32m4_t data2[] = {
-    722857202, 1047217641, 1225022043, 3574012908, 1423698326, 3884305954, 1470928039, 1140170863, 2446374183, 693811583, 1533525050, 2412317451, 226417984, 4016701341, 2232740726, 2685010590
+    const int32_t *in1 = &data1[0];
+    const int32_t data2[] = {
+    156, 155, 189, 20, 91, 213, 114, 234, 187, 195, 217, 253, 29, 125, 67, 231
     };
-    const vint32m4_t *in2 = &data2[0];
-    vint32m4_t out_data[64];
-    vint32m4_t *out = &out_data[0];
-    for (int n = 16, Q_element = 32;n >= 0; n -= Q_element) {
-        vint32m4_t out = __riscv_vadd_vx_i32m4 (data1, data2, 64);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
+    const int32_t *in2 = &data2[0];
+    const int32_t out_data[16];
+    int32_t *out = &out_data[0];
+    vint32m4_t __riscv_vle32_v_i32m4 (*in1, vl);
+    vint32m4_t __riscv_vle32_v_i32m4 (*in2, vl);
+    vint32m4_t __riscv_vle32_v_i32m4 (*out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        vint32m4_t out_data = __riscv_vadd_vx_i32m4 (data1, data2, vl)
+        vint32m4_t __riscv_vse32_v_i32m4 (out, out_data, vl);
+        in1 += 4;
+        in2 += 4;
+        out += 4;
       }
-    vint32m4_t golden[] = {
-    1186146759, 4477167774, 3637320677, 4291082705, 5120739280, 7099055902, 3092783664, 4216346339, 6103203215, 864680583, 2959389704, 6515131034, 2162967261, 5914221194, 5280524582, 2912843724
+    int32_t golden[] = {
+    253, 235, 275, 96, 202, 226, 345, 445, 314, 259, 230, 335, 166, 295, 128, 310
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

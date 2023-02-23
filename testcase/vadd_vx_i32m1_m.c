@@ -5,34 +5,35 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint32m1_t data1[] = {
-    2493719204, 1009917385, 3222001325, 2769113412
+    const int32_t data1[] = {
+    211, 234, 103, 77, 73, 206, 37, 188, 209, 195, 77, 125, 212, 208, 159, 127
     };
-    const vint32m1_t *in1 = &data1[0];
-    vint32m1_t data2[] = {
-    1264201507, 1281604075, 406884417, 1516628620
+    const int32_t *in1 = &data1[0];
+    const int32_t data2[] = {
+    192, 93, 105, 93, 248, 106, 144, 140, 222, 207, 154, 32, 17, 98, 102, 107
     };
-    const vint32m1_t *in2 = &data2[0];
-    vint32m1_t out_data[] = {
-    3216548823, 2244640902, 3619041768, 654987171
+    const int32_t *in2 = &data2[0];
+    const int out_data[] = {
+    38, 126, 6, 99, 202, 153, 108, 78, 79, 51, 76, 146, 137, 123, 100, 248
     };
-    vint32m1_t *out = &out_data[0];
-    int masked[] = {
-    1, 0, 0, 1
+    int32_t *out = &out_data[0];
+    bool32_t masked[] = {
+    0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1
     };
     const int *mask = &masked[0];
-    for (int n = 4, Q_element = 32;n >= 0; n -= Q_element) {
-        vint32m1_t out = __riscv_vadd_vx_i32m1_m (, mask, data1, data264);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
-        mask += Q_element;
+    for (size_t n = 0; n < vl; n++) {
+        vint32m1_t out_data = __riscv_vadd_vx_i32m1_m (mask, data1, data2, vl)
+        vint32m1_t __riscv_vse32_v_i32m1 (out, out_data, vl);
+        in1 += 4;
+        in2 += 4;
+        out += 4;
+        mask += 4;
       }
-    vint32m1_t golden[] = {
-    3757920711, 2244640902, 3619041768, 4285742032
+    int32_t golden[] = {
+    38, 327, 6, 170, 202, 153, 181, 328, 79, 51, 76, 146, 137, 123, 100, 234
     };
     int fail = 0;
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
             printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;

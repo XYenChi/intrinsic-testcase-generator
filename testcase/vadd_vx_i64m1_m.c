@@ -5,34 +5,35 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint64m1_t data1[] = {
-    10801640059305205471, 3145691116370575665
+    const int64_t data1[] = {
+    102, 25, 1, 212, 83, 128, 200, 81, 135, 252, 164, 60, 46, 108, 133, 46
     };
-    const vint64m1_t *in1 = &data1[0];
-    vint64m1_t data2[] = {
-    8834877944484051200, 8912083756529955456
+    const int64_t *in1 = &data1[0];
+    const int64_t data2[] = {
+    53, 9, 66, 104, 241, 242, 45, 243, 162, 40, 53, 161, 157, 64, 54, 147
     };
-    const vint64m1_t *in2 = &data2[0];
-    vint64m1_t out_data[] = {
-    5267682742700087528, 14324180895953463989
+    const int64_t *in2 = &data2[0];
+    const int out_data[] = {
+    243, 113, 244, 118, 117, 103, 90, 134, 73, 139, 241, 92, 44, 7, 49, 13
     };
-    vint64m1_t *out = &out_data[0];
-    int masked[] = {
-    0, 1
+    int64_t *out = &out_data[0];
+    bool64_t masked[] = {
+    1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
     };
     const int *mask = &masked[0];
-    for (int n = 2, Q_element = 64;n >= 0; n -= Q_element) {
-        vint64m1_t out = __riscv_vadd_vx_i64m1_m (, mask, data1, data264);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
-        mask += Q_element;
+    for (size_t n = 0; n < vl; n++) {
+        vint64m1_t out_data = __riscv_vadd_vx_i64m1_m (mask, data1, data2, vl)
+        vint64m1_t __riscv_vse64_v_i64m1 (out, out_data, vl);
+        in1 += 8;
+        in2 += 8;
+        out += 8;
+        mask += 8;
       }
-    vint64m1_t golden[] = {
-    5267682742700087528, 12057774872900531121
+    int64_t golden[] = {
+    155, 113, 67, 118, 117, 103, 245, 324, 297, 292, 217, 221, 203, 172, 187, 13
     };
     int fail = 0;
-    for (int i = 0; i < 2; i++){
+    for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
             printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;

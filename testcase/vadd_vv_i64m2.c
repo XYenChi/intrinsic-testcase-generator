@@ -5,27 +5,31 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint64m2_t data1[] = {
-    16843473100393473593, 3736845343642994268, 4039181851180050175, 846227301722507468
+    const int64_t data1[] = {
+    9, 247, 68, 234, 105, 187, 108, 84, 93, 131, 210, 49, 233, 31, 74, 108
     };
-    const vint64m2_t *in1 = &data1[0];
-    vint64m2_t data2[] = {
-    3989993769151291884, 15064002864069504997, 2569342525425227539, 598145873198038718
+    const int64_t *in1 = &data1[0];
+    const int64_t data2[] = {
+    51, 195, 45, 37, 199, 85, 201, 148, 117, 148, 186, 48, 192, 44, 180, 183
     };
-    const vint64m2_t *in2 = &data2[0];
-    vint64m2_t out_data[64];
-    vint64m2_t *out = &out_data[0];
-    for (int n = 4, Q_element = 64;n >= 0; n -= Q_element) {
-        vint64m2_t out = __riscv_vadd_vv_i64m2 (data1, data2, 64);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
+    const int64_t *in2 = &data2[0];
+    const int64_t out_data[16];
+    int64_t *out = &out_data[0];
+    vint64m2_t __riscv_vle64_v_i64m2 (*in1, vl);
+    vint64m2_t __riscv_vle64_v_i64m2 (*in2, vl);
+    vint64m2_t __riscv_vle64_v_i64m2 (*out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        vint64m2_t out_data = __riscv_vadd_vv_i64m2 (data1, data2, vl)
+        vint64m2_t __riscv_vse64_v_i64m2 (out, out_data, vl);
+        in1 += 8;
+        in2 += 8;
+        out += 8;
       }
-    vint64m2_t golden[] = {
-    20833466869544765477, 18800848207712499265, 6608524376605277714, 1444373174920546186
+    int64_t golden[] = {
+    60, 442, 113, 271, 304, 272, 309, 232, 210, 279, 396, 97, 425, 75, 254, 291
     };
     int fail = 0;
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
             printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;

@@ -5,34 +5,35 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    vint32m2_t data1[] = {
-    1508263678, 79157386, 2905408413, 852825251, 189181353, 3564710349, 1980331480, 1053573447
+    const int32_t data1[] = {
+    6, 47, 102, 199, 55, 245, 97, 124, 111, 126, 244, 184, 80, 142, 222, 147
     };
-    const vint32m2_t *in1 = &data1[0];
-    vint32m2_t data2[] = {
-    3930715075, 329810588, 4204073620, 511567378, 2090807082, 3334743858, 2272423069, 3283349655
+    const int32_t *in1 = &data1[0];
+    const int32_t data2[] = {
+    19, 112, 103, 208, 200, 47, 129, 198, 158, 30, 99, 35, 77, 217, 81, 64
     };
-    const vint32m2_t *in2 = &data2[0];
-    vint32m2_t out_data[] = {
-    103725509, 2820021795, 1558712836, 3266986833, 3834990547, 4246443419, 3016332728, 3920423124
+    const int32_t *in2 = &data2[0];
+    const int out_data[] = {
+    161, 187, 226, 246, 185, 236, 3, 115, 232, 148, 136, 180, 55, 82, 185, 200
     };
-    vint32m2_t *out = &out_data[0];
-    int masked[] = {
-    0, 0, 1, 1, 1, 1, 1, 1
+    int32_t *out = &out_data[0];
+    bool16_t masked[] = {
+    0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1
     };
     const int *mask = &masked[0];
-    for (int n = 8, Q_element = 32;n >= 0; n -= Q_element) {
-        vint32m2_t out = __riscv_vadd_vx_i32m2_m (, mask, data1, data264);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
-        mask += Q_element;
+    for (size_t n = 0; n < vl; n++) {
+        vint32m2_t out_data = __riscv_vadd_vx_i32m2_m (mask, data1, data2, vl)
+        vint32m2_t __riscv_vse32_v_i32m2 (out, out_data, vl);
+        in1 += 4;
+        in2 += 4;
+        out += 4;
+        mask += 4;
       }
-    vint32m2_t golden[] = {
-    103725509, 2820021795, 7109482033, 1364392629, 2279988435, 6899454207, 4252754549, 4336923102
+    int32_t golden[] = {
+    161, 187, 205, 407, 185, 236, 226, 115, 232, 148, 136, 180, 55, 82, 303, 211
     };
     int fail = 0;
-    for (int i = 0; i < 8; i++){
+    for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
             printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;
