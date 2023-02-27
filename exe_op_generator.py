@@ -38,7 +38,7 @@ class Node:
         # If _mask = '_m', vm = 0, masked, calculate if mask array[i] = 1
         self.sign = None
         self.Q_A_E = 16
-        self.Range = 1
+        self.range = pow(2, self.sew)
         self.masked = [0] * Q_array
         self.data1 = [0] * Q_array
         self.data2 = [0] * Q_array
@@ -60,7 +60,8 @@ class Node:
         fd.write("#include \"riscv_vector.h\"\n")
 
     def vl_set_write(self):
-        fd.write("size_t vl = vsetvl_e%s(%s);\n" % (suffix, avl))
+        fd.write("    size_t avl = 64;\n")
+        fd.write("    size_t vl = vsetvl_e%s(size_t avl);\n" % suffix)
 
     def c_main_entry_write(self):
         fd.write("int main(){\n")
@@ -69,105 +70,102 @@ class Node:
         fd.write("    for (size_t n = 0; n < vl; n++) {\n")
 
     def vs2_load(self):
-        fd.write("    vint%s_t __riscv_vle%s_v_i%s (*in1, vl);\n" % (suffix, a.sew, suffix))
+        fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s (*in1, vl);\n" % (suffix, a.sew, suffix))
 
     def vs1_load(self):
-        fd.write("    vint%s_t __riscv_vle%s_v_i%s (*in2, vl);\n" % (suffix, a.sew, suffix))
+        fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s (*in2, size_t vl);\n" % (suffix, a.sew, suffix))
 
     def vd_load(self):
-        fd.write("    vint%s_t __riscv_vle%s_v_i%s (*out, vl);\n" % (suffix, a.sew, suffix))
+        fd.write("    vint%s_t out_v = __riscv_vle%s_v_i%s (*out, size_t vl);\n" % (suffix, a.sew, suffix))
 
     # def mask_load(self):
     # todo: load mask
     def vd_store(self):
-        fd.write("        vint%s_t __riscv_vse%s_v_i%s (out, out_data, vl);\n" % (suffix, a.sew, suffix))
+        fd.write("        void vint%s_t __riscv_vse%s_v_i%s (int%s_t*out, out_v,size_t vl);\n" % (suffix, a.sew,
+                                                                                                  a.sew, suffix))
 
     def parameter_seq_write(self):
         match self.op_mask:
             case 'vadd':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vadd_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, mask))
             case 'vsub':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, mask))
             case 'vsub_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, mask))
             case 'vmul':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmul_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vdiv':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vdiv_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmax':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmax_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmin':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmin_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vrem':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vrem_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vadc':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, mask, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, mask, vl);\n" % (op, vx, suffix, mask))
             case 'vsbc':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vsbc_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmerge':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, size_t vl);\n" % (op, vx, suffix, mask))
             case 'vmerge_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmacc':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (data1, data2, vl)\n" % (suffix, op, vx, suffix,
-                                                                                               mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmacc_m':
                 fd.write(
-                    "        vint%s_t out_data = __riscv_%s_v%s_i%s%s (mask, data1, data2, vl)\n" % (suffix, op, vx,
-                                                                                                     suffix, mask))
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+            case 'vmadd':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_i%s%s (out_data, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+                # default vd will be passed as out_data
+            case 'vmadd_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, out_data, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, mask))
+            case 'vmsbc':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+            case 'vmsbc_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, mask, vl);\n" % (op, vx, suffix, mask))
 
     def jump_to_next_write_mask(self):
         fd.write("        in1 += %s;\n" % int(self.sew / 8))
@@ -201,9 +199,9 @@ class Node:
 
     def random_gen(self):
         for i in range(Q_array):
-            self.data1[i] = random.randint(0, 0xff)
-            self.data2[i] = random.randint(0, 0xff)
-            self.vd_default[i] = random.randint(0, 0xff)
+            self.data1[i] = random.randint(0, self.range)
+            self.data2[i] = random.randint(0, self.range)
+            self.vd_default[i] = random.randint(0, self.range)
 
     def mask_gen(self):
         for i in range(self.Q_A_E):
@@ -229,13 +227,13 @@ class Node:
     def vd_declaration_write(self):
         fd.write("    const int%s_t out_data[%s];\n" % (self.sew, Q_array))
         # Declare the array of 10 elements
-        fd.write("    int%s_t *out = &out_data[0];\n" % self.sew)
+        fd.write("    const int%s_t *out = &out_data[0];\n" % self.sew)
 
     def vd_default_write(self):
         fd.write("    const int out_data[] = {\n")
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
         fd.write("    };\n")
-        fd.write("    int%s_t *out = &out_data[0];\n" % self.sew)
+        fd.write("    const int%s_t *out = &out_data[0];\n" % self.sew)
 
     def mask_data_write(self):
         # todo: mask type
@@ -317,6 +315,7 @@ a.op = op
 for suffix in _suffix:
     divider = suffix.split('m')
     a.sew = int(divider[0])
+    a.range = pow(2, a.sew)
     a.lmul = lmul_dict["%s" % divider[1]]
     for vx in _vx:
         for mask in _mask:
@@ -333,6 +332,7 @@ for suffix in _suffix:
                         a.random_gen()
                         a.vs2_data_write()
                         a.vs1_data_write()
+                        a.vl_set_write()
                         a.mask_gen()
                         a.mask_data_write()
                         a.pointer_iterator_write()
@@ -352,6 +352,7 @@ for suffix in _suffix:
                         a.random_gen()
                         a.vs2_data_write()
                         a.vs1_data_write()
+                        a.vl_set_write()
                         a.vd_declaration_write()
                         a.vs2_load()
                         a.vs1_load()
@@ -379,6 +380,7 @@ for suffix in _suffix:
                         a.random_gen()
                         a.vs2_data_write()
                         a.vs1_data_write()
+                        a.vl_set_write()
                         a.vd_default_write()
                         # set vd default value if v0.mask[i] = 0, golden = default
                         a.mask_gen()
