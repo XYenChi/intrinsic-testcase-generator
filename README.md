@@ -10,14 +10,24 @@ mask (operator with mask)
 in1 -> in_data1   
 in2 -> in_data2   
 out -> out_data   
+
 #### Step2: Load the to vector   
+vle():   
+data1_v <- in1   
+data2_v <- in2   
+
 #### Step3: Calculate vl with vsetvl and SEW
 avl = 1024   
 for SEW = 32, LMUL = 1:   
-vl = vsetvl_e32m1(avl) 
+vl = vsetvl_e32m1(avl)  
+
 #### Step4: initiate n = 0, loop with pointer+=sew/8, util n = vl
 pass the pointer to vector operator   
 pointer move to the next element   
+
+#### Step5: store result to array for comparing
+vse():   
+out -> out_data
    
 ### nouns
 #### SEW
