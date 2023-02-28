@@ -70,19 +70,34 @@ class Node:
         fd.write("    for (size_t n = 0; n < vl; n++) {\n")
 
     def vs2_load(self):
-        fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s (*in1, vl);\n" % (suffix, a.sew, suffix))
+        if self.mask == 0:
+            fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s%s (mask, *in1, vl);\n" % (suffix, a.sew, suffix, mask))
+        else:
+            fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s (*in1, vl);\n" % (suffix, a.sew, suffix))
 
     def vs1_load(self):
-        fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s (*in2, size_t vl);\n" % (suffix, a.sew, suffix))
+        if self.mask == 0:
+            fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s%s (mask, *in2, vl);\n" % (suffix, a.sew, suffix, mask))
+        else:
+            fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s (*in2, size_t vl);\n" % (suffix, a.sew, suffix))
 
     def vd_load(self):
-        fd.write("    vint%s_t out_v = __riscv_vle%s_v_i%s (*out, size_t vl);\n" % (suffix, a.sew, suffix))
+        if self.mask == 0:
+            fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s%s (mask, *out, vl);\n" % (suffix, a.sew, suffix, mask))
+        else:
+            fd.write("    vint%s_t out_v = __riscv_vle%s_v_i%s (*out, size_t vl);\n" % (suffix, a.sew, suffix))
 
     # def mask_load(self):
     # todo: load mask
     def vd_store(self):
-        fd.write("        void vint%s_t __riscv_vse%s_v_i%s (int%s_t*out, out_v,size_t vl);\n" % (suffix, a.sew,
-                                                                                                  a.sew, suffix))
+        if self.mask == 0:
+            fd.write("        void vint%s_t __riscv_vse%s_v_i%s (vbool%s_t mask, int%s_t *out, out_v, size_t vl);\n"
+                     % (int(self.sew / self.lmul), suffix, a.sew, a.sew, suffix))
+        else:
+            fd.write("        void vint%s_t __riscv_vse%s_v_i%s (int%s_t *out, out_v, size_t vl);\n"
+                     % (suffix, a.sew, a.sew, suffix))
+
+
 
     def parameter_seq_write(self):
         match self.op_mask:
@@ -240,7 +255,7 @@ class Node:
         fd.write("    bool%s_t masked[] = {\n" % int(self.sew / self.lmul))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.masked)))
         fd.write("    };\n")
-        fd.write("    const int *mask = &masked[0];\n")
+        fd.write("    const bool%s_t *mask = &masked[0];\n" % int(self.sew / self.lmul))
 
     def golden_by_python_write(self):
         fd.write("    int%s_t golden[] = {\n" % self.sew)
@@ -335,6 +350,8 @@ for suffix in _suffix:
                         a.vl_set_write()
                         a.mask_gen()
                         a.mask_data_write()
+                        a.vs2_load()
+                        a.vs1_load()
                         a.pointer_iterator_write()
                         # a.specific_operator_c()
                         a.parameter_seq_write()
@@ -385,6 +402,8 @@ for suffix in _suffix:
                         # set vd default value if v0.mask[i] = 0, golden = default
                         a.mask_gen()
                         a.mask_data_write()
+                        a.vs2_load()
+                        a.vs1_load()
                         a.pointer_iterator_write()
                         # a.specific_operator_c()
                         a.parameter_seq_write()
