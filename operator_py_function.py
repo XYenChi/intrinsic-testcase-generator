@@ -24,7 +24,10 @@ def div_op(a, b, c=None, m=None):
     if m == 0:
         return c
     else:
-        return a / b
+        if b == 0:
+            return -1
+        else:
+            return a // b
 
 
 def max_op(a, b, c=None, m=None):
@@ -51,7 +54,10 @@ def reminder(a, b, c=None, m=None):
     if m == 0:
         return c
     else:
-        return a % b
+        if b == 0:
+            return a
+        else:
+            return a % b
 
 
 def add_with_carry_op(a, b, c=None, m=None):
@@ -81,3 +87,10 @@ def merge_op(a, b, m):
         return a
     else:
         return b
+def multiply_add_op(c, a, b, m=None):
+    if m == 0:
+        return c
+    else:
+        return a*b+c
+
+  #  def equal_op(a, b, m):
