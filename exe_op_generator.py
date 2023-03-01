@@ -36,6 +36,8 @@ class Node:
         self.sew = 8
         self.mask = None
         # If _mask = '_m', vm = 0, masked, calculate if mask array[i] = 1
+        self.carryin = None
+        # vmadc don't have mask and must have carry in bit
         self.sign = None
         self.Q_A_E = 16
         self.range = pow(2, self.sew)
@@ -79,13 +81,13 @@ class Node:
         if self.mask == 0:
             fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s%s (mask, *in2, vl);\n" % (suffix, a.sew, suffix, mask))
         else:
-            fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s (*in2, size_t vl);\n" % (suffix, a.sew, suffix))
+            fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s (*in2, vl);\n" % (suffix, a.sew, suffix))
 
     def vd_load(self):
         if self.mask == 0:
             fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s%s (mask, *out, vl);\n" % (suffix, a.sew, suffix, mask))
         else:
-            fd.write("    vint%s_t out_v = __riscv_vle%s_v_i%s (*out, size_t vl);\n" % (suffix, a.sew, suffix))
+            fd.write("    vint%s_t out_v = __riscv_vle%s_v_i%s (*out, vl);\n" % (suffix, a.sew, suffix))
 
     # def mask_load(self):
     # todo: load mask
@@ -100,6 +102,11 @@ class Node:
 
 
     def parameter_seq_write(self):
+        # todo: generate all the operate by default
+        # else:
+        #    for op in IntegerOpList:
+        #        return "    vint%s_t out = __riscv_%s_v%s_i%s (" % (suffix, op, vx, suffix)
+
         match self.op_mask:
             case 'vadd':
                 fd.write(
@@ -181,7 +188,66 @@ class Node:
             case 'vmsbc_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, mask, vl);\n" % (op, vx, suffix, mask))
-
+            case 'vmadc':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s%s_%s_b%s(data1_v, data2_v, vl);\n"
+                    % (op, vx, mask, suffix, int(self.sew / self.lmul)))
+            case 'vmadc_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s%s_%s_%s (data1_v, data2_v, carryin, vl);\n"
+                    % (op, vx, mask, suffix, int(self.sew / self.lmul)))
+            case 'vmseq':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmseq_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmsge':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmsge_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmsgt':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmsgt_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmsle':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmsle_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmslt':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmslt_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmsne':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmsne_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+            case 'vmulh':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_%s_b%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, suffix, int(self.sew / self.lmul)))
     def jump_to_next_write_mask(self):
         fd.write("        in1 += %s;\n" % int(self.sew / 8))
         fd.write("        in2 += %s;\n" % int(self.sew / 8))
@@ -262,35 +328,6 @@ class Node:
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
         fd.write("    };\n")
 
-    def specific_operator_c(self):
-        if self.op is not None:
-            match self.op:
-                case 'vadd':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vsub':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vmul':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vdiv':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vmax':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vmin':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vrem':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vadc':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vsbc':
-                    fd.write("        vint%s_t out = __riscv_%s_v%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vmerge':
-                    fd.write("        vint%s_t out = __riscv_%s_vv%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-                case 'vmacc':
-                    fd.write("        vint%s_t out = __riscv_%s_vv%s_i%s%s (" % (suffix, op, vx, suffix, mask))
-        # todo: generate all the operate by default
-        # else:
-        #    for op in IntegerOpList:
-        #        return "    vint%s_t out = __riscv_%s_v%s_i%s (" % (suffix, op, vx, suffix)
 
     def compute(self):
         op_list = {
@@ -320,7 +357,7 @@ class Node:
             else:
                 for i in range(self.Q_A_E):
                     if op == 'vmacc':
-                        self.golden[i] = op_list[op](self.mask[i], self.vd_default[i], self.data1[i], self.data2[i])
+                        self.golden[i] = op_list[op](self.masked[i], self.vd_default[i], self.data1[i], self.data2[i])
                     else:
                         self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
 
