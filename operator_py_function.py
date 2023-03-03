@@ -24,10 +24,10 @@ def div_op(a, b, c=None, m=None):
     if m == 0:
         return c
     else:
-        if b == 0:
+        if a == 0:
             return -1
         else:
-            return a // b
+            return b // a
 
 
 def max_op(a, b, c=None, m=None):
@@ -54,10 +54,10 @@ def reminder(a, b, c=None, m=None):
     if m == 0:
         return c
     else:
-        if b == 0:
-            return a
+        if a == 0:
+            return b
         else:
-            return a % b
+            return b % a
 
 
 def add_with_carry_op(a, b, c=None, m=None):
@@ -87,10 +87,36 @@ def merge_op(a, b, m):
         return a
     else:
         return b
-def multiply_add_op(c, a, b, m=None):
+
+
+def multiply_add_overwrite_addend_op(c, a, b, m=None):
+    #vmacc
     if m == 0:
         return c
     else:
-        return a*b+c
+        return a * b + c
 
-  #  def equal_op(a, b, m):
+def multiply_add_overwrite_multiplicand_op(c, a, b, m=None):
+    #vmadd
+    if m == 0:
+        return c
+    else:
+        return b * c + a
+def substract_with_borrow_op(c, a, b, m=None):
+    #vmsbc
+    # Produce borrow out in mask register format
+    if m == 0:
+
+
+
+def equal_op(a, b, n, m=None):
+    #n present the vd.mask
+    if m == 0:
+        return n
+    else:
+        if a == b:
+            return 1
+        else:
+            return 0
+
+
