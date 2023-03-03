@@ -188,17 +188,19 @@ class Node:
                     % (op, vx, suffix, mask))
             case 'vmsbc':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s%s_%s%s_b%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, mask, iu, suffix, int(self.sew / self.lmul)))
             case 'vmsbc_m':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, mask, vl);\n" % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s%s_%s%s_b%s (data1_v, data2_v, mask, vl);\n"
+                    % (op, vx, mask, iu, suffix, int(self.sew / self.lmul)))
             case 'vmadc':
                 fd.write(
                     "        out_v = __riscv_%s_v%s%s_%s_b%s(data1_v, data2_v, vl);\n"
                     % (op, vx, mask, suffix, int(self.sew / self.lmul)))
             case 'vmadc_m':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s%s_%s_%s (data1_v, data2_v, carryin, vl);\n"
+                    "        out_v = __riscv_%s_v%s%s_%s_b%s (data1_v, data2_v, carryin, vl);\n"
                     % (op, vx, mask, suffix, int(self.sew / self.lmul)))
             case 'vmseq':
                 fd.write(
@@ -563,6 +565,10 @@ class Node:
         fd.write("    };\n")
         fd.write("    const int%s_t *out = &out_data[0];\n" % self.sew)
 
+    def vd_mask_default_write(self):
+        # todo: load vd mask
+        fd.write("    const boot%s_t vd_mask_data[%s];\n" % (self.sew, Q_array))
+        fd.write("    const bool%s_t *vd_mask = &vd_mask_data[0];\n" % self.sew)
     def mask_data_write(self):
         # todo: mask type
         fd.write("    bool%s_t masked[] = {\n" % int(self.sew / self.lmul))
@@ -589,11 +595,15 @@ class Node:
             "vadc": operator_py_function.add_with_carry_op,
             "vsbc": operator_py_function.sub_with_borrow_op,
             "vmerge": operator_py_function.merge_op,
-            "vmacc": operator_py_function.multiply_add_op
+            "vmacc": operator_py_function.multiply_add_overwrite_addend_op,
+            "vmadd":operator_py_function.multiply_add_overwrite_multiplicand_op,
+            "vmsbc":operator_py_function.multiply_sbc_overwrite_multiplicand_op,
+            "vmseq":operator_py_function.equal_to_op
+
         }
         if self.mask:
             for i in range(self.Q_A_E):
-                if op == 'vmacc':
+                if op == 'vmacc' or 'vmadd':
                     self.golden[i] = op_list[op](self.vd_default[i], self.data1[i], self.data2[i])
                 else:
                     self.golden[i] = op_list[op](self.data1[i], self.data2[i])
@@ -603,7 +613,7 @@ class Node:
                     self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.masked[i])
             else:
                 for i in range(self.Q_A_E):
-                    if op == 'vmacc':
+                    if op == 'vmacc'or 'vmadd':
                         self.golden[i] = op_list[op](self.masked[i], self.vd_default[i], self.data1[i], self.data2[i])
                     else:
                         self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
