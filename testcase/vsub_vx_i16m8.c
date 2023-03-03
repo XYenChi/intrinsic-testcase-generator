@@ -5,31 +5,38 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    int data1[] = {
-    63, 156, 125, 217, 177, 238, 153, 17, 169, 38, 240, 166, 133, 114, 28, 127, 206, 55, 10, 117, 199, 177, 58, 27, 155, 3, 213, 194, 239, 29, 232, 66, 163, 235, 17, 78, 222, 51, 250, 135, 82, 156, 229, 68, 99, 30, 36, 83, 64, 16, 227, 253, 10, 196, 245, 230, 36, 219, 239, 178, 43, 233, 144, 124
+    const int16_t data1[] = {
+    62686, 5038, 53540, 63382, 3027, 34761, 42977, 17841, 23607, 3143, 65419, 45698, 25558, 17362, 17684, 22778
     };
-    const int *in1 = &data1[0];
-    int data2[] = {
-    243, 37, 138, 29, 11, 233, 91, 55, 85, 121, 50, 238, 217, 159, 140, 221, 96, 32, 255, 134, 20, 213, 247, 93, 150, 147, 54, 25, 131, 26, 137, 87, 191, 196, 210, 134, 170, 59, 63, 244, 218, 29, 129, 229, 94, 161, 151, 238, 130, 226, 250, 112, 162, 216, 17, 245, 221, 91, 17, 85, 154, 133, 103, 220
+    const int16_t *in1 = &data1[0];
+    const int16_t data2[] = {
+    56499, 6867, 5437, 62153, 44446, 46255, 41289, 40747, 58298, 22739, 16709, 24865, 9561, 12603, 1072, 22567
     };
-    const int *in2 = &data2[0];
-    int out_data[64];
-    int *out = &out_data[0];
-    for (int n = 64, Q_element = 4;n >= 0; n -= Q_element) {
-        vint16m8_t out = __riscv_vsub_vx_i16m8 (data1, data2, 64);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
-  }
-   int golden[] = {
-   -180, 119, -13, 188, 166, 5, 62, -38, 84, -83, 190, -72, -84, -45, -112, -94, 110, 23, -245, -17, 179, -36, -189, -66, 5, -144, 159, 169, 108, 3, 95, -21, -28, 39, -193, -56, 52, -8, 187, -109, -136, 127, 100, -161, 5, -131, -115, -155, -66, -210, -23, 141, -152, -20, 228, -15, -185, 128, 222, 93, -111, 100, 41, -96
-   };
+    const int16_t *in2 = &data2[0];
+    size_t avl = 64;
+    size_t vl = vsetvl_e16m8(size_t avl);
+    const int16_t out_data[16];
+    const int16_t *out = &out_data[0];
+    vint16m8_t data1_v = __riscv_vle16_v_i16m8 (*in1, vl);
+    vint16m8_t data2_v = __riscv_vle16_v_i16m8 (*in2, vl);
+    vint16m8_t out_v = __riscv_vle16_v_i16m8 (*out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        out_v = __riscv_vsub_vx_u16m8 (data1_v, data2_v, vl);
+        void vint16m8_t __riscv_vse16_v_i16 (int16m8_t *out, out_v, size_t vl);
+        in1 += 2;
+        in2 += 2;
+        out += 2;
+      }
+    int16_t golden[] = {
+    6187, -1829, 48103, 1229, -41419, -11494, 1688, -22906, -34691, -19596, 48710, 20833, 15997, 4759, 16612, 211
+    };
     int fail = 0;
-    for (int i = 0; i < 64; i++)
-        if (golden0[i] != out0_data[i]) {
-            printf ("idx=%d golden=%d out=%d\n", i, golden0[i], out0[i]);
+    for (int i = 0; i < 16; i++){
+        if (golden[i] != out_data[i]) {
+            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;
             }
+        }
     if (fail) {
         return 1;
     } else {

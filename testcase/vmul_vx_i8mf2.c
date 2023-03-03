@@ -1,0 +1,45 @@
+/* { dg-do run } */
+/* { dg-options "-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2" } */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "riscv_vector.h"
+int main(){
+    const int8_t data1[] = {
+    141, 151, 107, 255, 237, 102, 137, 25, 68, 183, 78, 230, 20, 228, 197, 24
+    };
+    const int8_t *in1 = &data1[0];
+    const int8_t data2[] = {
+    187, 100, 227, 13, 0, 9, 125, 101, 66, 37, 4, 173, 193, 179, 84, 83
+    };
+    const int8_t *in2 = &data2[0];
+    size_t avl = 64;
+    size_t vl = vsetvl_e8mf2(size_t avl);
+    const int8_t out_data[16];
+    const int8_t *out = &out_data[0];
+    vint8mf2_t data1_v = __riscv_vle8_v_i8mf2 (*in1, vl);
+    vint8mf2_t data2_v = __riscv_vle8_v_i8mf2 (*in2, vl);
+    vint8mf2_t out_v = __riscv_vle8_v_i8mf2 (*out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        out_v = __riscv_vmul_vx_i8mf2 (data1_v, data2_v, vl);
+        void vint8mf2_t __riscv_vse8_v_i8 (int8mf2_t *out, out_v, size_t vl);
+        in1 += 1;
+        in2 += 1;
+        out += 1;
+      }
+    int8_t golden[] = {
+    26367, 15100, 24289, 3315, 0, 918, 17125, 2525, 4488, 6771, 312, 39790, 3860, 40812, 16548, 1992
+    };
+    int fail = 0;
+    for (int i = 0; i < 16; i++){
+        if (golden[i] != out_data[i]) {
+            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
+            fail++;
+            }
+        }
+    if (fail) {
+        return 1;
+    } else {
+        return 0;
+    }
+}

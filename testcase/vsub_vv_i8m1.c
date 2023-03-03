@@ -5,31 +5,38 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    int data1[] = {
-    95, 212, 39, 108, 3, 98, 89, 62, 248, 169, 48, 160, 2, 156, 19, 41, 88, 105, 203, 139, 88, 248, 167, 255, 101, 55, 242, 43, 180, 122, 153, 215, 161, 128, 34, 123, 143, 152, 201, 233, 156, 92, 128, 141, 146, 206, 31, 233, 97, 251, 103, 51, 214, 17, 86, 185, 200, 168, 44, 199, 124, 230, 205, 46
+    const int8_t data1[] = {
+    203, 97, 13, 147, 115, 192, 192, 207, 12, 155, 12, 111, 243, 127, 73, 75
     };
-    const int *in1 = &data1[0];
-    int data2[] = {
-    236, 26, 182, 27, 59, 146, 50, 53, 220, 194, 80, 209, 166, 93, 206, 60, 199, 166, 88, 180, 139, 92, 96, 145, 128, 130, 219, 74, 1, 252, 144, 47, 191, 35, 205, 120, 90, 86, 8, 203, 210, 182, 138, 147, 175, 116, 6, 214, 57, 186, 245, 141, 56, 24, 21, 6, 13, 232, 114, 1, 129, 220, 69, 26
+    const int8_t *in1 = &data1[0];
+    const int8_t data2[] = {
+    217, 28, 45, 247, 227, 28, 194, 29, 118, 159, 256, 210, 30, 211, 22, 79
     };
-    const int *in2 = &data2[0];
-    int out_data[64];
-    int *out = &out_data[0];
-    for (int n = 64, Q_element = 4;n >= 0; n -= Q_element) {
-        vint8m1_t out = __riscv_vsub_vv_i8m1 (data1, data2, 64);
-        in1 += Q_element;
-        in2 += Q_element;
-        out += Q_element;
-  }
-   int golden[] = {
-   -141, 186, -143, 81, -56, -48, 39, 9, 28, -25, -32, -49, -164, 63, -187, -19, -111, -61, 115, -41, -51, 156, 71, 110, -27, -75, 23, -31, 179, -130, 9, 168, -30, 93, -171, 3, 53, 66, 193, 30, -54, -90, -10, -6, -29, 90, 25, 19, 40, 65, -142, -90, 158, -7, 65, 179, 187, -64, -70, 198, -5, 10, 136, 20
-   };
+    const int8_t *in2 = &data2[0];
+    size_t avl = 64;
+    size_t vl = vsetvl_e8m1(size_t avl);
+    const int8_t out_data[16];
+    const int8_t *out = &out_data[0];
+    vint8m1_t data1_v = __riscv_vle8_v_i8m1 (*in1, vl);
+    vint8m1_t data2_v = __riscv_vle8_v_i8m1 (*in2, vl);
+    vint8m1_t out_v = __riscv_vle8_v_i8m1 (*out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        out_v = __riscv_vsub_vv_u8m1 (data1_v, data2_v, vl);
+        void vint8m1_t __riscv_vse8_v_i8 (int8m1_t *out, out_v, size_t vl);
+        in1 += 1;
+        in2 += 1;
+        out += 1;
+      }
+    int8_t golden[] = {
+    -14, 69, -32, -100, -112, 164, -2, 178, -106, -4, -244, -99, 213, -84, 51, -4
+    };
     int fail = 0;
-    for (int i = 0; i < 64; i++)
-        if (golden0[i] != out0_data[i]) {
-            printf ("idx=%d golden=%d out=%d\n", i, golden0[i], out0[i]);
+    for (int i = 0; i < 16; i++){
+        if (golden[i] != out_data[i]) {
+            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
             fail++;
             }
+        }
     if (fail) {
         return 1;
     } else {
