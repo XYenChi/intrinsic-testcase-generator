@@ -1,20 +1,20 @@
 /* { dg-do run } */
-/* { dg-options "-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2" } */
+/* { dg-options "-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2 -w" } */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
     const int8_t data1[] = {
-    15, 225, 42, 19, 66, 2, 250, 209, 160, 28, 150, 181, 190, 134, 63, 79
+    74, -70, 43, -101, 26, 16, -89, -70, 88, 60, -107, -73, 82, -57, 91, 114
     };
     const int8_t *in1 = &data1[0];
     const int8_t data2[] = {
-    152, 181, 24, 38, 235, 185, 24, 70, 105, 217, 41, 193, 56, 62, 62, 127
+    -113, -19, -57, 116, 10, -113, -47, 124, -128, -126, -43, 36, -51, -93, 83, 97
     };
     const int8_t *in2 = &data2[0];
     size_t avl = 64;
-    size_t vl = vsetvl_e8m4(size_t avl);
+    size_t vl = __riscv_vsetvl_e8m4(avl);
     const int8_t out_data[16];
     const int8_t *out = &out_data[0];
     vint8m4_t data1_v = __riscv_vle8_v_i8m4 (*in1, vl);
@@ -22,18 +22,18 @@ int main(){
     vint8m4_t out_v = __riscv_vle8_v_i8m4 (*out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vadd_vv_i8m4 (data1_v, data2_v, vl);
-        void vint8m4_t __riscv_vse8_v_i8 (int8m4_t *out, out_v, size_t vl);
+        void __riscv_vse8_v_i8m4 (int8_t *out, vint8m4_t out_v, size_t vl);
         in1 += 1;
         in2 += 1;
         out += 1;
       }
     int8_t golden[] = {
-    167, 406, 66, 57, 301, 187, 274, 279, 265, 245, 191, 374, 246, 196, 125, 206
+    143, -134, 64, -135, 124, -90, -43, -29, 83, 33, -55, -188, 79, -86, -28, 10
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
-            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
+            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out_data[i]);
             fail++;
             }
         }

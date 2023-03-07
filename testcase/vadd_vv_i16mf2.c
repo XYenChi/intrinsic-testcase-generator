@@ -1,20 +1,20 @@
 /* { dg-do run } */
-/* { dg-options "-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2" } */
+/* { dg-options "-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2 -w" } */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
     const int16_t data1[] = {
-    48041, 199, 47941, 13100, 53768, 60825, 37651, 64301, 7420, 25269, 64011, 44865, 61688, 17293, 30120, 2419
+    30808, -16291, -6676, -18451, 23277, 3130, 9488, -10894, -8094, 19097, 23999, 17088, 6126, 3414, 9850, -29675
     };
     const int16_t *in1 = &data1[0];
     const int16_t data2[] = {
-    59940, 38008, 59432, 33864, 39527, 61392, 61304, 9785, 12633, 60147, 21302, 52745, 10895, 2720, 40696, 14173
+    -10948, 3349, -1391, -2252, -3871, -28318, -16274, -15259, 17510, -7796, -6493, 1278, 15473, 20286, -2157, -24010
     };
     const int16_t *in2 = &data2[0];
     size_t avl = 64;
-    size_t vl = vsetvl_e16mf2(size_t avl);
+    size_t vl = __riscv_vsetvl_e16mf2(avl);
     const int16_t out_data[16];
     const int16_t *out = &out_data[0];
     vint16mf2_t data1_v = __riscv_vle16_v_i16mf2 (*in1, vl);
@@ -22,18 +22,18 @@ int main(){
     vint16mf2_t out_v = __riscv_vle16_v_i16mf2 (*out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vadd_vv_i16mf2 (data1_v, data2_v, vl);
-        void vint16mf2_t __riscv_vse16_v_i16 (int16mf2_t *out, out_v, size_t vl);
+        void __riscv_vse16_v_i16mf2 (int16_t *out, vint16mf2_t out_v, size_t vl);
         in1 += 2;
         in2 += 2;
         out += 2;
       }
     int16_t golden[] = {
-    107981, 38207, 107373, 46964, 93295, 122217, 98955, 74086, 20053, 85416, 85313, 97610, 72583, 20013, 70816, 16592
+    52076, -37462, 12156, -31935, 52020, -936, 38023, -16133, 22719, 17691, 26370, -8971, -20479, 12996, -12511, -57940
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
-            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
+            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out_data[i]);
             fail++;
             }
         }

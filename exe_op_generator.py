@@ -65,6 +65,11 @@ ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 lmul_dict = {'1': 1, '2': 2, '4': 4, '8': 8, 'f2': 0.5, 'f4': 0.25, 'f8': 0.125}
 
+def cross(*args):
+    list = [()]
+    for i in args:
+        list = [(*o, n) for o in list for n in i]
+    return list
 
 class Node:
     def __init__(self):
@@ -664,7 +669,7 @@ for temp in GeneralFormatOpList:
     if op != temp:
         continue
     else:
-        for suffix, vx, mask, iu in _suffix, _vx, _mask, _iu:
+        for suffix, vx, mask, iu in cross(_suffix, _vx, _mask, _iu):
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
@@ -724,7 +729,7 @@ for temp in SpMaskOpList:
     if op != temp:
         continue
     else:
-        for suffix, vx, iu in _suffix, _vx, _iu:
+        for suffix, vx, iu in cross(_suffix, _vx, _iu):
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
@@ -758,7 +763,7 @@ for temp in Sp2MaskOpList:
     if op != temp:
         continue
     else:
-        for vx, iu, suffix, mask in _vx, _iu, _suffix, _middle_mask:
+        for vx, iu, suffix, mask in cross(_vx, _iu, _suffix, _middle_mask):
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
@@ -795,7 +800,7 @@ for temp in SignOpList:
     if op != temp:
         continue
     else:
-        for suffix, vx, mask in _suffix, _vx, _mask:
+        for suffix, vx, mask in cross(_suffix, _vx, _mask):
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
@@ -857,7 +862,7 @@ for temp in SignOpList:
     if op != temp:
         continue
     else:
-        for suffix, vx, mask in _suffix, _vx, _mask:
+        for suffix, vx, mask in cross(_suffix, _vx, _mask):
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
@@ -915,7 +920,7 @@ for temp in SignOpList:
 if op == 'vwmaccus':
     # WSignOpList = ['vnsra', 'vwmaccus']
     # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
-    for suffix, mask in _widen_suffix, _mask:
+    for suffix, mask in cross(_widen_suffix, _mask):
         divider = suffix.split('m')
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
@@ -970,10 +975,10 @@ if op == 'vwmaccus':
                 a.compute()
                 a.golden_by_python_write()
                 a.report_write()
-if op == 'vnsra' or 'vnsrl':
+if op == 'vnsra' or op == 'vnsrl':
     # WSignOpList = ['vnsra', 'vwmaccus']
     # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
-    for suffix, mask, vx in _narrow_suffix, _mask, _vx:
+    for suffix, mask, vx in cross(_narrow_suffix, _mask, _vx):
         divider = suffix.split('m')
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
@@ -1038,7 +1043,7 @@ for temp in SpWUnsignOpList:
     # SpWUnsignOpList = ['vwaddu', 'vwsubu']
     # loop _wv, _vx , _suffix, _mask, with fixed u
     else:
-        for wv, vx, suffix, mask in _wv, _vx, _widen_suffix, _mask:
+        for wv, vx, suffix, mask in cross(_wv, _vx, _widen_suffix, _mask):
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
@@ -1121,12 +1126,12 @@ if op == 'vmv':
             a.compute()
             a.golden_by_python_write()
             a.report_write()
-if op == 'vneg' or 'vnot':
+if op == 'vneg' or op == 'vnot':
     # SpVOplist = ['vneg']
     # loop _suffix, _mask and only v, with fixed i
     # Sp2VOplist = ['vnot']
     # loop _suffix, _iu, _mask and only v
-    for suffix, mask in _suffix, _mask:
+    for suffix, mask in cross(_suffix, _mask):
         divider = suffix.split('m')
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
@@ -1186,8 +1191,8 @@ if op == 'vneg' or 'vnot':
                 a.report_write()
 # ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
-if op == 'vsext' or 'vzext':
-    for ext, suffix, mask in _ext, _suffix, _mask:
+if op == 'vsext' or op == 'vzext':
+    for ext, suffix, mask in cross(_ext, _suffix, _mask):
         if op == 'vsext':
             filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, suffix, mask)
             a.sign = 'i'

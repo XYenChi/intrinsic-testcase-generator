@@ -1,20 +1,20 @@
 /* { dg-do run } */
-/* { dg-options "-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2" } */
+/* { dg-options "-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2 -w" } */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
     const int32_t data1[] = {
-    2235080976, 2447127561, 3889345979, 1077434843, 231727336, 3239486895, 2971492972, 1744121504, 47680304, 3369555572, 304662592, 3124680121, 878143563, 1404003274, 202394416, 1064287349
+    937667713, -750106752, -601649603, 139895913, 19189934, 586733958, 2071268669, 1944418321, -1468168528, 2103924144, 479994038, -1374437075, -41174333, -609172593, 579231952, 979490770
     };
     const int32_t *in1 = &data1[0];
     const int32_t data2[] = {
-    1386159463, 1262726348, 3466668103, 1243751264, 2186188692, 904630582, 1750156782, 3361399543, 3962507809, 3707382597, 482575614, 2938002635, 3205100101, 1907132166, 833219831, 2822714132
+    1248072289, 1571728548, -2119325570, 1260007940, -1193223263, 1016506720, -891069721, -1735482682, 386871694, -427655538, -208615988, 622518948, 1429936031, -686074801, -392309899, 1685151933
     };
     const int32_t *in2 = &data2[0];
     size_t avl = 64;
-    size_t vl = vsetvl_e32m8(size_t avl);
+    size_t vl = __riscv_vsetvl_e32m8(avl);
     const int32_t out_data[16];
     const int32_t *out = &out_data[0];
     vint32m8_t data1_v = __riscv_vle32_v_i32m8 (*in1, vl);
@@ -22,18 +22,18 @@ int main(){
     vint32m8_t out_v = __riscv_vle32_v_i32m8 (*out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vadd_vv_i32m8 (data1_v, data2_v, vl);
-        void vint32m8_t __riscv_vse32_v_i32 (int32m8_t *out, out_v, size_t vl);
+        void __riscv_vse32_v_i32m8 (int32_t *out, vint32m8_t out_v, size_t vl);
         in1 += 4;
         in2 += 4;
         out += 4;
       }
     int32_t golden[] = {
-    3621240439, 3709853909, 7356014082, 2321186107, 2417916028, 4144117477, 4721649754, 5105521047, 4010188113, 7076938169, 787238206, 6062682756, 4083243664, 3311135440, 1035614247, 3887001481
+    228612759, -1700722939, 342336329, -129738741, 917806010, 489493646, 3301529191, 2451164501, -2056975656, 1883142990, -468137200, -2045741724, 1265060873, 460246314, -914088759, -882245664
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){
         if (golden[i] != out_data[i]) {
-            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out[i]);
+            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out_data[i]);
             fail++;
             }
         }
