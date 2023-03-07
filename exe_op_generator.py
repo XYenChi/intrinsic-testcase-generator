@@ -20,14 +20,49 @@ _suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
            '16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
            '32m1', '32m2', '32m4', '32m8', '32mf2',
            '64m1', '64m2', '64m4', '64m8']
+_widen_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
+                 '32m1', '32m2', '32m4', '32m8', '32mf2',
+                 '64m1', '64m2', '64m4', '64m8']
+_narrow_suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
+                  '16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
+                  '32m1', '32m2', '32m4', '32m8', '32mf2']
 _mask = ['', '_m']
+_middle_mask = ['', 'm']
 IntegerOpList = ['vadc', 'vadd', 'vand', 'vdiv', 'vdivu', 'vmacc', 'vmadc', 'vmadd', 'vmax', 'vmaxu', 'vmerge', 'vmin',
                  'vminu', 'vmsbc', 'vmseq', 'vmsge', 'vmsgeu', 'vmsgt', 'vmsgtu', 'vmsle', 'vmsleu', 'vmslt', 'vmsltu',
                  'vmsne', 'vmul', 'vmulh', 'vmulhsu', 'vmulhu', 'vmv', 'vneg', 'vnmsac', 'vnmsub', 'vnot', 'vnsra',
                  'vnsrl', 'vor', 'vrem', 'vremu', 'vrsub', 'vsbc', 'vsext', 'vsll', 'vsra', 'vsrl', 'vsub', 'vwadd',
                  'vwaddu', 'vwmacc', 'vwmaccsu', 'vwmaccu', 'vwmaccus', 'vwmul', 'vwmulsu', 'vwmulu', 'vwsub', 'vwsubu',
                  'vxor', 'vzext']
-
+GeneralFormatOpList = ['vadd', 'vand', 'vmacc', 'vmadd', 'vmseq', 'vmsne', 'vmul', 'vnmsac', 'vnmsub', 'vor', 'vrsub',
+                       'vsll', 'vsub', 'vxor']
+# loop _vx, _iu, _suffix, _mask
+SpMaskOpList = ['vadc', 'vmerge']
+# loop _vx, _iu, _suffix, have to with middle mask
+Sp2MaskOpList = ['vmadc', 'vmsbc']
+# loop _vx, _iu, _suffix, and middle mask. don't have _mask
+SignOpList = ['vdiv', 'vmax', 'vmin', 'vmsge', 'vmsgt', 'vmsle', 'vmslt', 'vmulh', 'vmulhsu', 'vrem', 'vsra', 'vwmacc',
+              'vwmaccsu', 'vwmul', 'vwmulsu']
+# loop _vx, _suffix, _mask, with fixed i
+WSignOpList = ['vnsra', 'vwmaccus']
+# loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
+SpWsignOpList = ['vwadd', 'vwsub']
+# loop _wv, _vx , _suffix, _mask, with fixed i
+UnsignOpList = ['vdivu', 'vmaxu', 'vminu', 'vmsgeu', 'vmsgtu', 'vmsleu', 'vmsltu', 'vmulhu', 'vremu', 'vsrl', 'vwmaccu',
+                'vwmaccu', 'vwmulu']
+# loop _vx, _suffix, _mask with fixed u
+WUnsignOpList = ['vnsrl']
+# loop different position _vx , _suffix, _mask, with fixed u
+SpWUnsignOpList = ['vwaddu', 'vwsubu']
+# loop _wv, _vx , _suffix, _mask, with fixed u
+SpecialFormatList = ['vmv']
+# loop _iu, _suffix and _vx with "_"
+SpVOplist = ['vneg']
+# loop _suffix, _mask and only v, with fixed i
+Sp2VOplist = ['vnot']
+# loop _suffix, _iu, _mask and only v
+ExtOpList = ['vsext', 'vzext']
+# loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 lmul_dict = {'1': 1, '2': 2, '4': 4, '8': 8, 'f2': 0.5, 'f4': 0.25, 'f8': 0.125}
 
 
@@ -42,7 +77,7 @@ class Node:
         # If _mask = '_m', vm = 0, masked, calculate if mask array[i] = 1
         self.carryin = None
         # vmadc don't have mask and must have carry in bit
-        self.sign = None
+        self.sign = ['u', 'i']
         self.Q_A_E = 16
         self.range = pow(2, self.sew)
         self.masked = [0] * Q_array
@@ -67,7 +102,7 @@ class Node:
 
     def vl_set_write(self):
         fd.write("    size_t avl = 64;\n")
-        fd.write("    size_t vl = vsetvl_e%s(size_t avl);\n" % suffix)
+        fd.write("    size_t vl = __riscv_vsetvl_e%s(avl);\n" % suffix)
 
     def c_main_entry_write(self):
         fd.write("int main(){\n")
@@ -101,9 +136,7 @@ class Node:
                      % (int(self.sew / self.lmul), suffix, a.sew, a.sew, suffix))
         else:
             fd.write("        void vint%s_t __riscv_vse%s_v_i%s (int%s_t *out, out_v, size_t vl);\n"
-                     % (suffix, a.sew, a.sew, suffix))
-
-
+                     % (suffix, a.sew, suffix, suffix))
 
     def parameter_seq_write(self):
         # todo: generate all the operate by default
@@ -114,11 +147,11 @@ class Node:
         match self.op_mask:
             case 'vadd':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, vl);\n" % (op, vx, iu, suffix, mask))
             case 'vadd_m':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, iu, suffix, mask))
             case 'vsub':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, vl);\n"
@@ -528,10 +561,16 @@ class Node:
         fd.write("}\n")
 
     def random_gen(self):
-        for i in range(Q_array):
-            self.data1[i] = random.randint(0, self.range)
-            self.data2[i] = random.randint(0, self.range)
-            self.vd_default[i] = random.randint(0, self.range)
+        if self.sign == 'u':
+            for i in range(Q_array):
+                self.data1[i] = random.randint(0, self.range - 1)
+                self.data2[i] = random.randint(0, self.range - 1)
+                self.vd_default[i] = random.randint(0, self.range - 1)
+        else:
+            for i in range(Q_array):
+                self.data1[i] = random.randint(-(self.range // 2), self.range // 2 - 1)
+                self.data2[i] = random.randint(-(self.range // 2), self.range // 2 - 1)
+                self.vd_default[i] = random.randint(-(self.range // 2), self.range // 2 - 1)
 
     def mask_gen(self):
         for i in range(self.Q_A_E):
@@ -567,8 +606,9 @@ class Node:
 
     def vd_mask_default_write(self):
         # todo: load vd mask
-        fd.write("    const boot%s_t vd_mask_data[%s];\n" % (self.sew, Q_array))
+        fd.write("    const bool%s_t vd_mask_data[%s];\n" % (self.sew, Q_array))
         fd.write("    const bool%s_t *vd_mask = &vd_mask_data[0];\n" % self.sew)
+
     def mask_data_write(self):
         # todo: mask type
         fd.write("    bool%s_t masked[] = {\n" % int(self.sew / self.lmul))
@@ -580,7 +620,6 @@ class Node:
         fd.write("    int%s_t golden[] = {\n" % self.sew)
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
         fd.write("    };\n")
-
 
     def compute(self):
         op_list = {
@@ -596,9 +635,9 @@ class Node:
             "vsbc": operator_py_function.sub_with_borrow_op,
             "vmerge": operator_py_function.merge_op,
             "vmacc": operator_py_function.multiply_add_overwrite_addend_op,
-            "vmadd":operator_py_function.multiply_add_overwrite_multiplicand_op,
-            "vmsbc":operator_py_function.multiply_sbc_overwrite_multiplicand_op,
-            "vmseq":operator_py_function.equal_to_op
+            "vmadd": operator_py_function.multiply_add_overwrite_multiplicand_op,
+            "vmsbc": operator_py_function.multiply_sbc_overwrite_multiplicand_op,
+            "vmseq": operator_py_function.equal_to_op
 
         }
         if self.mask:
@@ -613,7 +652,7 @@ class Node:
                     self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.masked[i])
             else:
                 for i in range(self.Q_A_E):
-                    if op == 'vmacc'or 'vmadd':
+                    if op == 'vmacc' or 'vmadd':
                         self.golden[i] = op_list[op](self.masked[i], self.vd_default[i], self.data1[i], self.data2[i])
                     else:
                         self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
@@ -621,91 +660,584 @@ class Node:
 
 a = Node()
 a.op = op
-for suffix in _suffix:
-    divider = suffix.split('m')
-    a.sew = int(divider[0])
-    a.range = pow(2, a.sew)
-    a.lmul = lmul_dict["%s" % divider[1]]
-    for iu in _iu:
-        for wv in _wv:
-            for ext in _ext:
-                for vx in _vx:
-                    for mask in _mask:
-                        filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
-                        a.op_mask = "%s%s" % (op, mask)
-                        if mask != '_m':
-                            with open(filename, 'w') as fd:
-                                if op == 'vmerge':
-                                    a.mask = 0
-                                    # mask and have v0.mask[i] value
-                                    a.compiler_option_write()
-                                    a.c_header_file_write()
-                                    a.c_main_entry_write()
-                                    a.random_gen()
-                                    a.vs2_data_write()
-                                    a.vs1_data_write()
-                                    a.vl_set_write()
-                                    a.mask_gen()
-                                    a.mask_data_write()
-                                    a.vs2_load()
-                                    a.vs1_load()
-                                    a.pointer_iterator_write()
-                                    # a.specific_operator_c()
-                                    a.parameter_seq_write()
-                                    a.vd_store()
-                                    a.jump_to_next_write_mask()
-                                    a.compute()
-                                    a.golden_by_python_write()
-                                    a.report_write()
-                                else:
-                                    a.mask = 1
-                                    # don't hava mask
-                                    a.compiler_option_write()
-                                    a.c_header_file_write()
-                                    a.c_main_entry_write()
-                                    a.random_gen()
-                                    a.vs2_data_write()
-                                    a.vs1_data_write()
-                                    a.vl_set_write()
-                                    a.vd_declaration_write()
-                                    a.vs2_load()
-                                    a.vs1_load()
-                                    a.vd_load()
-                                    if op == 'vmacc':
-                                        a.vd_default_write()
-                                    a.pointer_iterator_write()
-                                    # a.specific_operator_c()
-                                    a.parameter_seq_write()
-                                    a.vd_store()
-                                    a.jump_to_next_write_wo_mask()
-                                    a.compute()
-                                    a.golden_by_python_write()
-                                    a.report_write()
-                        else:
-                            if op == 'vmerge':
-                                break
-                            else:
-                                with open(filename, 'w') as fd:
-                                    a.mask = 0
-                                    # mask and have v0.mask[i] value
-                                    a.compiler_option_write()
-                                    a.c_header_file_write()
-                                    a.c_main_entry_write()
-                                    a.random_gen()
-                                    a.vs2_data_write()
-                                    a.vs1_data_write()
-                                    a.vl_set_write()
-                                    a.vd_default_write()
-                                    # set vd default value if v0.mask[i] = 0, golden = default
-                                    a.mask_gen()
-                                    a.mask_data_write()
-                                    a.vs2_load()
-                                    a.vs1_load()
-                                    a.pointer_iterator_write()
-                                    # a.specific_operator_c()
-                                    a.parameter_seq_write()
-                                    a.vd_store()
-                                    a.jump_to_next_write_mask()
-                                    a.compute()
-                                    a.golden_by_python_write()
-                                    a.report_write()
+for temp in GeneralFormatOpList:
+    if op != temp:
+        continue
+    else:
+        for suffix, vx, mask, iu in _suffix, _vx, _mask, _iu:
+            divider = suffix.split('m')
+            a.sew = int(divider[0])
+            a.range = pow(2, a.sew)
+            a.lmul = lmul_dict["%s" % divider[1]]
+            filename = "testcase/%s_v%s_%s%s%s.c" % (op, vx, iu, suffix, mask)
+            a.op_mask = "%s%s" % (op, mask)
+            if mask != '_m':
+                with open(filename, 'w') as fd:
+                    a.mask = 1
+                    # don't hava mask
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vs1_data_write()
+                    a.vl_set_write()
+                    a.vd_declaration_write()
+                    a.vs2_load()
+                    a.vs1_load()
+                    a.vd_load()
+                    a.pointer_iterator_write()
+                    a.parameter_seq_write()
+                    a.vd_store()
+                    a.jump_to_next_write_wo_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+            else:
+                with open(filename, 'w') as fd:
+                    a.mask = 0
+                    # mask and have v0.mask[i] value
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vs1_data_write()
+                    a.vl_set_write()
+                    a.vd_default_write()
+                    # set vd default value if v0.mask[i] = 0, golden = default
+                    a.mask_gen()
+                    a.mask_data_write()
+                    a.vs2_load()
+                    a.vs1_load()
+                    a.pointer_iterator_write()
+                    # a.specific_operator_c()
+                    a.parameter_seq_write()
+                    a.vd_store()
+                    a.jump_to_next_write_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+for temp in SpMaskOpList:
+    # SpMaskOpList = ['vadc', 'vmerge']
+    # loop _vx, _iu, _suffix, have to with middle mask
+    if op != temp:
+        continue
+    else:
+        for suffix, vx, iu in _suffix, _vx, _iu:
+            divider = suffix.split('m')
+            a.sew = int(divider[0])
+            a.range = pow(2, a.sew)
+            a.lmul = lmul_dict["%s" % divider[1]]
+            filename = "testcase/%s_v%sm_%s%s.c" % (op, vx, iu, suffix)
+            with open(filename, 'w') as fd:
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_default_write()
+                # set vd default value if v0.mask[i] = 0, golden = default
+                a.mask_gen()
+                a.mask_data_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.pointer_iterator_write()
+                # a.specific_operator_c()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+for temp in Sp2MaskOpList:
+    # Sp2MaskOpList = ['vmadc', 'vmsbc']
+    # loop _vx, _iu, _suffix, and middle mask. don't have _mask
+    if op != temp:
+        continue
+    else:
+        for vx, iu, suffix, mask in _vx, _iu, _suffix, _middle_mask:
+            divider = suffix.split('m')
+            a.sew = int(divider[0])
+            a.range = pow(2, a.sew)
+            a.lmul = lmul_dict["%s" % divider[1]]
+            filename = "testcase/%s_v%s%s_%s%s.c" % (op, vx, mask, iu, suffix)
+            with open(filename, 'w') as fd:
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_default_write()
+                # set vd default value if v0.mask[i] = 0, golden = default
+                # a.mask_gen()
+                # a.mask_data_write()
+                # todo: a special mask write function if masked, write 1s, else 0s.
+                a.vs2_load()
+                a.vs1_load()
+                a.pointer_iterator_write()
+                # a.specific_operator_c()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+for temp in SignOpList:
+    # SignOpList = ['vdiv', 'vmax', 'vmin', 'vmsge', 'vmsgt', 'vmsle', 'vmslt', 'vmulh', 'vmulhsu', 'vrem',
+    #              'vsra', 'vwmacc',
+    #              'vwmaccsu', 'vwmul', 'vwmulsu']
+    # loop _vx, _suffix, _mask, with fixed i
+    if op != temp:
+        continue
+    else:
+        for suffix, vx, mask in _suffix, _vx, _mask:
+            divider = suffix.split('m')
+            a.sew = int(divider[0])
+            a.range = pow(2, a.sew)
+            a.lmul = lmul_dict["%s" % divider[1]]
+            filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
+            a.op_mask = "%s%s" % (op, mask)
+            a.sign = 'i'
+            if mask != '_m':
+                with open(filename, 'w') as fd:
+                    a.mask = 1
+                    # don't hava mask
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vs1_data_write()
+                    a.vl_set_write()
+                    a.vd_declaration_write()
+                    a.vs2_load()
+                    a.vs1_load()
+                    a.vd_load()
+                    a.pointer_iterator_write()
+                    a.parameter_seq_write()
+                    a.vd_store()
+                    a.jump_to_next_write_wo_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+            else:
+                with open(filename, 'w') as fd:
+                    a.mask = 0
+                    # mask and have v0.mask[i] value
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vs1_data_write()
+                    a.vl_set_write()
+                    a.vd_default_write()
+                    # set vd default value if v0.mask[i] = 0, golden = default
+                    a.mask_gen()
+                    a.mask_data_write()
+                    a.vs2_load()
+                    a.vs1_load()
+                    a.pointer_iterator_write()
+                    # a.specific_operator_c()
+                    a.parameter_seq_write()
+                    a.vd_store()
+                    a.jump_to_next_write_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+for temp in SignOpList:
+    # UnsignOpList = ['vdivu', 'vmaxu', 'vminu', 'vmsgeu', 'vmsgtu', 'vmsleu', 'vmsltu', 'vmulhu', 'vremu', 'vsrl',
+    # 'vwmaccu', 'vwmaccu', 'vwmulu']
+    # loop _vx, _suffix, _mask with fixed u
+    if op != temp:
+        continue
+    else:
+        for suffix, vx, mask in _suffix, _vx, _mask:
+            divider = suffix.split('m')
+            a.sew = int(divider[0])
+            a.range = pow(2, a.sew)
+            a.lmul = lmul_dict["%s" % divider[1]]
+            filename = "testcase/%s_v%s_u%s%s.c" % (op, vx, suffix, mask)
+            a.op_mask = "%s%s" % (op, mask)
+            a.sign = 'u'
+            if mask != '_m':
+                with open(filename, 'w') as fd:
+                    a.mask = 1
+                    # don't hava mask
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vs1_data_write()
+                    a.vl_set_write()
+                    a.vd_declaration_write()
+                    a.vs2_load()
+                    a.vs1_load()
+                    a.vd_load()
+                    a.pointer_iterator_write()
+                    a.parameter_seq_write()
+                    a.vd_store()
+                    a.jump_to_next_write_wo_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+            else:
+                with open(filename, 'w') as fd:
+                    a.mask = 0
+                    # mask and have v0.mask[i] value
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vs1_data_write()
+                    a.vl_set_write()
+                    a.vd_default_write()
+                    # set vd default value if v0.mask[i] = 0, golden = default
+                    a.mask_gen()
+                    a.mask_data_write()
+                    a.vs2_load()
+                    a.vs1_load()
+                    a.pointer_iterator_write()
+                    # a.specific_operator_c()
+                    a.parameter_seq_write()
+                    a.vd_store()
+                    a.jump_to_next_write_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+if op == 'vwmaccus':
+    # WSignOpList = ['vnsra', 'vwmaccus']
+    # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
+    for suffix, mask in _widen_suffix, _mask:
+        divider = suffix.split('m')
+        a.sew = int(divider[0])
+        a.range = pow(2, a.sew)
+        a.lmul = lmul_dict["%s" % divider[1]]
+        filename = "testcase/%s_vx_i%s%s.c" % (op, suffix, mask)
+        a.op_mask = "%s%s" % (op, mask)
+        a.sign = 'i'
+        if mask != '_m':
+            with open(filename, 'w') as fd:
+                a.mask = 1
+                # don't hava mask
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_declaration_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.vd_load()
+                a.pointer_iterator_write()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_wo_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+        else:
+            with open(filename, 'w') as fd:
+                a.mask = 0
+                # mask and have v0.mask[i] value
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_default_write()
+                # set vd default value if v0.mask[i] = 0, golden = default
+                a.mask_gen()
+                a.mask_data_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.pointer_iterator_write()
+                # a.specific_operator_c()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+if op == 'vnsra' or 'vnsrl':
+    # WSignOpList = ['vnsra', 'vwmaccus']
+    # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
+    for suffix, mask, vx in _narrow_suffix, _mask, _vx:
+        divider = suffix.split('m')
+        a.sew = int(divider[0])
+        a.range = pow(2, a.sew)
+        a.lmul = lmul_dict["%s" % divider[1]]
+        if op == 'vnsra':
+            filename = "testcase/%s_w%s_i%s%s.c" % (op, vx, suffix, mask)
+            a.sign = 'i'
+        else:
+            filename = "testcase/%s_w%s_u%s%s.c" % (op, vx, suffix, mask)
+            a.sign = 'u'
+        a.op_mask = "%s%s" % (op, mask)
+        if mask != '_m':
+            with open(filename, 'w') as fd:
+                a.mask = 1
+                # don't hava mask
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_declaration_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.vd_load()
+                a.pointer_iterator_write()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_wo_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+        else:
+            with open(filename, 'w') as fd:
+                a.mask = 0
+                # mask and have v0.mask[i] value
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_default_write()
+                # set vd default value if v0.mask[i] = 0, golden = default
+                a.mask_gen()
+                a.mask_data_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.pointer_iterator_write()
+                # a.specific_operator_c()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+for temp in SpWUnsignOpList:
+    if op != temp:
+        continue
+    # SpWUnsignOpList = ['vwaddu', 'vwsubu']
+    # loop _wv, _vx , _suffix, _mask, with fixed u
+    else:
+        for wv, vx, suffix, mask in _wv, _vx, _widen_suffix, _mask:
+            divider = suffix.split('m')
+            a.sew = int(divider[0])
+            a.range = pow(2, a.sew)
+            a.lmul = lmul_dict["%s" % divider[1]]
+            filename = "testcase/%s_%s%s_u%s%s.c" % (op, wv, vx, suffix, mask)
+            a.op_mask = "%s%s" % (op, mask)
+            if mask != '_m':
+                with open(filename, 'w') as fd:
+                    a.mask = 1
+                    # don't hava mask
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vs1_data_write()
+                    a.vl_set_write()
+                    a.vd_declaration_write()
+                    a.vs2_load()
+                    a.vs1_load()
+                    a.vd_load()
+                    a.pointer_iterator_write()
+                    a.parameter_seq_write()
+                    a.vd_store()
+                    a.jump_to_next_write_wo_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+            else:
+                with open(filename, 'w') as fd:
+                    a.mask = 0
+                    # mask and have v0.mask[i] value
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vs1_data_write()
+                    a.vl_set_write()
+                    a.vd_default_write()
+                    # set vd default value if v0.mask[i] = 0, golden = default
+                    a.mask_gen()
+                    a.mask_data_write()
+                    a.vs2_load()
+                    a.vs1_load()
+                    a.pointer_iterator_write()
+                    # a.specific_operator_c()
+                    a.parameter_seq_write()
+                    a.vd_store()
+                    a.jump_to_next_write_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+if op == 'vmv':
+    # loop _iu, _suffix and _vx with "_"
+    for iu, suffix, vx in _iu, _suffix, _vx:
+        divider = suffix.split('m')
+        a.sew = int(divider[0])
+        a.range = pow(2, a.sew)
+        a.lmul = lmul_dict["%s" % divider[1]]
+        filename = "testcase/%s_v_%s_%s%s.c" % (op, vx, iu, suffix)
+        with open(filename, 'w') as fd:
+            a.mask = 1
+            # don't hava mask
+            a.compiler_option_write()
+            a.c_header_file_write()
+            a.c_main_entry_write()
+            a.random_gen()
+            a.vs2_data_write()
+            a.vs1_data_write()
+            a.vl_set_write()
+            a.vd_declaration_write()
+            a.vs2_load()
+            a.vs1_load()
+            a.vd_load()
+            a.pointer_iterator_write()
+            a.parameter_seq_write()
+            a.vd_store()
+            a.jump_to_next_write_wo_mask()
+            a.compute()
+            a.golden_by_python_write()
+            a.report_write()
+if op == 'vneg' or 'vnot':
+    # SpVOplist = ['vneg']
+    # loop _suffix, _mask and only v, with fixed i
+    # Sp2VOplist = ['vnot']
+    # loop _suffix, _iu, _mask and only v
+    for suffix, mask in _suffix, _mask:
+        divider = suffix.split('m')
+        a.sew = int(divider[0])
+        a.range = pow(2, a.sew)
+        a.lmul = lmul_dict["%s" % divider[1]]
+        if op == 'vneg':
+            filename = "testcase/%s_v_i%s%s.c" % (op, suffix, mask)
+        else:
+            for iu in _iu:
+                filename = "testcase/%s_v_%s%s%s.c" % (op, iu, suffix, mask)
+        a.op_mask = "%s%s" % (op, mask)
+        if mask != '_m':
+            with open(filename, 'w') as fd:
+                a.mask = 1
+                # don't hava mask
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_declaration_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.vd_load()
+                a.pointer_iterator_write()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_wo_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+        else:
+            with open(filename, 'w') as fd:
+                a.mask = 0
+                # mask and have v0.mask[i] value
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_default_write()
+                # set vd default value if v0.mask[i] = 0, golden = default
+                a.mask_gen()
+                a.mask_data_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.pointer_iterator_write()
+                # a.specific_operator_c()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+# ExtOpList = ['vsext', 'vzext']
+# loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
+if op == 'vsext' or 'vzext':
+    for ext, suffix, mask in _ext, _suffix, _mask:
+        if op == 'vsext':
+            filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, suffix, mask)
+            a.sign = 'i'
+        else:
+            filename = "testcase/%s_v%s_u%s%s.c" % (op, ext, suffix, mask)
+            a.sign = 'u'
+        if mask != '_m':
+            with open(filename, 'w') as fd:
+                a.mask = 1
+                # don't hava mask
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_declaration_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.vd_load()
+                a.pointer_iterator_write()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_wo_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
+        else:
+            with open(filename, 'w') as fd:
+                a.mask = 0
+                # mask and have v0.mask[i] value
+                a.compiler_option_write()
+                a.c_header_file_write()
+                a.c_main_entry_write()
+                a.random_gen()
+                a.vs2_data_write()
+                a.vs1_data_write()
+                a.vl_set_write()
+                a.vd_default_write()
+                # set vd default value if v0.mask[i] = 0, golden = default
+                a.mask_gen()
+                a.mask_data_write()
+                a.vs2_load()
+                a.vs1_load()
+                a.pointer_iterator_write()
+                # a.specific_operator_c()
+                a.parameter_seq_write()
+                a.vd_store()
+                a.jump_to_next_write_mask()
+                a.compute()
+                a.golden_by_python_write()
+                a.report_write()
