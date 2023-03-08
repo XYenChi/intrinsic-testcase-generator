@@ -6,28 +6,27 @@
 #include "riscv_vector.h"
 int main(){
     const int16_t data1[] = {
-    -5000, 19264, 3229, 32220, 9672, 21935, -496, 32259, -12299, 2268, -734, -12432, 9507, 19690, 20715, 15888
+    96, -126, -102, -109, -4, -123, -41, 116, -81, -49, -128, 20, -26, -80, -96, -98
     };
     const int16_t *in1 = &data1[0];
     const int16_t data2[] = {
-    19199, 7259, -25894, -13243, -29616, 2707, -26192, -1648, -21601, -22475, 11308, 18887, 929, -7477, 20122, -28628
+    12, -7, 26, 43, 66, -29, 101, -102, 47, 34, 115, 39, -126, 111, 42, 23
     };
     const int16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m2(avl);
     const int out_data[] = {
-    255, -13792, 28390, 891, 2322, -2337, -20991, -10367, 12626, 3945, 4640, -27763, 17176, -24122, 2054, 12692
+    -26, 26, 23, -56, 95, -69, 117, -37, -45, 4, -51, 54, -36, -32, -36, -30
     };
     const int16_t *out = &out_data[0];
     bool8_t masked[] = {
-    0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1
+    0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0
     };
     const bool8_t *mask = &masked[0];
-    vint16m2_t data1_v = __riscv_vle16_v_i16m2_m (mask, *in1, vl);
-    vint16m2_t data2_v = __riscv_vle16_v_i16m2_m (mask, *in2, vl);
-    vint16m2_t data1_v = __riscv_vle16_v_i16m2_m (mask, *out, vl);
+    vint16m2_t data1_v = __riscv_vle16_v_i16m2_m (mask, in1, vl);
+    vint16m2_t data2_v = __riscv_vle16_v_i16m2_m (mask, in2, vl);
+    vint16m2_t data1_v = __riscv_vle16_v_i16m2_m (mask, out, vl);
     for (size_t n = 0; n < vl; n++) {
-        out_v = __riscv_vadd_vv_i16m2_m (mask, data1_v, data2_v, vl);
         void __riscv_vse16_v_i16m2 (bool16_t mask, int16_t *out, vint16m2_t out_v, size_t vl);
         in1 += 2;
         in2 += 2;
@@ -35,7 +34,7 @@ int main(){
         mask += 2;
       }
     int16_t golden[] = {
-    255, -13792, 28390, 892, 2322, -2337, -20991, -10366, 12626, 3946, 4641, -27762, 17176, -24121, 2055, 12693
+    -26, -128, 23, -56, 62, -69, 60, 14, -45, -15, -51, 59, -36, 31, -36, -30
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

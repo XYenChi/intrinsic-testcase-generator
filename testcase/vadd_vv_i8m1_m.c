@@ -6,28 +6,27 @@
 #include "riscv_vector.h"
 int main(){
     const int8_t data1[] = {
-    -112, 32, 30, -20, 105, -35, 84, -1, -80, 105, -122, -125, -88, -45, 52, -70
+    125, 65, -19, -18, -69, 73, 115, -124, 29, 110, 18, -46, 33, 5, -28, -59
     };
     const int8_t *in1 = &data1[0];
     const int8_t data2[] = {
-    1, 34, 2, -20, -61, 121, -4, 100, 19, -90, -66, 73, -2, 9, 111, -121
+    -37, 126, -30, 18, -125, -91, -31, 63, 38, 113, 25, 89, -97, 70, -128, 58
     };
     const int8_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e8m1(avl);
     const int out_data[] = {
-    73, -95, -94, -107, 69, -65, -71, 76, -42, 83, 102, -50, -98, -35, 43, 108
+    -45, -61, -70, 76, -105, 119, 17, -82, -59, -25, -59, 124, 120, -103, -97, -102
     };
     const int8_t *out = &out_data[0];
     bool8_t masked[] = {
-    1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1
+    1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0
     };
     const bool8_t *mask = &masked[0];
-    vint8m1_t data1_v = __riscv_vle8_v_i8m1_m (mask, *in1, vl);
-    vint8m1_t data2_v = __riscv_vle8_v_i8m1_m (mask, *in2, vl);
-    vint8m1_t data1_v = __riscv_vle8_v_i8m1_m (mask, *out, vl);
+    vint8m1_t data1_v = __riscv_vle8_v_i8m1_m (mask, in1, vl);
+    vint8m1_t data2_v = __riscv_vle8_v_i8m1_m (mask, in2, vl);
+    vint8m1_t data1_v = __riscv_vle8_v_i8m1_m (mask, out, vl);
     for (size_t n = 0; n < vl; n++) {
-        out_v = __riscv_vadd_vv_i8m1_m (mask, data1_v, data2_v, vl);
         void __riscv_vse8_v_i8m1 (bool8_t mask, int8_t *out, vint8m1_t out_v, size_t vl);
         in1 += 1;
         in2 += 1;
@@ -35,7 +34,7 @@ int main(){
         mask += 1;
       }
     int8_t golden[] = {
-    74, -94, -93, -106, 69, -64, -70, 77, -41, 83, 103, -49, -98, -34, 44, 109
+    88, -61, -70, 76, -105, -18, 84, -82, -59, 127, -59, 124, -64, 75, -128, -102
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

@@ -6,20 +6,20 @@
 #include "riscv_vector.h"
 int main(){
     const int16_t data1[] = {
-    708, -20647, 11145, 32734, 27986, -9476, 28723, -31703, 3172, -15858, -11172, -16137, 12701, -3101, 27816, -20988
+    39, -26, 64, -19, 51, 47, -24, -116, -69, 15, 21, -38, 27, 80, 77, -62
     };
     const int16_t *in1 = &data1[0];
     const int16_t data2[] = {
-    9590, 13907, 18439, 32202, -7126, 24669, -17344, 14891, 24386, -6487, -11290, -15585, -23667, 21346, -30334, -29156
+    65, -106, -37, -99, 47, 19, -32, -104, -98, 26, -3, 27, 39, 59, -122, 13
     };
     const int16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m8(avl);
     const int16_t out_data[16];
     const int16_t *out = &out_data[0];
-    vint16m8_t data1_v = __riscv_vle16_v_i16m8 (*in1, vl);
-    vint16m8_t data2_v = __riscv_vle16_v_i16m8 (*in2, vl);
-    vint16m8_t out_v = __riscv_vle16_v_i16m8 (*out, vl);
+    vint16m8_t data1_v = __riscv_vle16_v_i16m8 (in1, vl);
+    vint16m8_t data2_v = __riscv_vle16_v_i16m8 (in2, vl);
+    vint16m8_t out_v = __riscv_vle16_v_i16m8 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vadd_vx_i16m8 (data1_v, data2_v, vl);
         void __riscv_vse16_v_i16m8 (int16_t *out, vint16m8_t out_v, size_t vl);
@@ -28,7 +28,7 @@ int main(){
         out += 2;
       }
     int16_t golden[] = {
-    14643, 6460, 40284, 49249, 2472, -35316, 6095, -37245, 29136, -26787, 19260, 10585, 11762, 10085, 9909, -50139
+    104, -128, 27, -118, 98, 66, -56, -128, -128, 41, 18, -11, 66, 127, -45, -49
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){
