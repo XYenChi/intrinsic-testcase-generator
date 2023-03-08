@@ -661,15 +661,13 @@ class Node:
                 else:
                     self.golden[i] = op_list[op](
                         self.data1[i], self.data2[i])
-                self.golden[i]=min(self.max, self.golden[i])
-                self.golden[i]=max(self.min, self.golden[i])
+                    self.golden[i]=self.golden & "{0:b}".format(self.sew)
         else:
             if op == 'vmerge':
                 for i in range(self.Q_A_E):
                     self.golden[i] = op_list[op](
                         self.data1[i], self.data2[i], self.masked[i])
-                    self.golden[i] = min(self.max, self.golden[i])
-                    self.golden[i] = max(self.min, self.golden[i])
+                    self.golden[i] = self.golden & "{0:b}".format(self.sew)
             else:
                 for i in range(self.Q_A_E):
                     if op == 'vmacc' or op == 'vmadd':
@@ -678,8 +676,7 @@ class Node:
                     else:
                         self.golden[i] = op_list[op](
                             self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
-                    self.golden[i] = min(self.max, self.golden[i])
-                    self.golden[i] = max(self.min, self.golden[i])
+                    self.golden[i]=self.golden & "{0:b}".format(self.sew)
 
 for temp in GeneralFormatOpList:
     if op != temp:
