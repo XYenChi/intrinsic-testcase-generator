@@ -13,7 +13,7 @@ Q_array = 16
 avl = 64
 _vx = ['v', 'x']
 _wv = ['v', 'w']
-_iu = ['i', 'ui']
+_iu = ['i', 'u']
 _ext = ['f2', 'f4', 'f8']
 # 'i' for signed int, 'u' for unsigned int
 _suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
@@ -84,9 +84,11 @@ class Node:
         # vmadc don't have mask and must have carry in bit
         self.sign = sign
         if self.sign == 'i':
+            self.vtype = 'int'
             self.max = pow(2, self.sew-1)-1
             self.min = -pow(2, self.sew-1)
         else:
+            self.vtype = 'uint'
             self.max = pow(2, self.sew)-1
             self.min = 0
         self.Q_A_E = 16
@@ -124,31 +126,37 @@ class Node:
 
     def vs2_load(self):
         if self.mask == 0:
-            fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s%s (mask, in1, vl);\n" % (suffix, a.sew, suffix, mask))
+            fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s%s (mask, in1, vl);\n"
+                     % (a.vtype, suffix, a.sew, a.sign, suffix, mask))
         else:
-            fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s (in1, vl);\n" % (suffix, a.sew, suffix))
+            fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s (in1, vl);\n"
+                     % (a.vtype, suffix, a.sew, a.sign, suffix))
 
     def vs1_load(self):
         if self.mask == 0:
-            fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s%s (mask, in2, vl);\n" % (suffix, a.sew, suffix, mask))
+            fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_i%s%s (mask, in2, vl);\n"
+                     % (a.vtype, suffix, a.sew, suffix, mask))
         else:
-            fd.write("    vint%s_t data2_v = __riscv_vle%s_v_i%s (in2, vl);\n" % (suffix, a.sew, suffix))
+            fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_i%s (in2, vl);\n"
+                     % (a.vtype, suffix, a.sew, suffix))
 
     def vd_load(self):
         if self.mask == 0:
-            fd.write("    vint%s_t data1_v = __riscv_vle%s_v_i%s%s (mask, out, vl);\n" % (suffix, a.sew, suffix, mask))
+            fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s%s (mask, out, vl);\n"
+                     % (a.vtype, suffix, a.sew, a.sign, suffix, mask))
         else:
-            fd.write("    vint%s_t out_v = __riscv_vle%s_v_i%s (out, vl);\n" % (suffix, a.sew, suffix))
+            fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s (out, vl);\n"
+                     % (a.vtype, suffix, a.sew, a.sign, suffix))
 
     # def mask_load(self):
     # todo: load mask
     def vd_store(self):
         if self.mask == 0:
-            fd.write("        void __riscv_vse%s_v_i%s (bool%s_t mask, int%s_t *out, vint%s_t out_v, size_t vl);\n"
-                     % (a.sew, suffix, a.sew, a.sew, suffix))
+            fd.write("        void __riscv_vse%s_v_%s%s (bool%s_t mask, %s%s_t *out, v%s%s_t out_v, size_t vl);\n"
+                     % (a.sew, iu, suffix, a.sew, a.vtype, a.sew, a.vtype, suffix))
         else:
-            fd.write("        void __riscv_vse%s_v_i%s (int%s_t *out, vint%s_t out_v, size_t vl);\n"
-                     % (a.sew, suffix, a.sew, suffix))
+            fd.write("        void __riscv_vse%s_v_%s%s (%s%s_t *out, v%s%s_t out_v, size_t vl);\n"
+                     % (a.sew, iu, suffix, a.vtype, a.sew, a.vtype, suffix))
 
     def parameter_seq_write(self):
         # todo: generate all the operate by default
@@ -213,10 +221,7 @@ class Node:
                     "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmerge':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, size_t vl);\n" % (op, vx, suffix, mask))
-            case 'vmerge_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, size_t vl);\n" % (op, vx, iu, suffix, mask))
             case 'vmacc':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
@@ -329,8 +334,8 @@ class Node:
                     % (op, vx, suffix, int(self.sew / self.lmul)))
             case 'vmv':
                 fd.write(
-                    "        out_v = __riscv_%s_v_%s_%s_b%s (src, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul)))
+                    "        out_v = __riscv_%s_v_%s_%s%s (src, vl);\n"
+                    % (op, vx, iu, suffix))
             case 'vneg':
                 fd.write(
                     "        out_v = __riscv_%s_v_%s (data1_v, vl);\n"
@@ -544,14 +549,20 @@ class Node:
 
     def jump_to_next_write_mask(self):
         fd.write("        in1 += %s;\n" % int(self.sew / 8))
-        fd.write("        in2 += %s;\n" % int(self.sew / 8))
+        if op == 'vnot':
+            return
+        else:
+            fd.write("        in2 += %s;\n" % int(self.sew / 8))
         fd.write("        out += %s;\n" % int(self.sew / 8))
         fd.write("        mask += %s;\n" % int(self.sew / 8))
         fd.write("      }\n")
 
     def jump_to_next_write_wo_mask(self):
         fd.write("        in1 += %s;\n" % int(self.sew / 8))
-        fd.write("        in2 += %s;\n" % int(self.sew / 8))
+        if op == 'vmv' or op == 'vneg':
+            return
+        else:
+            fd.write("        in2 += %s;\n" % int(self.sew / 8))
         fd.write("        out += %s;\n" % int(self.sew / 8))
         fd.write("      }\n")
 
@@ -573,7 +584,7 @@ class Node:
         fd.write("}\n")
 
     def random_gen(self):
-        if self.sign == 'ui':
+        if self.sign == 'u':
             for i in range(Q_array):
                 self.data1[i] = random.randint(0, self.range - 1)
                 self.data2[i] = random.randint(0, self.range - 1)
@@ -649,34 +660,38 @@ class Node:
             "vmacc": operator_py_function.multiply_add_overwrite_addend_op,
             "vmadd": operator_py_function.multiply_add_overwrite_multiplicand_op,
             "vmsbc": operator_py_function.multiply_sbc_overwrite_multiplicand_op,
-            "vmseq": operator_py_function.equal_to_op
+            "vmseq": operator_py_function.equal_to_op,
+            "vmv": operator_py_function.move_op,
+            "vneg": operator_py_function.neg_op,
+            "vnot": operator_py_function.not_op
 
         }
-
-        if self.mask:
-            for i in range(self.Q_A_E):
-                if op == 'vmacc' or op == 'vmadd':
-                    self.golden[i] = op_list[op](
-                        self.vd_default[i], self.data1[i], self.data2[i])
-                else:
-                    self.golden[i] = op_list[op](
-                        self.data1[i], self.data2[i])
-                    self.golden[i]=self.golden & "{0:b}".format(self.sew)
-        else:
-            if op == 'vmerge':
+        if op in GeneralFormatOpList or op in SignOpList or op in UnsignOpList:
+            if self.mask:
                 for i in range(self.Q_A_E):
-                    self.golden[i] = op_list[op](
-                        self.data1[i], self.data2[i], self.masked[i])
-                    self.golden[i] = self.golden & "{0:b}".format(self.sew)
+                    self.golden[i] = op_list[op](self.data1[i], self.data2[i])
+                    self.golden[i]=self.golden[i] & (2**self.sew-1)
             else:
                 for i in range(self.Q_A_E):
-                    if op == 'vmacc' or op == 'vmadd':
-                        self.golden[i] = op_list[op](
-                            self.masked[i], self.vd_default[i], self.data1[i], self.data2[i])
-                    else:
-                        self.golden[i] = op_list[op](
-                            self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
-                    self.golden[i]=self.golden & "{0:b}".format(self.sew)
+                    self.golden[i] = op_list[op](
+                        self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
+                    self.golden[i]=self.golden[i] & (2**self.sew-1)
+        elif op in SpMaskOpList:
+            for i in range(self.Q_A_E):
+                self.golden[i] = op_list[op](
+                    self.data1[i], self.data2[i], self.masked[i])
+        elif op == 'vmv' or op == 'vneg':
+            for i in range(self.Q_A_E):
+                self.golden[i] = op_list[op](self.data1[i])
+        elif op == 'vnot':
+            if self.mask:
+                for i in range(self.Q_A_E):
+                    self.golden[i] = op_list[op](self.data1[i])
+            else:
+                for i in range(self.Q_A_E):
+                    self.golden[i] = op_list[op](self.data1[i], self.vd_default[i], self.masked[i])
+
+
 
 for temp in GeneralFormatOpList:
     if op != temp:
@@ -760,8 +775,6 @@ for temp in SpMaskOpList:
                 a.vs2_data_write()
                 a.vs1_data_write()
                 a.vl_set_write()
-                a.vd_default_write()
-                # set vd default value if v0.mask[i] = 0, golden = default
                 a.mask_gen()
                 a.mask_data_write()
                 a.vs2_load()
@@ -822,7 +835,7 @@ for temp in SignOpList:
         continue
     else:
         for suffix, vx, mask in cross(_suffix, _vx, _mask):
-            a = Node(iu)
+            a = Node('i')
             a.op = op
             divider = suffix.split('m')
             a.sew = int(divider[0])
@@ -830,7 +843,7 @@ for temp in SignOpList:
             a.lmul = lmul_dict["%s" % divider[1]]
             filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
-            a.sign = 'i'
+            iu = 'i'
             if mask != '_m':
                 with open(filename, 'w') as fd:
                     a.mask = 1
@@ -879,7 +892,7 @@ for temp in SignOpList:
                     a.compute()
                     a.golden_by_python_write()
                     a.report_write()
-for temp in SignOpList:
+for temp in UnsignOpList:
     # UnsignOpList = ['vdivu', 'vmaxu', 'vminu', 'vmsgeu', 'vmsgtu', 'vmsleu', 'vmsltu', 'vmulhu', 'vremu', 'vsrl',
     # 'vwmaccu', 'vwmaccu', 'vwmulu']
     # loop _vx, _suffix, _mask with fixed u
@@ -887,7 +900,7 @@ for temp in SignOpList:
         continue
     else:
         for suffix, vx, mask in cross(_suffix, _vx, _mask):
-            a = Node(iu)
+            a = Node('u')
             a.op = op
             divider = suffix.split('m')
             a.sew = int(divider[0])
@@ -895,7 +908,7 @@ for temp in SignOpList:
             a.lmul = lmul_dict["%s" % divider[1]]
             filename = "testcase/%s_v%s_u%s%s.c" % (op, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
-            a.sign = 'u'
+            iu = 'u'
             if mask != '_m':
                 with open(filename, 'w') as fd:
                     a.mask = 1
@@ -1020,7 +1033,7 @@ if op == 'vnsra' or op == 'vnsrl':
             a.sign = 'i'
         else:
             filename = "testcase/%s_w%s_u%s%s.c" % (op, vx, suffix, mask)
-            a.sign = 'ui'
+            a.sign = 'u'
         a.op_mask = "%s%s" % (op, mask)
         if mask != '_m':
             with open(filename, 'w') as fd:
@@ -1137,7 +1150,7 @@ if op == 'vmv':
     # loop _iu, _suffix and _vx with "_"
     for iu, suffix, vx in cross(_iu, _suffix, _vx):
         a = Node(iu)
-        a.op = op
+        a.op_mask = op
         divider = suffix.split('m')
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
@@ -1151,11 +1164,9 @@ if op == 'vmv':
             a.c_main_entry_write()
             a.random_gen()
             a.vs2_data_write()
-            a.vs1_data_write()
             a.vl_set_write()
             a.vd_declaration_write()
             a.vs2_load()
-            a.vs1_load()
             a.vd_load()
             a.pointer_iterator_write()
             a.parameter_seq_write()
@@ -1169,7 +1180,7 @@ if op == 'vneg' or op == 'vnot':
     # loop _suffix, _mask and only v, with fixed i
     # Sp2VOplist = ['vnot']
     # loop _suffix, _iu, _mask and only v
-    for suffix, mask in cross(_suffix, _mask):
+    for suffix, mask, iu in cross(_suffix, _mask, _iu):
         a = Node(iu)
         a.op = op
         divider = suffix.split('m')
@@ -1177,10 +1188,10 @@ if op == 'vneg' or op == 'vnot':
         a.range = pow(2, a.sew)
         a.lmul = lmul_dict["%s" % divider[1]]
         if op == 'vneg':
-            filename = "testcase/%s_v_i%s%s.c" % (op, suffix, mask)
+            if iu == 'i':
+                filename = "testcase/%s_v_i%s%s.c" % (op, suffix, mask)
         else:
-            for iu in _iu:
-                filename = "testcase/%s_v_%s%s%s.c" % (op, iu, suffix, mask)
+            filename = "testcase/%s_v_%s%s%s.c" % (op, iu, suffix, mask)
         a.op_mask = "%s%s" % (op, mask)
         if mask != '_m':
             with open(filename, 'w') as fd:
@@ -1191,11 +1202,9 @@ if op == 'vneg' or op == 'vnot':
                 a.c_main_entry_write()
                 a.random_gen()
                 a.vs2_data_write()
-                a.vs1_data_write()
                 a.vl_set_write()
                 a.vd_declaration_write()
                 a.vs2_load()
-                a.vs1_load()
                 a.vd_load()
                 a.pointer_iterator_write()
                 a.parameter_seq_write()
@@ -1213,14 +1222,12 @@ if op == 'vneg' or op == 'vnot':
                 a.c_main_entry_write()
                 a.random_gen()
                 a.vs2_data_write()
-                a.vs1_data_write()
                 a.vl_set_write()
                 a.vd_default_write()
                 # set vd default value if v0.mask[i] = 0, golden = default
                 a.mask_gen()
                 a.mask_data_write()
                 a.vs2_load()
-                a.vs1_load()
                 a.vd_load()
                 a.pointer_iterator_write()
                 # a.specific_operator_c()

@@ -6,36 +6,35 @@
 #include "riscv_vector.h"
 int main(){
     const int16_t data1[] = {
-    -28668, 19652, -7964, 20681, -20590, 26238, 13616, -9689, 24512, -14240, -15062, 10961, -2634, -653, -11214, 23865
+    102, 110, 173, 177, 110, 148, 165, 122, 160, 99, 48, 7, 76, 178, 156, 108
     };
     const int16_t *in1 = &data1[0];
     const int16_t data2[] = {
-    -30863, 11326, 23793, -3653, 20614, -21577, -22709, -24782, -17470, 13780, 20416, 25581, -5305, -24088, 31417, 21787
+    188, 11, 110, 223, 136, 16, 41, 112, 124, 6, 222, 216, 4, 154, 156, 41
     };
     const int16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16mf2(avl);
     const int out_data[] = {
-    -12734, 7110, 25586, 23636, -22583, 17937, -11561, 15694, 4308, -3401, 18396, 16502, -10315, -24958, 1591, 18156
+    151, 241, 96, 96, 147, 53, 206, 23, 167, 92, 112, 125, 127, 20, 194, 5
     };
     const int16_t *out = &out_data[0];
     bool32_t masked[] = {
-    1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1
+    0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0
     };
     const bool32_t *mask = &masked[0];
-    vint16mf2_t data1_v = __riscv_vle16_v_i16mf2_m (mask, *in1, vl);
-    vint16mf2_t data2_v = __riscv_vle16_v_i16mf2_m (mask, *in2, vl);
-    vint16mf2_t data1_v = __riscv_vle16_v_i16mf2_m (mask, *out, vl);
+    vuint16mf2_t data1_v = __riscv_vle16_v_u16mf2_m (mask, in1, vl);
+    vuint16mf2_t data2_v = __riscv_vle16_v_i16mf2_m (mask, in2, vl);
+    vuint16mf2_t out_v = __riscv_vle16_v_u16mf2_m (mask, out, vl);
     for (size_t n = 0; n < vl; n++) {
-        out_v = __riscv_vadd_vv_u16mf2_m (mask, data1_v, data2_v, vl);
-        void __riscv_vse16_v_i16mf2 (bool16_t mask, int16_t *out, vint16mf2_t out_v, size_t vl);
+        void __riscv_vse16_v_u16mf2 (bool16_t mask, uint16_t *out, vuint16mf2_t out_v, size_t vl);
         in1 += 2;
         in2 += 2;
         out += 2;
         mask += 2;
       }
     int16_t golden[] = {
-    -12733, 7111, 25587, 23637, -22583, 17938, -11561, 15694, 4308, -3401, 18397, 16503, -10314, -24958, 1591, 18157
+    151, 121, 283, 96, 147, 164, 206, 23, 167, 105, 270, 125, 127, 332, 194, 5
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){
