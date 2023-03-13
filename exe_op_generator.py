@@ -707,7 +707,10 @@ class Node:
                 for i in range(self.Q_A_E):
                     self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i])>self.max else 0
                     self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i])<self.min else 0
-
+        elif op == "vsra" or op == "vsrl":
+            shift = log(2, self.sew)
+            for i in range(self.Q_A_E):
+                self.golden[i] =
 for temp in GeneralFormatOpList:
     if op != temp:
         continue
