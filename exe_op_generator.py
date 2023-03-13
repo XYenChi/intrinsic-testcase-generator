@@ -134,11 +134,11 @@ class Node:
 
     def vs1_load(self):
         if self.mask == 0:
-            fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_i%s%s (mask, in2, vl);\n"
-                     % (a.vtype, suffix, a.sew, suffix, mask))
+            fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_%s%s%s (mask, in2, vl);\n"
+                     % (a.vtype, suffix, a.sew, a.sign, suffix, mask))
         else:
-            fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_i%s (in2, vl);\n"
-                     % (a.vtype, suffix, a.sew, suffix))
+            fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_%s%s (in2, vl);\n"
+                     % (a.vtype, suffix, a.sew, a.sign, suffix))
 
     def vd_load(self):
         if self.mask == 0:
@@ -221,21 +221,25 @@ class Node:
                     "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
             case 'vmerge':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, size_t vl);\n" % (op, vx, iu, suffix, mask))
+                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, size_t vl);\n"
+                    % (op, vx, iu, suffix, mask))
             case 'vmacc':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, vl);\n"
+                    % (op, vx, iu, suffix, mask))
             case 'vmacc_m':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, data1_v, data2_v, vl);\n"
+                    % (op, vx, iu, suffix, mask))
             case 'vmadd':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (out_data, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s_%s%s%s (out_data, data1_v, data2_v, vl);\n"
+                    % (op, vx, iu, suffix, mask))
                 # default vd will be passed as out_data
             case 'vmadd_m':
                 fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
+                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, out_data, data1_v, data2_v, vl);\n"
+                    % (op, vx, iu, suffix, mask))
             case 'vmsbc':
                 fd.write(
                     "        out_v = __riscv_%s_v%s%s_%s%s_b%s (data1_v, data2_v, vl);\n"
@@ -584,16 +588,11 @@ class Node:
         fd.write("}\n")
 
     def random_gen(self):
-        if self.sign == 'u':
-            for i in range(Q_array):
-                self.data1[i] = random.randint(0, self.range - 1)
-                self.data2[i] = random.randint(0, self.range - 1)
-                self.vd_default[i] = random.randint(0, self.range - 1)
-        else:
-            for i in range(Q_array):
-                self.data1[i] = random.randint(-(self.range // 2), self.range // 2 - 1)
-                self.data2[i] = random.randint(-(self.range // 2), self.range // 2 - 1)
-                self.vd_default[i] = random.randint(-(self.range // 2), self.range // 2 - 1)
+        for i in range(Q_array):
+            self.data1[i] = random.randint(self.min, self.max)
+            self.data2[i] = random.randint(self.min, self.max)
+            self.vd_default[i] = random.randint(0, 1)
+
 
     def mask_gen(self):
         for i in range(self.Q_A_E):
@@ -605,27 +604,27 @@ class Node:
                 self.masked[i] = random.randint(0, 1)
 
     def vs2_data_write(self):
-        fd.write("    const int%s_t data1[] = {\n" % self.sew)
+        fd.write("    const %s%s_t data1[] = {\n" % (self.vtype, self.sew))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data1)))
         fd.write("    };\n")
-        fd.write("    const int%s_t *in1 = &data1[0];\n" % self.sew)
+        fd.write("    const %s%s_t *in1 = &data1[0];\n" % (self.vtype, self.sew))
 
     def vs1_data_write(self):
-        fd.write("    const int%s_t data2[] = {\n" % self.sew)
+        fd.write("    const %s%s_t data2[] = {\n" % (self.vtype, self.sew))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data2)))
         fd.write("    };\n")
-        fd.write("    const int%s_t *in2 = &data2[0];\n" % self.sew)
+        fd.write("    const %s%s_t *in2 = &data2[0];\n" % (self.vtype, self.sew))
 
     def vd_declaration_write(self):
-        fd.write("    const int%s_t out_data[%s];\n" % (self.sew, Q_array))
+        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, self.sew, Q_array))
         # Declare the array of 10 elements
-        fd.write("    const int%s_t *out = &out_data[0];\n" % self.sew)
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.sew))
 
     def vd_default_write(self):
-        fd.write("    const int out_data[] = {\n")
+        fd.write("    const %s out_data[] = {\n" % self.vtype)
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
         fd.write("    };\n")
-        fd.write("    const int%s_t *out = &out_data[0];\n" % self.sew)
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.sew))
 
     def vd_mask_default_write(self):
         # todo: load vd mask
@@ -634,13 +633,13 @@ class Node:
 
     def mask_data_write(self):
         # todo: mask type
-        fd.write("    bool%s_t masked[] = {\n" % int(self.sew / self.lmul))
+        fd.write("    uint%s_t masked[] = {\n" % int(self.sew / self.lmul))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.masked)))
         fd.write("    };\n")
-        fd.write("    const bool%s_t *mask = &masked[0];\n" % int(self.sew / self.lmul))
+        fd.write("    const uint%s_t *mask = &masked[0];\n" % int(self.sew / self.lmul))
 
     def golden_by_python_write(self):
-        fd.write("    int%s_t golden[] = {\n" % self.sew)
+        fd.write("    %s%s_t golden[] = {\n" % (self.vtype, self.sew))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
         fd.write("    };\n")
 
@@ -654,6 +653,7 @@ class Node:
             "vmax": operator_py_function.max_op,
             "vmin": operator_py_function.min_op,
             "vrem": operator_py_function.reminder,
+            "vremu": operator_py_function.reminder,
             "vadc": operator_py_function.add_with_carry_op,
             "vsbc": operator_py_function.sub_with_borrow_op,
             "vmerge": operator_py_function.merge_op,
@@ -663,19 +663,27 @@ class Node:
             "vmseq": operator_py_function.equal_to_op,
             "vmv": operator_py_function.move_op,
             "vneg": operator_py_function.neg_op,
-            "vnot": operator_py_function.not_op
+            "vnot": operator_py_function.not_op,
+            "vmadc": operator_py_function.add_with_carry_return_mask_op,
+            "vnmsac": operator_py_function.nmsac_op,
+            "vnmsub": operator_py_function.nmsub_op,
+            "vor": operator_py_function.or_op,
+            "vsra": operator_py_function.sra_op
 
         }
         if op in GeneralFormatOpList or op in SignOpList or op in UnsignOpList:
             if self.mask:
                 for i in range(self.Q_A_E):
-                    self.golden[i] = op_list[op](self.data1[i], self.data2[i])
-                    self.golden[i]=self.golden[i] & (2**self.sew-1)
+                    if op == "vnmsac" or op == "vnmsub":
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i])
+                    else:
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i])
+                    self.golden[i] = self.golden[i] & (2**self.sew-1)
             else:
                 for i in range(self.Q_A_E):
                     self.golden[i] = op_list[op](
                         self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
-                    self.golden[i]=self.golden[i] & (2**self.sew-1)
+                    self.golden[i] = self.golden[i] & (2**self.sew-1)
         elif op in SpMaskOpList:
             for i in range(self.Q_A_E):
                 self.golden[i] = op_list[op](
@@ -690,8 +698,15 @@ class Node:
             else:
                 for i in range(self.Q_A_E):
                     self.golden[i] = op_list[op](self.data1[i], self.vd_default[i], self.masked[i])
-
-
+        elif op in Sp2MaskOpList:
+            if self.mask:
+                for i in range(self.Q_A_E):
+                    self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])>self.max else 0
+                    self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])<self.min else 0
+            else:
+                for i in range(self.Q_A_E):
+                    self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i])>self.max else 0
+                    self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i])<self.min else 0
 
 for temp in GeneralFormatOpList:
     if op != temp:
