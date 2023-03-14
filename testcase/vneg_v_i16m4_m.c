@@ -5,32 +5,32 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int16_t data1[] = {
-    -4830, -29354, -1919, -8194, -26577, -24100, 8826, -13146, -15124, -24788, 11647, -10667, -6251, 11899, 8735, -9144
+    const uint16_t data1[] = {
+    123, 23, 33, 231, 179, 238, 10, 24, 23, 73, 41, 195, 127, 184, 248, 205
     };
-    const int16_t *in1 = &data1[0];
+    const uint16_t *in1 = &data1[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m4(avl);
-    const int out_data[] = {
-    -15491, -3380, -19757, -2065, 8573, 18943, -13586, 2647, 19307, 27474, 32583, 6705, 2545, -18563, 1087, 20737
+    const uint out_data[] = {
+    1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1
     };
-    const int16_t *out = &out_data[0];
-    bool4_t masked[] = {
-    0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0
+    const uint16_t *out = &out_data[0];
+    uint4_t masked[] = {
+    0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0
     };
-    const bool4_t *mask = &masked[0];
-    vint16m4_t data1_v = __riscv_vle16_v_i16m4_m (mask, in1, vl);
-    vint16m4_t out_v = __riscv_vle16_v_i16m4_m (mask, out, vl);
+    const uint4_t *mask = &masked[0];
+    vuint16m4_t data1_v = __riscv_vle16_v_u16m4_m (mask, in1, vl);
+    vuint16m4_t out_v = __riscv_vle16_v_u16m4_m (mask, out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vneg_v_16m4 (mask, data1_v, vl);
-        void __riscv_vse16_v_i16m4 (bool16_t mask, int16_t *out, vint16m4_t out_v, size_t vl);
+        void __riscv_vse16_v_u16m4 (bool16_t mask, uint16_t *out, vuint16m4_t out_v, size_t vl);
         in1 += 2;
         in2 += 2;
         out += 2;
         mask += 2;
       }
-    int16_t golden[] = {
-    4830, 29354, 1919, 8194, 26577, 24100, -8826, 13146, 15124, 24788, -11647, 10667, 6251, -11899, -8735, 9144
+    uint16_t golden[] = {
+    -123, -23, -33, -231, -179, -238, -10, -24, -23, -73, -41, -195, -127, -184, -248, -205
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

@@ -5,32 +5,32 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int32_t data1[] = {
-    -228355292, 280967772, -307442595, -236840053, -640664171, 1879244140, -1461303020, 1418389395, 1326239960, 281817320, -1047303139, -1407797967, 714175715, 526606228, -1911190791, 74783495
+    const uint32_t data1[] = {
+    49, 24, 65, 234, 136, 161, 209, 117, 162, 133, 92, 100, 45, 244, 149, 73
     };
-    const int32_t *in1 = &data1[0];
+    const uint32_t *in1 = &data1[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e32m1(avl);
-    const int out_data[] = {
-    -195090693, -849075018, -267084640, 774583538, -314090065, -1369490960, -496402453, 1550127170, -1645284026, -455924498, 1570770293, 875078004, 163040454, -997408669, -896993441, -117589206
+    const uint out_data[] = {
+    0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1
     };
-    const int32_t *out = &out_data[0];
-    bool32_t masked[] = {
-    0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0
+    const uint32_t *out = &out_data[0];
+    uint32_t masked[] = {
+    0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0
     };
-    const bool32_t *mask = &masked[0];
-    vint32m1_t data1_v = __riscv_vle32_v_i32m1_m (mask, in1, vl);
-    vint32m1_t out_v = __riscv_vle32_v_i32m1_m (mask, out, vl);
+    const uint32_t *mask = &masked[0];
+    vuint32m1_t data1_v = __riscv_vle32_v_u32m1_m (mask, in1, vl);
+    vuint32m1_t out_v = __riscv_vle32_v_u32m1_m (mask, out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vneg_v_32m1 (mask, data1_v, vl);
-        void __riscv_vse32_v_i32m1 (bool32_t mask, int32_t *out, vint32m1_t out_v, size_t vl);
+        void __riscv_vse32_v_u32m1 (bool32_t mask, uint32_t *out, vuint32m1_t out_v, size_t vl);
         in1 += 4;
         in2 += 4;
         out += 4;
         mask += 4;
       }
-    int32_t golden[] = {
-    228355292, -280967772, 307442595, 236840053, 640664171, -1879244140, 1461303020, -1418389395, -1326239960, -281817320, 1047303139, 1407797967, -714175715, -526606228, 1911190791, -74783495
+    uint32_t golden[] = {
+    -49, -24, -65, -234, -136, -161, -209, -117, -162, -133, -92, -100, -45, -244, -149, -73
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

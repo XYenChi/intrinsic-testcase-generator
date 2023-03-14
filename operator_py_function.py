@@ -92,7 +92,7 @@ def merge_op(a, b, m):
         return b
 
 
-def multiply_add_overwrite_addend_op(c, a, b, m=None):
+def multiply_add_overwrite_addend_op(a, b, c=None, m=None):
     # vmacc
     if m == 0:
         return c
@@ -206,3 +206,81 @@ def or_op(a, b, c, m=None):
     else:
         c = a | b
         return c
+
+
+def shift_right_op(a, b, c, m=None):
+    # vsra, vsrl
+    if m == 0:
+        return c
+    else:
+        c = a >> b
+        return c
+
+
+def shift_left_op(a, b, c, m=None):
+    # vsll
+    if m == 0:
+        return c
+    else:
+        c = a << b
+        return c
+
+
+def greater_equal_op(a, b, c, m=None):
+    # vmsge
+    if m == 0:
+        return c
+    else:
+        if a >= b:
+            c = 1
+            return c
+        else:
+            c = 0
+            return c
+
+
+def less_equal_op(a, b, c, m=None):
+    # vmsle
+    if m == 0:
+        return c
+    else:
+        if a <= b:
+            c = 1
+            return c
+        else:
+            c = 0
+            return c
+
+
+def less_than_op(a, b, c, m=None):
+    # vmslt
+    if m == 0:
+        return c
+    else:
+        if a < b:
+            c = 1
+            return c
+        else:
+            c = 0
+            return c
+
+
+def greater_than_op(a, b, c, m=None):
+    # vmsge
+    if m == 0:
+        return c
+    else:
+        if a > b:
+            c = 1
+            return c
+        else:
+            c = 0
+            return c
+
+
+def reverse_sub_op(a, b, c=None, m=None):
+    # vrsub
+    if m == 0:
+        return c
+    else:
+        return b - a

@@ -1,0 +1,45 @@
+/* { dg-do run } */
+/* { dg-options "-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2 -w" } */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "riscv_vector.h"
+int main(){
+    const int64_t data1[] = {
+    25, -91, -52, 91, 92, 23, 97, -71, 25, -75, -16, -45, -95, -96, -123, -93
+    };
+    const int64_t *in1 = &data1[0];
+    const int64_t data2[] = {
+    79, -108, 27, -109, 87, 67, 95, 73, 57, 85, -43, 99, -77, -78, 30, -16
+    };
+    const int64_t *in2 = &data2[0];
+    size_t avl = 64;
+    size_t vl = __riscv_vsetvl_e64m4(avl);
+    const int64_t out_data[16];
+    const int64_t *out = &out_data[0];
+    vint64m4_t data1_v = __riscv_vle64_v_i64m4 (in1, vl);
+    vint64m4_t data2_v = __riscv_vle64_v_i64m4 (in2, vl);
+    vint64m4_t out_v = __riscv_vle64_v_i64m4 (out, vl);
+    for (size_t n = 0; n < vl; n++) {
+        out_v = __riscv_vmax_vv_i64m4 (data1_v, data2_v, vl);
+        void __riscv_vse64_v_i64m4 (int64_t *out, vint64m4_t out_v, size_t vl);
+        in1 += 8;
+        in2 += 8;
+        out += 8;
+      }
+    int64_t golden[] = {
+    79, 18446744073709551525, 27, 91, 92, 67, 97, 73, 57, 85, 18446744073709551600, 99, 18446744073709551539, 18446744073709551538, 30, 18446744073709551600
+    };
+    int fail = 0;
+    for (int i = 0; i < 16; i++){
+        if (golden[i] != out_data[i]) {
+            printf ("idx=%d golden=%d out=%d\n", i, golden[i], out_data[i]);
+            fail++;
+            }
+        }
+    if (fail) {
+        return 1;
+    } else {
+        return 0;
+    }
+}

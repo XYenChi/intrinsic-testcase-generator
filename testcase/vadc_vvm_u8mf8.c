@@ -5,22 +5,22 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int8_t data1[] = {
-    133, 168, 108, 78, 239, 227, 102, 214, 50, 123, 89, 146, 213, 48, 5, 209
+    const uint8_t data1[] = {
+    26, 253, 37, 226, 59, 33, 8, 78, 34, 248, 73, 221, 172, 69, 199, 93
     };
-    const int8_t *in1 = &data1[0];
-    const int8_t data2[] = {
-    182, 167, 13, 85, 30, 40, 48, 54, 70, 170, 34, 101, 44, 100, 64, 222
+    const uint8_t *in1 = &data1[0];
+    const uint8_t data2[] = {
+    94, 60, 251, 197, 56, 238, 238, 235, 210, 141, 235, 183, 63, 55, 119, 246
     };
-    const int8_t *in2 = &data2[0];
+    const uint8_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e8mf8(avl);
-    bool64_t masked[] = {
-    0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1
+    uint64_t masked[] = {
+    0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1
     };
-    const bool64_t *mask = &masked[0];
+    const uint64_t *mask = &masked[0];
     vuint8mf8_t data1_v = __riscv_vle8_v_u8mf8 (in1, vl);
-    vuint8mf8_t data2_v = __riscv_vle8_v_i8mf8 (in2, vl);
+    vuint8mf8_t data2_v = __riscv_vle8_v_u8mf8 (in2, vl);
     vuint8mf8_t out_v = __riscv_vle8_v_u8mf8 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         void __riscv_vse8_v_u8mf8 (uint8_t *out, vuint8mf8_t out_v, size_t vl);
@@ -29,8 +29,8 @@ int main(){
         out += 1;
         mask += 1;
       }
-    int8_t golden[] = {
-    315, 336, 121, 164, 270, 267, 150, 268, 121, 294, 123, 247, 258, 149, 70, 432
+    uint8_t golden[] = {
+    120, 313, 289, 424, 116, 272, 247, 314, 245, 389, 308, 404, 235, 125, 319, 340
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

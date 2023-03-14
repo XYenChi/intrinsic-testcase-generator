@@ -5,22 +5,22 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int8_t data1[] = {
-    191, 18, 166, 203, 194, 37, 75, 134, 46, 128, 120, 209, 88, 27, 160, 209
+    const uint8_t data1[] = {
+    251, 19, 130, 175, 59, 35, 243, 64, 209, 181, 33, 104, 101, 199, 5, 150
     };
-    const int8_t *in1 = &data1[0];
-    const int8_t data2[] = {
-    211, 174, 106, 222, 58, 109, 250, 93, 15, 223, 128, 215, 112, 2, 160, 205
+    const uint8_t *in1 = &data1[0];
+    const uint8_t data2[] = {
+    55, 100, 182, 113, 79, 111, 77, 231, 241, 65, 127, 46, 137, 44, 116, 26
     };
-    const int8_t *in2 = &data2[0];
+    const uint8_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e8m4(avl);
-    bool2_t masked[] = {
-    0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1
+    uint2_t masked[] = {
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0
     };
-    const bool2_t *mask = &masked[0];
+    const uint2_t *mask = &masked[0];
     vuint8m4_t data1_v = __riscv_vle8_v_u8m4 (in1, vl);
-    vuint8m4_t data2_v = __riscv_vle8_v_i8m4 (in2, vl);
+    vuint8m4_t data2_v = __riscv_vle8_v_u8m4 (in2, vl);
     vuint8m4_t out_v = __riscv_vle8_v_u8m4 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         void __riscv_vse8_v_u8m4 (uint8_t *out, vuint8m4_t out_v, size_t vl);
@@ -29,8 +29,8 @@ int main(){
         out += 1;
         mask += 1;
       }
-    int8_t golden[] = {
-    191, 174, 166, 203, 58, 109, 75, 134, 46, 223, 128, 209, 88, 27, 160, 205
+    uint8_t golden[] = {
+    251, 100, 130, 175, 59, 35, 243, 64, 209, 181, 33, 46, 101, 199, 116, 150
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

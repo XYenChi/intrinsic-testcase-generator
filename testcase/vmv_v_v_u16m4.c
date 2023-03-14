@@ -5,22 +5,22 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int16_t data1[] = {
-    26378, 39747, 15324, 55707, 51994, 31707, 56152, 1843, 23156, 29703, 51005, 24114, 52655, 49706, 22908, 33715
+    const uint16_t data1[] = {
+    45, 228, 8, 192, 60, 237, 19, 43, 188, 218, 19, 75, 99, 86, 161, 3
     };
-    const int16_t *in1 = &data1[0];
+    const uint16_t *in1 = &data1[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m4(avl);
-    const int16_t out_data[16];
-    const int16_t *out = &out_data[0];
+    const uint16_t out_data[16];
+    const uint16_t *out = &out_data[0];
     vuint16m4_t data1_v = __riscv_vle16_v_u16m4 (in1, vl);
     vuint16m4_t out_v = __riscv_vle16_v_u16m4 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vmv_v_v_u16m4 (src, vl);
         void __riscv_vse16_v_u16m4 (uint16_t *out, vuint16m4_t out_v, size_t vl);
         in1 += 2;
-    int16_t golden[] = {
-    26378, 39747, 15324, 55707, 51994, 31707, 56152, 1843, 23156, 29703, 51005, 24114, 52655, 49706, 22908, 33715
+    uint16_t golden[] = {
+    45, 228, 8, 192, 60, 237, 19, 43, 188, 218, 19, 75, 99, 86, 161, 3
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

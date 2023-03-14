@@ -192,6 +192,13 @@ class Node:
             case 'vdiv_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+            case 'vdivu':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+            case 'vdivu_m':
+                fd.write(
+                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
+
             case 'vmax':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
@@ -650,8 +657,11 @@ class Node:
             "vsub": operator_py_function.sub_op,
             "vmul": operator_py_function.mul_op,
             "vdiv": operator_py_function.div_op,
+            "vdivu": operator_py_function.div_op,
             "vmax": operator_py_function.max_op,
+            "vmaxu": operator_py_function.max_op,
             "vmin": operator_py_function.min_op,
+            "vminu": operator_py_function.min_op,
             "vrem": operator_py_function.reminder,
             "vremu": operator_py_function.reminder,
             "vadc": operator_py_function.add_with_carry_op,
@@ -668,22 +678,36 @@ class Node:
             "vnmsac": operator_py_function.nmsac_op,
             "vnmsub": operator_py_function.nmsub_op,
             "vor": operator_py_function.or_op,
-            "vsra": operator_py_function.sra_op
-
+            "vsra": operator_py_function.shift_right_op,
+            "vsrl": operator_py_function.shift_right_op,
+            "vsll": operator_py_function.shift_left_op,
+            "vmsge": operator_py_function.greater_equal_op,
+            "vmsle": operator_py_function.less_equal_op,
+            "vmslt": operator_py_function.less_than_op,
+            "vmsgt": operator_py_function.greater_than_op,
+            "vmsne": operator_py_function.not_equal_to_op,
+            "vrsub": operator_py_function.reverse_sub_op
         }
         if op in GeneralFormatOpList or op in SignOpList or op in UnsignOpList:
-            if self.mask:
-                for i in range(self.Q_A_E):
-                    if op == "vnmsac" or op == "vnmsub":
-                        self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i])
-                    else:
-                        self.golden[i] = op_list[op](self.data1[i], self.data2[i])
-                    self.golden[i] = self.golden[i] & (2**self.sew-1)
+            if op == "vsra" or op == "vsrl" or op == "vsll":
+                fake_shift = int(math.log(2, self.sew))
+                if self.mask:
+                    for i in range(self.Q_A_E):
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (2 ** fake_shift), self.vd_default[i],
+                                                     self.masked[i])
+                else:
+                    for i in range(self.Q_A_E):
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (2 ** fake_shift), self.vd_default[i])
             else:
-                for i in range(self.Q_A_E):
-                    self.golden[i] = op_list[op](
-                        self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
-                    self.golden[i] = self.golden[i] & (2**self.sew-1)
+                if self.mask:
+                    for i in range(self.Q_A_E):
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i])
+                        self.golden[i] = self.golden[i] & (2**self.sew-1)
+                else:
+                    for i in range(self.Q_A_E):
+                        self.golden[i] = op_list[op](
+                            self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
+                        self.golden[i] = self.golden[i] & (2**self.sew-1)
         elif op in SpMaskOpList:
             for i in range(self.Q_A_E):
                 self.golden[i] = op_list[op](
@@ -707,10 +731,7 @@ class Node:
                 for i in range(self.Q_A_E):
                     self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i])>self.max else 0
                     self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i])<self.min else 0
-        elif op == "vsra" or op == "vsrl":
-            shift = log(2, self.sew)
-            for i in range(self.Q_A_E):
-                self.golden[i] =
+
 for temp in GeneralFormatOpList:
     if op != temp:
         continue

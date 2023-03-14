@@ -5,26 +5,26 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int64_t data1[] = {
-    106, 138, 202, 49, 66, 215, 85, 2, 5, 93, 247, 94, 255, 87, 35, 59
+    const uint64_t data1[] = {
+    31, 102, 169, 166, 98, 48, 151, 216, 235, 28, 119, 33, 129, 168, 120, 15
     };
-    const int64_t *in1 = &data1[0];
-    const int64_t data2[] = {
-    45, 234, 170, 7, 202, 132, 77, 110, 31, 167, 175, 127, 55, 33, 172, 213
+    const uint64_t *in1 = &data1[0];
+    const uint64_t data2[] = {
+    234, 33, 254, 110, 48, 33, 59, 139, 9, 178, 76, 146, 247, 74, 196, 74
     };
-    const int64_t *in2 = &data2[0];
+    const uint64_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e64m8(avl);
-    const int out_data[] = {
-    55, 121, 121, 30, 116, 85, 233, 183, 250, 108, 24, 235, 184, 165, 233, 172
+    const uint out_data[] = {
+    0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0
     };
-    const int64_t *out = &out_data[0];
-    bool8_t masked[] = {
-    0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0
+    const uint64_t *out = &out_data[0];
+    uint8_t masked[] = {
+    1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0
     };
-    const bool8_t *mask = &masked[0];
+    const uint8_t *mask = &masked[0];
     vuint64m8_t data1_v = __riscv_vle64_v_u64m8_m (mask, in1, vl);
-    vuint64m8_t data2_v = __riscv_vle64_v_i64m8_m (mask, in2, vl);
+    vuint64m8_t data2_v = __riscv_vle64_v_u64m8_m (mask, in2, vl);
     vuint64m8_t out_v = __riscv_vle64_v_u64m8_m (mask, out, vl);
     for (size_t n = 0; n < vl; n++) {
         void __riscv_vse64_v_u64m8 (bool64_t mask, uint64_t *out, vuint64m8_t out_v, size_t vl);
@@ -33,8 +33,8 @@ int main(){
         out += 8;
         mask += 8;
       }
-    int64_t golden[] = {
-    55, 372, 372, 56, 116, 347, 233, 112, 36, 108, 422, 235, 184, 120, 233, 172
+    uint64_t golden[] = {
+    265, 135, 423, 276, 0, 1, 1, 355, 1, 1, 1, 1, 1, 242, 0, 0
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

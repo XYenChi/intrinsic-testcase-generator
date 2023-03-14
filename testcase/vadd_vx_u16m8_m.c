@@ -5,26 +5,26 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int16_t data1[] = {
-    27, 90, 3, 67, 62, 123, 93, 200, 220, 216, 68, 129, 148, 85, 137, 52
+    const uint16_t data1[] = {
+    233, 16, 226, 234, 94, 31, 24, 217, 167, 162, 63, 181, 21, 78, 90, 62
     };
-    const int16_t *in1 = &data1[0];
-    const int16_t data2[] = {
-    60, 185, 81, 57, 192, 111, 124, 137, 160, 208, 96, 89, 72, 18, 194, 24
+    const uint16_t *in1 = &data1[0];
+    const uint16_t data2[] = {
+    201, 235, 108, 123, 118, 25, 12, 24, 38, 195, 225, 105, 132, 209, 172, 158
     };
-    const int16_t *in2 = &data2[0];
+    const uint16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m8(avl);
-    const int out_data[] = {
-    178, 82, 121, 104, 34, 71, 200, 79, 108, 125, 165, 26, 159, 242, 255, 101
+    const uint out_data[] = {
+    0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0
     };
-    const int16_t *out = &out_data[0];
-    bool2_t masked[] = {
-    0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0
+    const uint16_t *out = &out_data[0];
+    uint2_t masked[] = {
+    1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1
     };
-    const bool2_t *mask = &masked[0];
+    const uint2_t *mask = &masked[0];
     vuint16m8_t data1_v = __riscv_vle16_v_u16m8_m (mask, in1, vl);
-    vuint16m8_t data2_v = __riscv_vle16_v_i16m8_m (mask, in2, vl);
+    vuint16m8_t data2_v = __riscv_vle16_v_u16m8_m (mask, in2, vl);
     vuint16m8_t out_v = __riscv_vle16_v_u16m8_m (mask, out, vl);
     for (size_t n = 0; n < vl; n++) {
         void __riscv_vse16_v_u16m8 (bool16_t mask, uint16_t *out, vuint16m8_t out_v, size_t vl);
@@ -33,8 +33,8 @@ int main(){
         out += 2;
         mask += 2;
       }
-    int16_t golden[] = {
-    178, 275, 121, 104, 34, 71, 200, 337, 380, 125, 165, 218, 159, 242, 331, 101
+    uint16_t golden[] = {
+    434, 251, 0, 0, 212, 56, 1, 0, 0, 1, 288, 1, 1, 287, 0, 220
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

@@ -5,22 +5,22 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int16_t data1[] = {
-    45880, 12830, 39994, 41837, 52257, 25988, 39029, 31681, 48091, 63599, 24923, 18983, 10790, 45789, 4186, 58234
+    const uint16_t data1[] = {
+    191, 6, 155, 57, 109, 139, 165, 138, 117, 184, 168, 55, 96, 75, 109, 181
     };
-    const int16_t *in1 = &data1[0];
-    const int16_t data2[] = {
-    54907, 3217, 48575, 24365, 56907, 40785, 56939, 1232, 54048, 576, 1464, 25286, 23833, 61144, 52247, 31058
+    const uint16_t *in1 = &data1[0];
+    const uint16_t data2[] = {
+    107, 57, 64, 92, 69, 103, 72, 27, 116, 38, 49, 47, 107, 59, 22, 52
     };
-    const int16_t *in2 = &data2[0];
+    const uint16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m8(avl);
-    bool2_t masked[] = {
-    1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    uint2_t masked[] = {
+    1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0
     };
-    const bool2_t *mask = &masked[0];
+    const uint2_t *mask = &masked[0];
     vuint16m8_t data1_v = __riscv_vle16_v_u16m8 (in1, vl);
-    vuint16m8_t data2_v = __riscv_vle16_v_i16m8 (in2, vl);
+    vuint16m8_t data2_v = __riscv_vle16_v_u16m8 (in2, vl);
     vuint16m8_t out_v = __riscv_vle16_v_u16m8 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         void __riscv_vse16_v_u16m8 (uint16_t *out, vuint16m8_t out_v, size_t vl);
@@ -29,8 +29,8 @@ int main(){
         out += 2;
         mask += 2;
       }
-    int16_t golden[] = {
-    54907, 3217, 48575, 24365, 56907, 25988, 39029, 31681, 48091, 63599, 24923, 18983, 10790, 45789, 4186, 58234
+    uint16_t golden[] = {
+    107, 57, 64, 57, 109, 103, 165, 27, 116, 184, 168, 47, 96, 75, 22, 181
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

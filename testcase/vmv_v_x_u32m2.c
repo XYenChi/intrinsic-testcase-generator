@@ -5,22 +5,22 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int32_t data1[] = {
-    181396562, 3036080519, 2519286054, 1014636000, 3049856137, 531400918, 3483047853, 4176323000, 3704982067, 1080739275, 1898771807, 180411355, 4293846141, 1743375384, 886115503, 2991387226
+    const uint32_t data1[] = {
+    210, 124, 8, 110, 60, 237, 70, 143, 111, 225, 236, 65, 5, 24, 245, 207
     };
-    const int32_t *in1 = &data1[0];
+    const uint32_t *in1 = &data1[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e32m2(avl);
-    const int32_t out_data[16];
-    const int32_t *out = &out_data[0];
+    const uint32_t out_data[16];
+    const uint32_t *out = &out_data[0];
     vuint32m2_t data1_v = __riscv_vle32_v_u32m2 (in1, vl);
     vuint32m2_t out_v = __riscv_vle32_v_u32m2 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vmv_v_x_u32m2 (src, vl);
         void __riscv_vse32_v_u32m2 (uint32_t *out, vuint32m2_t out_v, size_t vl);
         in1 += 4;
-    int32_t golden[] = {
-    181396562, 3036080519, 2519286054, 1014636000, 3049856137, 531400918, 3483047853, 4176323000, 3704982067, 1080739275, 1898771807, 180411355, 4293846141, 1743375384, 886115503, 2991387226
+    uint32_t golden[] = {
+    210, 124, 8, 110, 60, 237, 70, 143, 111, 225, 236, 65, 5, 24, 245, 207
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

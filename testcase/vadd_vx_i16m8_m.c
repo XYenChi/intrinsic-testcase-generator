@@ -6,23 +6,23 @@
 #include "riscv_vector.h"
 int main(){
     const int16_t data1[] = {
-    66, 78, -40, -100, -107, -57, 35, -20, 21, 94, 1, 58, -20, -38, -76, 25
+    -1, -81, -102, -20, 108, -30, -79, -127, -100, -43, -42, -26, 44, -72, 73, -124
     };
     const int16_t *in1 = &data1[0];
     const int16_t data2[] = {
-    -29, 58, 74, -69, 57, -26, -2, -117, 16, 31, 116, 83, 87, -108, 11, -121
+    -115, -114, -1, 22, 115, 17, 43, 52, -60, 59, -128, 119, -1, 40, 21, -104
     };
     const int16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m8(avl);
     const int out_data[] = {
-    125, 33, -114, -124, 27, 105, -116, -43, 65, 56, 90, -120, -102, 53, -69, 85
+    0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1
     };
     const int16_t *out = &out_data[0];
-    bool2_t masked[] = {
-    0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0
+    uint2_t masked[] = {
+    0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1
     };
-    const bool2_t *mask = &masked[0];
+    const uint2_t *mask = &masked[0];
     vint16m8_t data1_v = __riscv_vle16_v_i16m8_m (mask, in1, vl);
     vint16m8_t data2_v = __riscv_vle16_v_i16m8_m (mask, in2, vl);
     vint16m8_t out_v = __riscv_vle16_v_i16m8_m (mask, out, vl);
@@ -34,7 +34,7 @@ int main(){
         mask += 2;
       }
     int16_t golden[] = {
-    125, 136, 34, 65412, 65486, 65453, 65420, 65399, 65, 125, 90, 65416, 67, 53, 65471, 85
+    0, 1, 0, 0, 223, 65523, 1, 0, 0, 0, 0, 0, 1, 65504, 1, 65308
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

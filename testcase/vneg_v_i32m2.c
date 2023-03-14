@@ -5,22 +5,22 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int32_t data1[] = {
-    -529370673, 904297206, -1621796152, 740498450, -111163855, 553698532, -82120990, -964131086, -1509848354, 1568935098, -1375598278, -1689323489, 867482396, -348676905, 2050122725, -272044839
+    const uint32_t data1[] = {
+    104, 204, 240, 36, 93, 211, 76, 161, 54, 103, 237, 71, 230, 213, 30, 106
     };
-    const int32_t *in1 = &data1[0];
+    const uint32_t *in1 = &data1[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e32m2(avl);
-    const int32_t out_data[16];
-    const int32_t *out = &out_data[0];
-    vint32m2_t data1_v = __riscv_vle32_v_i32m2 (in1, vl);
-    vint32m2_t out_v = __riscv_vle32_v_i32m2 (out, vl);
+    const uint32_t out_data[16];
+    const uint32_t *out = &out_data[0];
+    vuint32m2_t data1_v = __riscv_vle32_v_u32m2 (in1, vl);
+    vuint32m2_t out_v = __riscv_vle32_v_u32m2 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vneg_v_32m2 (data1_v, vl);
-        void __riscv_vse32_v_i32m2 (int32_t *out, vint32m2_t out_v, size_t vl);
+        void __riscv_vse32_v_u32m2 (uint32_t *out, vuint32m2_t out_v, size_t vl);
         in1 += 4;
-    int32_t golden[] = {
-    529370673, -904297206, 1621796152, -740498450, 111163855, -553698532, 82120990, 964131086, 1509848354, -1568935098, 1375598278, 1689323489, -867482396, 348676905, -2050122725, 272044839
+    uint32_t golden[] = {
+    -104, -204, -240, -36, -93, -211, -76, -161, -54, -103, -237, -71, -230, -213, -30, -106
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

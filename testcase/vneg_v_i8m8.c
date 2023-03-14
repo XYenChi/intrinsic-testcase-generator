@@ -5,22 +5,22 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int8_t data1[] = {
-    127, 42, 84, 51, -73, -81, 110, -94, -72, -27, 91, -88, -106, 6, -90, 67
+    const uint8_t data1[] = {
+    22, 19, 20, 172, 94, 24, 165, 90, 123, 43, 4, 144, 239, 120, 145, 121
     };
-    const int8_t *in1 = &data1[0];
+    const uint8_t *in1 = &data1[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e8m8(avl);
-    const int8_t out_data[16];
-    const int8_t *out = &out_data[0];
-    vint8m8_t data1_v = __riscv_vle8_v_i8m8 (in1, vl);
-    vint8m8_t out_v = __riscv_vle8_v_i8m8 (out, vl);
+    const uint8_t out_data[16];
+    const uint8_t *out = &out_data[0];
+    vuint8m8_t data1_v = __riscv_vle8_v_u8m8 (in1, vl);
+    vuint8m8_t out_v = __riscv_vle8_v_u8m8 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vneg_v_8m8 (data1_v, vl);
-        void __riscv_vse8_v_i8m8 (int8_t *out, vint8m8_t out_v, size_t vl);
+        void __riscv_vse8_v_u8m8 (uint8_t *out, vuint8m8_t out_v, size_t vl);
         in1 += 1;
-    int8_t golden[] = {
-    -127, -42, -84, -51, 73, 81, -110, 94, 72, 27, -91, 88, 106, -6, 90, -67
+    uint8_t golden[] = {
+    -22, -19, -20, -172, -94, -24, -165, -90, -123, -43, -4, -144, -239, -120, -145, -121
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

@@ -5,32 +5,32 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int8_t data1[] = {
-    -119, -46, 60, -37, -89, 5, -56, 126, -34, 53, 50, 62, 93, 30, 59, 16
+    const uint8_t data1[] = {
+    194, 33, 250, 237, 160, 41, 182, 172, 168, 98, 9, 79, 169, 48, 163, 238
     };
-    const int8_t *in1 = &data1[0];
+    const uint8_t *in1 = &data1[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e8mf2(avl);
-    const int out_data[] = {
-    45, -104, 40, -91, -57, -37, 14, 68, 59, 17, 89, 74, 46, -41, -37, -14
+    const uint out_data[] = {
+    1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0
     };
-    const int8_t *out = &out_data[0];
-    bool16_t masked[] = {
-    0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0
+    const uint8_t *out = &out_data[0];
+    uint16_t masked[] = {
+    1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1
     };
-    const bool16_t *mask = &masked[0];
-    vint8mf2_t data1_v = __riscv_vle8_v_i8mf2_m (mask, in1, vl);
-    vint8mf2_t out_v = __riscv_vle8_v_i8mf2_m (mask, out, vl);
+    const uint16_t *mask = &masked[0];
+    vuint8mf2_t data1_v = __riscv_vle8_v_u8mf2_m (mask, in1, vl);
+    vuint8mf2_t out_v = __riscv_vle8_v_u8mf2_m (mask, out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vneg_v_8mf2 (mask, data1_v, vl);
-        void __riscv_vse8_v_i8mf2 (bool8_t mask, int8_t *out, vint8mf2_t out_v, size_t vl);
+        void __riscv_vse8_v_u8mf2 (bool8_t mask, uint8_t *out, vuint8mf2_t out_v, size_t vl);
         in1 += 1;
         in2 += 1;
         out += 1;
         mask += 1;
       }
-    int8_t golden[] = {
-    119, 46, -60, 37, 89, -5, 56, -126, 34, -53, -50, -62, -93, -30, -59, -16
+    uint8_t golden[] = {
+    -194, -33, -250, -237, -160, -41, -182, -172, -168, -98, -9, -79, -169, -48, -163, -238
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

@@ -5,20 +5,20 @@
 #include <string.h>
 #include "riscv_vector.h"
 int main(){
-    const int16_t data1[] = {
-    228, 133, 211, 146, 50, 65, 53, 77, 21, 112, 172, 16, 123, 216, 115, 172
+    const uint16_t data1[] = {
+    75, 30, 177, 124, 118, 173, 57, 23, 107, 128, 189, 99, 230, 48, 192, 187
     };
-    const int16_t *in1 = &data1[0];
-    const int16_t data2[] = {
-    223, 230, 186, 193, 38, 107, 168, 28, 124, 84, 229, 151, 51, 193, 196, 55
+    const uint16_t *in1 = &data1[0];
+    const uint16_t data2[] = {
+    101, 142, 168, 14, 66, 9, 116, 145, 158, 65, 253, 225, 230, 131, 170, 224
     };
-    const int16_t *in2 = &data2[0];
+    const uint16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16mf2(avl);
-    const int16_t out_data[16];
-    const int16_t *out = &out_data[0];
+    const uint16_t out_data[16];
+    const uint16_t *out = &out_data[0];
     vuint16mf2_t data1_v = __riscv_vle16_v_u16mf2 (in1, vl);
-    vuint16mf2_t data2_v = __riscv_vle16_v_i16mf2 (in2, vl);
+    vuint16mf2_t data2_v = __riscv_vle16_v_u16mf2 (in2, vl);
     vuint16mf2_t out_v = __riscv_vle16_v_u16mf2 (out, vl);
     for (size_t n = 0; n < vl; n++) {
         out_v = __riscv_vadd_vx_u16mf2 (data1_v, data2_v, vl);
@@ -27,8 +27,8 @@ int main(){
         in2 += 2;
         out += 2;
       }
-    int16_t golden[] = {
-    451, 363, 397, 339, 88, 172, 221, 105, 145, 196, 401, 167, 174, 409, 311, 227
+    uint16_t golden[] = {
+    176, 172, 345, 138, 184, 182, 173, 168, 265, 193, 442, 324, 460, 179, 362, 411
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){
