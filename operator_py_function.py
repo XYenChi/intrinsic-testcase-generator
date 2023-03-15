@@ -4,7 +4,6 @@ def add_op(a, b, c=None, m=None):
         return c
     else:
         return a + b
-        # todo: if vm = 0, but v0.mask[i] = 0, what vd will be.
 
 
 def sub_op(a, b, c=None, m=None):
@@ -284,3 +283,15 @@ def reverse_sub_op(a, b, c=None, m=None):
         return c
     else:
         return b - a
+
+
+def xor_op(a, b, c=None, m=None):
+    if m == 0:
+        return c
+    else:
+        if a == b:
+            c = 0
+            return c
+        else:
+            c = 1
+            return c

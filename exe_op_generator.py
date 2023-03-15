@@ -23,9 +23,24 @@ _suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
 _widen_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
                  '32m1', '32m2', '32m4', '32m8', '32mf2',
                  '64m1', '64m2', '64m4', '64m8']
-_narrow_suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
-                  '16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
-                  '32m1', '32m2', '32m4', '32m8', '32mf2']
+_narrow_suffix = ['8m1',
+                  '8m2',
+                  '8m4',
+                  '8mf2',
+                  '8mf4',
+                  '8mf8',
+                  '16m1',
+                  '16m2',
+                  '16m4',
+                  '16m8',
+                  '16mf2',
+                  '16mf4',
+                  '32m1',
+                  '32m2',
+                  '32m4',
+                  '32m8',
+                  '32mf2']
+
 _mask = ['', '_m']
 _middle_mask = ['', 'm']
 IntegerOpList = ['vadc', 'vadd', 'vand', 'vdiv', 'vdivu', 'vmacc', 'vmadc', 'vmadd', 'vmax', 'vmaxu', 'vmerge', 'vmin',
@@ -34,6 +49,7 @@ IntegerOpList = ['vadc', 'vadd', 'vand', 'vdiv', 'vdivu', 'vmacc', 'vmadc', 'vma
                  'vnsrl', 'vor', 'vrem', 'vremu', 'vrsub', 'vsbc', 'vsext', 'vsll', 'vsra', 'vsrl', 'vsub', 'vwadd',
                  'vwaddu', 'vwmacc', 'vwmaccsu', 'vwmaccu', 'vwmaccus', 'vwmul', 'vwmulsu', 'vwmulu', 'vwsub', 'vwsubu',
                  'vxor', 'vzext']
+print(len(IntegerOpList))
 GeneralFormatOpList = ['vadd', 'vand', 'vmacc', 'vmadd', 'vmseq', 'vmsne', 'vmul', 'vnmsac', 'vnmsub', 'vor', 'vrsub',
                        'vsll', 'vsub', 'vxor']
 # loop _vx, _iu, _suffix, _mask
@@ -64,7 +80,7 @@ Sp2VOplist = ['vnot']
 ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 lmul_dict = {'1': 1, '2': 2, '4': 4, '8': 8, 'f2': 0.5, 'f4': 0.25, 'f8': 0.125}
-
+narrow_lmul_dict = {'1': 'f2', '2': 1, '4': 2, '8': 4, 'f2': 'f4', 'f4': 'f8'}
 def cross(*args):
     list = [()]
     for i in args:
@@ -131,6 +147,14 @@ class Node:
         else:
             fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s (in1, vl);\n"
                      % (a.vtype, suffix, a.sew, a.sign, suffix))
+
+    def narrow_vs2_load(self):
+        if self.mask == 0:
+            fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s%s (mask, in1, vl);\n"
+                     % (a.vtype, narrow_suffix, a.sew/2, a.sign, narrow_suffix, mask))
+        else:
+            fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s (in1, vl);\n"
+                     % (a.vtype, narrow_suffix, a.sew/2, a.sign, narrow_suffix))
 
     def vs1_load(self):
         if self.mask == 0:
@@ -616,6 +640,12 @@ class Node:
         fd.write("    };\n")
         fd.write("    const %s%s_t *in1 = &data1[0];\n" % (self.vtype, self.sew))
 
+    def narrow_vs2_data_write(self):
+        fd.write("    const %s%s_t data1[] = {\n" % (self.vtype, self.sew/2))
+        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data1)))
+        fd.write("    };\n")
+        fd.write("    const %s%s_t *in1 = &data1[0];\n" % (self.vtype, self.sew/2))
+
     def vs1_data_write(self):
         fd.write("    const %s%s_t data2[] = {\n" % (self.vtype, self.sew))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data2)))
@@ -627,12 +657,22 @@ class Node:
         # Declare the array of 10 elements
         fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.sew))
 
+    def widen_vd_declaration_write(self):
+        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, 2*self.sew, Q_array))
+        # Declare the array of 10 elements
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, 2*self.sew))
+
     def vd_default_write(self):
         fd.write("    const %s out_data[] = {\n" % self.vtype)
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
         fd.write("    };\n")
         fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.sew))
 
+    def widen_vd_default_write(self):
+        fd.write("    const %s out_data[] = {\n" % self.vtype)
+        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
+        fd.write("    };\n")
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, 2*self.sew))
     def vd_mask_default_write(self):
         # todo: load vd mask
         fd.write("    const bool%s_t vd_mask_data[%s];\n" % (self.sew, Q_array))
@@ -653,9 +693,19 @@ class Node:
     def compute(self):
         op_list = {
             "vadd": operator_py_function.add_op,
+            "vwadd": operator_py_function.add_op,
+            "vwaddu": operator_py_function.add_op,
             "vand": operator_py_function.and_op,
             "vsub": operator_py_function.sub_op,
+            "vwsub": operator_py_function.sub_op,
+            "vwsubu": operator_py_function.sub_op,
             "vmul": operator_py_function.mul_op,
+            "vwmul":operator_py_function.mul_op,
+            "vmulh": operator_py_function.mul_op,
+            "vmulhu": operator_py_function.mul_op,
+            "vmulsu": operator_py_function.mul_op,
+            "vmulhsu": operator_py_function.mul_op,
+            "vwmulu": operator_py_function.mul_op,
             "vdiv": operator_py_function.div_op,
             "vdivu": operator_py_function.div_op,
             "vmax": operator_py_function.max_op,
@@ -668,6 +718,10 @@ class Node:
             "vsbc": operator_py_function.sub_with_borrow_op,
             "vmerge": operator_py_function.merge_op,
             "vmacc": operator_py_function.multiply_add_overwrite_addend_op,
+            "vwmacc": operator_py_function.multiply_add_overwrite_addend_op,
+            "vwmaccu": operator_py_function.multiply_add_overwrite_addend_op,
+            "vwmaccus": operator_py_function.multiply_add_overwrite_addend_op,
+            "vwmaccsu": operator_py_function.multiply_add_overwrite_addend_op,
             "vmadd": operator_py_function.multiply_add_overwrite_multiplicand_op,
             "vmsbc": operator_py_function.multiply_sbc_overwrite_multiplicand_op,
             "vmseq": operator_py_function.equal_to_op,
@@ -678,16 +732,27 @@ class Node:
             "vnmsac": operator_py_function.nmsac_op,
             "vnmsub": operator_py_function.nmsub_op,
             "vor": operator_py_function.or_op,
+            "vxor": operator_py_function.xor_op,
             "vsra": operator_py_function.shift_right_op,
+            "vnsra": operator_py_function.shift_right_op,
             "vsrl": operator_py_function.shift_right_op,
+            "vnsrl": operator_py_function.shift_right_op,
             "vsll": operator_py_function.shift_left_op,
+            "vnsll": operator_py_function.shift_left_op,
             "vmsge": operator_py_function.greater_equal_op,
             "vmsle": operator_py_function.less_equal_op,
+            "vmsleu": operator_py_function.less_equal_op,
             "vmslt": operator_py_function.less_than_op,
+            "vmsltu": operator_py_function.less_than_op,
             "vmsgt": operator_py_function.greater_than_op,
             "vmsne": operator_py_function.not_equal_to_op,
-            "vrsub": operator_py_function.reverse_sub_op
+            "vrsub": operator_py_function.reverse_sub_op,
+            "vmsgeu": operator_py_function.greater_equal_op,
+            "vmsgtu": operator_py_function.greater_than_op,
+            "vsext": operator_py_function.sign_extesion_op,
+            "vzext": operator_py_function.zero_extesion_op,
         }
+
         if op in GeneralFormatOpList or op in SignOpList or op in UnsignOpList:
             if op == "vsra" or op == "vsrl" or op == "vsll":
                 fake_shift = int(math.log(2, self.sew))
@@ -702,12 +767,18 @@ class Node:
                 if self.mask:
                     for i in range(self.Q_A_E):
                         self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i])
-                        self.golden[i] = self.golden[i] & (2**self.sew-1)
+                        if op == "vmulh" or op == "vmulhu" or op == "vmulhsu":
+                            self.golden[i] = self.golden[i] >> (2**self.sew)
+                        else:
+                            self.golden[i] = self.golden[i] & (2**self.sew-1)
                 else:
                     for i in range(self.Q_A_E):
                         self.golden[i] = op_list[op](
                             self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
-                        self.golden[i] = self.golden[i] & (2**self.sew-1)
+                        if op == "vmulh" or op == "vmulhu" or op == "vmulhsu":
+                            self.golden[i] = self.golden[i] >> (2 ** self.sew)
+                        else:
+                            self.golden[i] = self.golden[i] & (2 ** self.sew - 1)
         elif op in SpMaskOpList:
             for i in range(self.Q_A_E):
                 self.golden[i] = op_list[op](
@@ -1279,9 +1350,13 @@ if op == 'vneg' or op == 'vnot':
 # ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 if op == 'vsext' or op == 'vzext':
-    for ext, suffix, mask in cross(_ext, _suffix, _mask):
+    for ext, suffix, mask in cross(_ext, _widen_suffix, _mask):
         a = Node(iu)
         a.op = op
+        divider = suffix.split('m')
+        a.narrow_sew = int(divider[0])/2
+        a.narrow_lmul = narrow_lmul_dict["%s" % divider[1]]
+        narrow_suffix = "%sm%s" % (a.narrow_sew, a.narrow_lmul)
         if op == 'vsext':
             filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, suffix, mask)
             a.sign = 'i'
@@ -1296,12 +1371,10 @@ if op == 'vsext' or op == 'vzext':
                 a.c_header_file_write()
                 a.c_main_entry_write()
                 a.random_gen()
-                a.vs2_data_write()
-                a.vs1_data_write()
+                a.narrow_vs2_data_write()
                 a.vl_set_write()
                 a.vd_declaration_write()
-                a.vs2_load()
-                a.vs1_load()
+                a.narrow_vs2_load()
                 a.vd_load()
                 a.pointer_iterator_write()
                 a.parameter_seq_write()
