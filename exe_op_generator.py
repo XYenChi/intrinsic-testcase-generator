@@ -49,7 +49,7 @@ IntegerOpList = ['vadc', 'vadd', 'vand', 'vdiv', 'vdivu', 'vmacc', 'vmadc', 'vma
                  'vnsrl', 'vor', 'vrem', 'vremu', 'vrsub', 'vsbc', 'vsext', 'vsll', 'vsra', 'vsrl', 'vsub', 'vwadd',
                  'vwaddu', 'vwmacc', 'vwmaccsu', 'vwmaccu', 'vwmaccus', 'vwmul', 'vwmulsu', 'vwmulu', 'vwsub', 'vwsubu',
                  'vxor', 'vzext']
-print(len(IntegerOpList))
+
 GeneralFormatOpList = ['vadd', 'vand', 'vmacc', 'vmadd', 'vmseq', 'vmsne', 'vmul', 'vnmsac', 'vnmsub', 'vor', 'vrsub',
                        'vsll', 'vsub', 'vxor']
 # loop _vx, _iu, _suffix, _mask
@@ -182,6 +182,13 @@ class Node:
             fd.write("        void __riscv_vse%s_v_%s%s (%s%s_t *out, v%s%s_t out_v, size_t vl);\n"
                      % (a.sew, iu, suffix, a.vtype, a.sew, a.vtype, suffix))
 
+    def ext_vd_store(self):
+        if self.mask == 0:
+            fd.write("        void __riscv_vse%s_v_%s%s (bool%s_t mask, %s%s_t *out, v%s%s_t out_v, size_t vl);\n"
+                     % (a.sew, iu, suffix, bool_width, a.vtype, a.sew, a.vtype, suffix))
+        else:
+            fd.write("        void __riscv_vse%s_v_%s%s (%s%s_t *out, v%s%s_t out_v, size_t vl);\n"
+                     % (a.sew, iu, suffix, a.vtype, a.sew, a.vtype, suffix))
     def parameter_seq_write(self):
         # todo: generate all the operate by default
         # else:
@@ -657,6 +664,10 @@ class Node:
         # Declare the array of 10 elements
         fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.sew))
 
+    def ext_vd_declaration_write(self):
+        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, 2*self.sew, Q_array))
+        # Declare the array of 10 elements
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, 2*self.sew))
     def widen_vd_declaration_write(self):
         fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, 2*self.sew, Q_array))
         # Declare the array of 10 elements
@@ -748,9 +759,10 @@ class Node:
             "vmsne": operator_py_function.not_equal_to_op,
             "vrsub": operator_py_function.reverse_sub_op,
             "vmsgeu": operator_py_function.greater_equal_op,
-            "vmsgtu": operator_py_function.greater_than_op,
-            "vsext": operator_py_function.sign_extesion_op,
-            "vzext": operator_py_function.zero_extesion_op,
+            "vmsgtu": operator_py_function.greater_than_op
+            # don't need
+            # "vsext": operator_py_function.sign_extesion_op,
+            # "vzext": operator_py_function.zero_extesion_op,
         }
 
         if op in GeneralFormatOpList or op in SignOpList or op in UnsignOpList:
@@ -802,7 +814,33 @@ class Node:
                 for i in range(self.Q_A_E):
                     self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i])>self.max else 0
                     self.golden[i] = 1 if op_list[op](self.data1[i], self.data2[i], self.vd_default[i])<self.min else 0
+        elif op == "vzext":
+            if self.mask:
+                for i in range(self.Q_A_E):
+                    if self.masked[i] == 1:
+                        self.golden[i] = self.data1[i]
+                    else:
+                        self.golden[i] = self.vd_default[i]
+            else:
+                for i in range(self.Q_A_E):
+                    self.golden[i] = self.data1[i]
 
+        elif op == "vsext":
+            if self.mask:
+                for i in range(self.Q_A_E):
+                    if self.masked[i] == 1:
+                        if self.data1[i] < 0:
+                            self.golden[i] = self.data1[i] + pow(2, self.sew) - 1
+                        else:
+                            self.golden[i] = self.data1[i]
+                    else:
+                        self.golden[i] = self.vd_default[i]
+            else:
+                for i in range(self.Q_A_E):
+                    if self.data1[i] < 0:
+                        self.golden[i] = self.data1[i] + pow(2, self.sew) - 1
+                    else:
+                        self.golden[i] = self.data1[i]
 for temp in GeneralFormatOpList:
     if op != temp:
         continue
@@ -1351,18 +1389,24 @@ if op == 'vneg' or op == 'vnot':
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 if op == 'vsext' or op == 'vzext':
     for ext, suffix, mask in cross(_ext, _widen_suffix, _mask):
+        if op == 'vsext':
+            iu = 'i'
+        else:
+            iu = 'u'
         a = Node(iu)
+        if op == 'vsext':
+            a.sign = 'i'
+            filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, suffix, mask)
+        else:
+            a.sign = 'u'
+            filename = "testcase/%s_v%s_u%s%s.c" % (op, ext, suffix, mask)
         a.op = op
         divider = suffix.split('m')
         a.narrow_sew = int(divider[0])/2
+        a.lmul = lmul_dict["%s" % divider[1]]
         a.narrow_lmul = narrow_lmul_dict["%s" % divider[1]]
         narrow_suffix = "%sm%s" % (a.narrow_sew, a.narrow_lmul)
-        if op == 'vsext':
-            filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, suffix, mask)
-            a.sign = 'i'
-        else:
-            filename = "testcase/%s_v%s_u%s%s.c" % (op, ext, suffix, mask)
-            a.sign = 'u'
+        bool_width = int(divider[0])/lmul_dict["%s" % divider[1]]
         if mask != '_m':
             with open(filename, 'w') as fd:
                 a.mask = 1
@@ -1373,7 +1417,7 @@ if op == 'vsext' or op == 'vzext':
                 a.random_gen()
                 a.narrow_vs2_data_write()
                 a.vl_set_write()
-                a.vd_declaration_write()
+                a.ext_vd_declaration_write()
                 a.narrow_vs2_load()
                 a.vd_load()
                 a.pointer_iterator_write()
