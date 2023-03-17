@@ -8,7 +8,7 @@ import math
 
 # set VLEN as 64 bit
 
-op = sys.argv[1]
+input_op = sys.argv[1]
 Q_array = 16
 avl = 64
 _vx = ['v', 'x']
@@ -81,12 +81,7 @@ ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 lmul_dict = {'1': 1, '2': 2, '4': 4, '8': 8, 'f2': 0.5, 'f4': 0.25, 'f8': 0.125}
 revert_lmul_dict = {0.5: 'f2', 0.25: 'f4', 0.125: 'f8', 8: '8', 4: '4', 2: '2', 1:'1'}
-for temp in IntegerOpList:
-    # generate all the operator automaticly
-    if op == 'all':
-        op = temp
-    else:
-        break
+
 def cross(*args):
     list = [()]
     for i in args:
