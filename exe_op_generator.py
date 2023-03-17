@@ -80,7 +80,13 @@ Sp2VOplist = ['vnot']
 ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 lmul_dict = {'1': 1, '2': 2, '4': 4, '8': 8, 'f2': 0.5, 'f4': 0.25, 'f8': 0.125}
-narrow_lmul_dict = {'1': 'f2', '2': 1, '4': 2, '8': 4, 'f2': 'f4', 'f4': 'f8'}
+revert_lmul_dict = {0.5: 'f2', 0.25: 'f4', 0.125: 'f8', 8: '8', 4: '4', 2: '2', 1:'1'}
+for temp in IntegerOpList:
+    # generate all the operator automaticly
+    if op == 'all':
+        op = temp
+    else:
+        break
 def cross(*args):
     list = [()]
     for i in args:
@@ -148,13 +154,7 @@ class Node:
             fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s (in1, vl);\n"
                      % (a.vtype, suffix, a.sew, a.sign, suffix))
 
-    def narrow_vs2_load(self):
-        if self.mask == 0:
-            fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s%s (mask, in1, vl);\n"
-                     % (a.vtype, narrow_suffix, a.sew/2, a.sign, narrow_suffix, mask))
-        else:
-            fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s (in1, vl);\n"
-                     % (a.vtype, narrow_suffix, a.sew/2, a.sign, narrow_suffix))
+
 
     def vs1_load(self):
         if self.mask == 0:
@@ -163,6 +163,14 @@ class Node:
         else:
             fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_%s%s (in2, vl);\n"
                      % (a.vtype, suffix, a.sew, a.sign, suffix))
+
+    def ext_vd_load(self):
+        if self.mask == 0:
+            fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s%s (mask, out, vl);\n"
+                     % (a.vtype, ext_suffix, a.ext_sew, a.sign, ext_suffix, mask))
+        else:
+            fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s (out, vl);\n"
+                     % (a.vtype, ext_suffix, a.ext_sew, a.sign, ext_suffix))
 
     def vd_load(self):
         if self.mask == 0:
@@ -185,10 +193,10 @@ class Node:
     def ext_vd_store(self):
         if self.mask == 0:
             fd.write("        void __riscv_vse%s_v_%s%s (bool%s_t mask, %s%s_t *out, v%s%s_t out_v, size_t vl);\n"
-                     % (a.sew, iu, suffix, bool_width, a.vtype, a.sew, a.vtype, suffix))
+                     % (a.ext_sew, iu, ext_suffix, bool_width, a.vtype, a.ext_sew, a.vtype, ext_suffix))
         else:
             fd.write("        void __riscv_vse%s_v_%s%s (%s%s_t *out, v%s%s_t out_v, size_t vl);\n"
-                     % (a.sew, iu, suffix, a.vtype, a.sew, a.vtype, suffix))
+                     % (a.ext_sew, iu, ext_suffix, a.vtype, a.ext_sew, a.vtype, ext_suffix))
     def parameter_seq_write(self):
         # todo: generate all the operate by default
         # else:
@@ -455,19 +463,19 @@ class Node:
             case 'vsext':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_i%s%s (data1_v, vl);\n"
-                    % (op, ext, suffix, mask))
+                    % (op, ext, ext_suffix, mask))
             case 'vsext_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, vl);\n"
-                    % (op, ext, suffix, mask))
+                    % (op, ext, ext_suffix, mask))
             case 'vzext':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_u%s%s (data1_v, vl);\n"
-                    % (op, ext, suffix, mask))
+                    % (op, ext, ext_suffix, mask))
             case 'vzext_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_u%s%s (mask, data1_v, vl);\n"
-                    % (op, ext, suffix, mask))
+                    % (op, ext, ext_suffix, mask))
             case 'vnsll':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, shift, vl);\n"
@@ -647,12 +655,6 @@ class Node:
         fd.write("    };\n")
         fd.write("    const %s%s_t *in1 = &data1[0];\n" % (self.vtype, self.sew))
 
-    def narrow_vs2_data_write(self):
-        fd.write("    const %s%s_t data1[] = {\n" % (self.vtype, self.sew/2))
-        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data1)))
-        fd.write("    };\n")
-        fd.write("    const %s%s_t *in1 = &data1[0];\n" % (self.vtype, self.sew/2))
-
     def vs1_data_write(self):
         fd.write("    const %s%s_t data2[] = {\n" % (self.vtype, self.sew))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data2)))
@@ -665,13 +667,10 @@ class Node:
         fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.sew))
 
     def ext_vd_declaration_write(self):
-        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, 2*self.sew, Q_array))
+        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, a.ext_sew, Q_array))
         # Declare the array of 10 elements
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, 2*self.sew))
-    def widen_vd_declaration_write(self):
-        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, 2*self.sew, Q_array))
-        # Declare the array of 10 elements
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, 2*self.sew))
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, a.ext_sew))
+
 
     def vd_default_write(self):
         fd.write("    const %s out_data[] = {\n" % self.vtype)
@@ -683,7 +682,7 @@ class Node:
         fd.write("    const %s out_data[] = {\n" % self.vtype)
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
         fd.write("    };\n")
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, 2*self.sew))
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, a.ext_sew))
     def vd_mask_default_write(self):
         # todo: load vd mask
         fd.write("    const bool%s_t vd_mask_data[%s];\n" % (self.sew, Q_array))
@@ -841,6 +840,8 @@ class Node:
                         self.golden[i] = self.data1[i] + pow(2, self.sew) - 1
                     else:
                         self.golden[i] = self.data1[i]
+
+
 for temp in GeneralFormatOpList:
     if op != temp:
         continue
@@ -1335,6 +1336,7 @@ if op == 'vneg' or op == 'vnot':
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
         a.lmul = lmul_dict["%s" % divider[1]]
+        print(suffix)
         if op == 'vneg':
             if iu == 'i':
                 filename = "testcase/%s_v_i%s%s.c" % (op, suffix, mask)
@@ -1388,68 +1390,71 @@ if op == 'vneg' or op == 'vnot':
 # ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 if op == 'vsext' or op == 'vzext':
-    for ext, suffix, mask in cross(_ext, _widen_suffix, _mask):
+    for suffix, ext, mask in cross(_suffix, _ext, _mask):
         if op == 'vsext':
             iu = 'i'
         else:
             iu = 'u'
         a = Node(iu)
-        if op == 'vsext':
-            a.sign = 'i'
-            filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, suffix, mask)
-        else:
-            a.sign = 'u'
-            filename = "testcase/%s_v%s_u%s%s.c" % (op, ext, suffix, mask)
         a.op = op
         divider = suffix.split('m')
-        a.narrow_sew = int(divider[0])/2
-        a.lmul = lmul_dict["%s" % divider[1]]
-        a.narrow_lmul = narrow_lmul_dict["%s" % divider[1]]
-        narrow_suffix = "%sm%s" % (a.narrow_sew, a.narrow_lmul)
-        bool_width = int(divider[0])/lmul_dict["%s" % divider[1]]
-        if mask != '_m':
-            with open(filename, 'w') as fd:
-                a.mask = 1
-                # don't hava mask
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
-                a.random_gen()
-                a.narrow_vs2_data_write()
-                a.vl_set_write()
-                a.ext_vd_declaration_write()
-                a.narrow_vs2_load()
-                a.vd_load()
-                a.pointer_iterator_write()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_wo_mask()
-                a.compute()
-                a.golden_by_python_write()
-                a.report_write()
+        a.sew = int(divider[0])
+        a.ext_sew = int(a.sew / lmul_dict[ext])
+        a.lmul = lmul_dict[divider[1]]
+        a.ext_lmul = a.lmul / lmul_dict[ext]
+        a.op_mask = "%s%s" % (op, mask)
+        if a.sew/lmul_dict[ext]<=64 and a.sew/a.lmul<=64 and a.lmul/lmul_dict[ext]<=8:
+            ext_suffix = "%sm%s" % (int(a.ext_sew), revert_lmul_dict[a.ext_lmul])
+            bool_width = int(a.ext_sew) / a.ext_lmul
+            if op == 'vsext':
+                a.sign = 'i'
+                filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, ext_suffix, mask)
+            else:
+                a.sign = 'u'
+                filename = "testcase/%s_v%s_u%s%s.c" % (op, ext, ext_suffix, mask)
+            if mask != '_m':
+                with open(filename, 'w') as fd:
+                    a.mask = 1
+                    # don't hava mask
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vl_set_write()
+                    a.ext_vd_declaration_write()
+                    a.vs2_load()
+                    a.ext_vd_load()
+                    a.pointer_iterator_write()
+                    a.parameter_seq_write()
+                    a.ext_vd_store()
+                    a.jump_to_next_write_wo_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
+            else:
+                with open(filename, 'w') as fd:
+                    a.mask = 0
+                    # mask and have v0.mask[i] value
+                    a.compiler_option_write()
+                    a.c_header_file_write()
+                    a.c_main_entry_write()
+                    a.random_gen()
+                    a.vs2_data_write()
+                    a.vl_set_write()
+                    a.ext_vd_declaration_write()
+                    # set vd default value if v0.mask[i] = 0, golden = default
+                    a.mask_gen()
+                    a.mask_data_write()
+                    a.vs2_load()
+                    a.ext_vd_load()
+                    a.pointer_iterator_write()
+                    # a.specific_operator_c()
+                    a.parameter_seq_write()
+                    a.ext_vd_store()
+                    a.jump_to_next_write_mask()
+                    a.compute()
+                    a.golden_by_python_write()
+                    a.report_write()
         else:
-            with open(filename, 'w') as fd:
-                a.mask = 0
-                # mask and have v0.mask[i] value
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
-                a.random_gen()
-                a.vs2_data_write()
-                a.vs1_data_write()
-                a.vl_set_write()
-                a.vd_default_write()
-                # set vd default value if v0.mask[i] = 0, golden = default
-                a.mask_gen()
-                a.mask_data_write()
-                a.vs2_load()
-                a.vs1_load()
-                a.vd_load()
-                a.pointer_iterator_write()
-                # a.specific_operator_c()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_mask()
-                a.compute()
-                a.golden_by_python_write()
-                a.report_write()
+            continue
