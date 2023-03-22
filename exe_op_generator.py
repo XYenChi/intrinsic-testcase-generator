@@ -4,7 +4,13 @@ Generate execute file by operator
 import operator_py_function
 import random
 import sys
+sys.path.append("./rvv-intrinsic-doc/rvv-intrinsic-generator/rvv_intrinsic_gen")
 import math
+import utils
+import generator
+import enums
+import constants
+
 
 # set VLEN as 64 bit
 
@@ -64,8 +70,6 @@ Sp2VOplist = ['vnot']
 # loop _suffix, _iu, _mask and only v
 ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
-lmul_dict = {'1': 1, '2': 2, '4': 4, '8': 8, 'f2': 0.5, 'f4': 0.25, 'f8': 0.125}
-revert_lmul_dict = {0.5: 'f2', 0.25: 'f4', 0.125: 'f8', 8: '8', 4: '4', 2: '2', 1:'1'}
 
 def cross(*args):
     list = [()]
@@ -73,13 +77,11 @@ def cross(*args):
         list = [(*o, n) for o in list for n in i]
     return list
 
-class Node:
-    def __init__(self, sign):
-        self.op = op
+class extra_inst_info(enums.InstInfo):
+    def __init__(self, iu):
+        super(extra_inst_info, self).__init__()
         self.op_mask = ""
         # pass different parameter sequence
-        self.lmul = 0.0
-        self.sew = 8
         self.mask = None
         # If _mask = '_m', vm = 0, masked, calculate if mask array[i] = 1
         self.carryin = None
@@ -128,7 +130,7 @@ class Node:
 
     def vs2_load(self):
         if self.mask == 0:
-            fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s%s (mask, in1, vl);\n"
+            fd.write(f"    v%s%s_t data1_v = __riscv_vle%s_v_%s%s%s (mask, in1, vl);\n"
                      % (a.vtype, suffix, a.sew, a.sign, suffix, mask))
         else:
             fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s (in1, vl);\n"
@@ -843,11 +845,11 @@ for temp in GeneralFormatOpList:
         continue
     else:
         for suffix, vx, mask, iu in cross(_suffix, _vx, _mask, _iu):
-            a = Node(iu)
-            a.op = op
+            a = extra_inst_info(iu)
+            a.OP = op
             divider = suffix.split('m')
             a.sew = int(divider[0])
-            a.lmul = lmul_dict["%s" % divider[1]]
+            a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s_%s%s%s.c" % (op, vx, iu, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
             if mask != '_m':
@@ -905,12 +907,12 @@ for temp in SpMaskOpList:
         continue
     else:
         for suffix, vx, iu in cross(_suffix, _vx, _iu):
-            a = Node(iu)
-            a.op = op
+            a = extra_inst_info(iu)
+            a.OP = op
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
-            a.lmul = lmul_dict["%s" % divider[1]]
+            a.lmul = utils.get_float_lmul(divider[1])
             a.op_mask = op
             filename = "testcase/%s_v%sm_%s%s.c" % (op, vx, iu, suffix)
             with open(filename, 'w') as fd:
@@ -941,12 +943,12 @@ for temp in Sp2MaskOpList:
         continue
     else:
         for vx, iu, suffix, mask in cross(_vx, _iu, _suffix, _middle_mask):
-            a = Node(iu)
-            a.op = op
+            a = extra_inst_info(iu)
+            a.OP = op
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
-            a.lmul = lmul_dict["%s" % divider[1]]
+            a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s%s_%s%s.c" % (op, vx, mask, iu, suffix)
             with open(filename, 'w') as fd:
                 a.compiler_option_write()
@@ -981,12 +983,12 @@ for temp in SignOpList:
         continue
     else:
         for suffix, vx, mask in cross(_suffix, _vx, _mask):
-            a = Node('i')
-            a.op = op
+            a = extra_inst_info('i')
+            a.OP = op
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
-            a.lmul = lmul_dict["%s" % divider[1]]
+            a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
             iu = 'i'
@@ -1058,12 +1060,12 @@ for temp in UnsignOpList:
         continue
     else:
         for suffix, vx, mask in cross(_suffix, _vx, _mask):
-            a = Node('u')
-            a.op = op
+            a = extra_inst_info('u')
+            a.OP = op
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
-            a.lmul = lmul_dict["%s" % divider[1]]
+            a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s_u%s%s.c" % (op, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
             iu = 'u'
@@ -1121,12 +1123,12 @@ if op == 'vwmaccus':
     for suffix, mask in cross(_widen_suffix, _mask):
         # todo: sign scalar * unsign vector
         iu = 'i'
-        a = Node(iu)
-        a.op = op
+        a = extra_inst_info(iu)
+        a.OP = op
         divider = suffix.split('m')
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
-        a.lmul = lmul_dict["%s" % divider[1]]
+        a.lmul = utils.get_float_lmul(divider[1])
         filename = "testcase/%s_vx_i%s%s.c" % (op, suffix, mask)
         a.op_mask = "%s%s" % (op, mask)
         a.sign = 'i'
@@ -1190,12 +1192,12 @@ if op == 'vnsra' or op == 'vnsrl':
         else:
             iu = 'u'
             filename = "testcase/%s_w%s_u%s%s.c" % (op, vx, suffix, mask)
-        a = Node(iu)
-        a.op = op
+        a = extra_inst_info(iu)
+        a.OP = op
         divider = suffix.split('m')
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
-        a.lmul = lmul_dict["%s" % divider[1]]
+        a.lmul = utils.get_float_lmul(divider[1])
         a.op_mask = "%s%s" % (op, mask)
         if mask != '_m':
             with open(filename, 'w') as fd:
@@ -1253,12 +1255,12 @@ for temp in SpWUnsignOpList:
     else:
         for wv, vx, suffix, mask in cross(_wv, _vx, _widen_suffix, _mask):
             iu = 'u'
-            a = Node(iu)
-            a.op = op
+            a = extra_inst_info(iu)
+            a.OP = op
             divider = suffix.split('m')
             a.sew = int(divider[0])
             a.range = pow(2, a.sew)
-            a.lmul = lmul_dict["%s" % divider[1]]
+            a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_%s%s_u%s%s.c" % (op, wv, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
             if mask != '_m':
@@ -1312,12 +1314,12 @@ for temp in SpWUnsignOpList:
 if op == 'vmv':
     # loop _iu, _suffix and _vx with "_"
     for iu, suffix, vx in cross(_iu, _suffix, _vx):
-        a = Node(iu)
+        a = extra_inst_info(iu)
         a.op_mask = op
         divider = suffix.split('m')
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
-        a.lmul = lmul_dict["%s" % divider[1]]
+        a.lmul = utils.get_float_lmul(divider[1])
         filename = "testcase/%s_v_%s_%s%s.c" % (op, vx, iu, suffix)
         with open(filename, 'w') as fd:
             a.mask = 1
@@ -1344,12 +1346,12 @@ if op == 'vneg' or op == 'vnot':
     # Sp2VOplist = ['vnot']
     # loop _suffix, _iu, _mask and only v
     for suffix, mask, iu in cross(_suffix, _mask, _iu):
-        a = Node(iu)
-        a.op = op
+        a = extra_inst_info(iu)
+        a.OP = op
         divider = suffix.split('m')
         a.sew = int(divider[0])
         a.range = pow(2, a.sew)
-        a.lmul = lmul_dict["%s" % divider[1]]
+        a.lmul = utils.get_float_lmul(divider[1])
         if op == 'vneg':
             if iu == 'i':
                 filename = "testcase/%s_v_i%s%s.c" % (op, suffix, mask)
@@ -1408,16 +1410,16 @@ if op == 'vsext' or op == 'vzext':
             iu = 'i'
         else:
             iu = 'u'
-        a = Node(iu)
-        a.op = op
+        a = extra_inst_info(iu)
+        a.OP = op
         divider = suffix.split('m')
         a.sew = int(divider[0])
-        a.ext_sew = int(a.sew / lmul_dict[ext])
-        a.lmul = lmul_dict[divider[1]]
-        a.ext_lmul = a.lmul / lmul_dict[ext]
+        a.ext_sew = int(a.sew / utils.get_float_lmul(ext))
+        a.lmul = utils.get_float_lmul(divider[1])
+        a.ext_lmul = a.lmul / utils.get_float_lmul(ext)
         a.op_mask = "%s%s" % (op, mask)
-        if a.sew/lmul_dict[ext]<=64 and a.sew/a.lmul<=64 and a.lmul/lmul_dict[ext]<=8:
-            ext_suffix = "%sm%s" % (int(a.ext_sew), revert_lmul_dict[a.ext_lmul])
+        if a.sew/utils.get_float_lmul(ext)<=64 and a.sew/a.lmul<=64 and a.lmul/utils.get_float_lmul(ext)<=8:
+            ext_suffix = "%sm%s" % (int(a.ext_sew), utils.get_string_lmul(a.ext_lmul))
             bool_width = int(a.ext_sew) / a.ext_lmul
             if op == 'vsext':
                 a.sign = 'i'

@@ -6,23 +6,24 @@
 #include "riscv_vector.h"
 int main(){
     const int64_t data1[] = {
-    0, -31, -99, 23, -71, -81, 124, -3, 17, -108, 75, -8, -86, 99, 36, -42
+    120, -16, -60, 93, 9, 63, 114, 118, -123, 118, 0, 84, 49, 107, 22, -61
     };
     const int64_t *in1 = &data1[0];
     const int64_t data2[] = {
-    100, -87, -54, 74, 72, -57, -86, 46, -75, -19, -55, -71, 35, 124, -95, 120
+    93, 81, -48, 93, 28, 96, -23, -95, 50, -100, 7, 106, -9, -58, -47, -91
     };
     const int64_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e64m2(avl);
     uint32_t masked[] = {
-    0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1
+    0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0
     };
     const uint32_t *mask = &masked[0];
     vint64m2_t data1_v = __riscv_vle64_v_i64m2 (in1, vl);
     vint64m2_t data2_v = __riscv_vle64_v_i64m2 (in2, vl);
     vint64m2_t out_v = __riscv_vle64_v_i64m2 (out, vl);
     for (size_t n = 0; n < vl; n++) {
+        out_v = __riscv_vadc_vxm_i64m2 (data1_v, data2_v, masked, vl);
         void __riscv_vse64_v_i64m2 (int64_t *out, vint64m2_t out_v, size_t vl);
         in1 += 8;
         in2 += 8;
@@ -30,7 +31,7 @@ int main(){
         mask += 8;
       }
     int64_t golden[] = {
-    100, -117, -153, 98, 2, -137, 39, 43, -58, -126, 21, -79, -50, 223, -58, 79
+    213, 65, -107, 187, 38, 160, 91, 23, -72, 18, 8, 190, 40, 50, -24, -152
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

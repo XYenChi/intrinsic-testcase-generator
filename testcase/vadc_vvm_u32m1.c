@@ -6,23 +6,24 @@
 #include "riscv_vector.h"
 int main(){
     const uint32_t data1[] = {
-    103, 15, 221, 100, 215, 171, 36, 109, 194, 56, 49, 100, 5, 106, 73, 161
+    248, 79, 97, 203, 21, 7, 149, 140, 144, 75, 183, 11, 248, 194, 218, 244
     };
     const uint32_t *in1 = &data1[0];
     const uint32_t data2[] = {
-    71, 99, 143, 194, 36, 40, 225, 15, 109, 251, 100, 191, 149, 165, 112, 68
+    218, 80, 230, 105, 85, 202, 8, 10, 251, 193, 199, 10, 210, 115, 214, 229
     };
     const uint32_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e32m1(avl);
     uint32_t masked[] = {
-    1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1
+    0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1
     };
     const uint32_t *mask = &masked[0];
     vuint32m1_t data1_v = __riscv_vle32_v_u32m1 (in1, vl);
     vuint32m1_t data2_v = __riscv_vle32_v_u32m1 (in2, vl);
     vuint32m1_t out_v = __riscv_vle32_v_u32m1 (out, vl);
     for (size_t n = 0; n < vl; n++) {
+        out_v = __riscv_vadc_vvm_i32m1 (data1_v, data2_v, masked, vl);
         void __riscv_vse32_v_u32m1 (uint32_t *out, vuint32m1_t out_v, size_t vl);
         in1 += 4;
         in2 += 4;
@@ -30,7 +31,7 @@ int main(){
         mask += 4;
       }
     uint32_t golden[] = {
-    175, 114, 365, 294, 251, 212, 262, 124, 303, 308, 149, 292, 154, 272, 185, 230
+    466, 160, 327, 309, 106, 210, 157, 150, 395, 269, 382, 22, 459, 310, 433, 474
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){
