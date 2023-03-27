@@ -21,17 +21,11 @@ _vx = ['v', 'x']
 _wv = ['v', 'w']
 _iu = ['i', 'u']
 _ext = ['f2', 'f4', 'f8']
+_suffix = []
+_widen_suffix = []
+_narrow_suffix = []
 # 'i' for signed int, 'u' for unsigned int
-_suffix = ['8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8',
-           '16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
-           '32m1', '32m2', '32m4', '32m8', '32mf2',
-           '64m1', '64m2', '64m4', '64m8']
-_widen_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
-                 '32m1', '32m2', '32m4', '32m8', '32mf2',
-                 '64m1', '64m2', '64m4', '64m8']
-_narrow_suffix = ['8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8',
-                  '16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4',
-                  '32m1', '32m2', '32m4', '32m8', '32mf2']
+
 _mask = ['', '_m']
 _middle_mask = ['', 'm']
 IntegerOpList = ['vadc', 'vadd', 'vand', 'vdiv', 'vdivu', 'vmacc', 'vmadc', 'vmadd', 'vmax', 'vmaxu', 'vmerge', 'vmin',
@@ -77,26 +71,47 @@ def cross(*args):
         list = [(*o, n) for o in list for n in i]
     return list
 
+for sew, lmul in cross(constants.SEWS, constants.LMULS):
+    if sew/utils.get_float_lmul(lmul) <= 64:
+        _suffix.append(f'{sew}m{lmul}')
+    else:
+        continue
+for sew, lmul in cross(constants.FSEWS, constants.WLMULS):
+    if sew/utils.get_float_lmul(lmul) <= 64:
+        _widen_suffix.append(f'{sew}m{lmul}')
+    else:
+        continue
+for sew, lmul in cross(constants.WSEWS, constants.LMULS):
+    if sew/utils.get_float_lmul(lmul) <= 64:
+        _widen_suffix.append(f'{sew}m{lmul}')
+    else:
+        continue
 class extra_inst_info(enums.InstInfo):
-    def __init__(self, iu):
-        super(extra_inst_info, self).__init__()
+    def __init__(self,
+                 iu,
+                 SEW,
+                 LMUL,
+                 OP):
+        super().__init__(SEW, LMUL, OP)
+        self.SEW = SEW
+        self.LMUL = LMUL
+        self.OP = OP
         self.op_mask = ""
-        # pass different parameter sequence
         self.mask = None
         # If _mask = '_m', vm = 0, masked, calculate if mask array[i] = 1
         self.carryin = None
         # vmadc don't have mask and must have carry in bit
-        self.sign = sign
+        self.sign = iu
         if self.sign == 'i':
             self.vtype = 'int'
-            self.max = pow(2, self.sew-1)-1
-            self.min = -pow(2, self.sew-1)
+            self.max = pow(2, self.SEW-1)-1
+            self.min = -pow(2, self.SEW-1)
         else:
             self.vtype = 'uint'
-            self.max = pow(2, self.sew)-1
+            self.max = pow(2, self.SEW)-1
             self.min = 0
         self.Q_A_E = 16
-        self.range = pow(2, self.sew)
+        self.range = pow(2, self.SEW)
         self.masked = [0] * Q_array
         self.data1 = [0] * Q_array
         self.data2 = [0] * Q_array
@@ -131,26 +146,26 @@ class extra_inst_info(enums.InstInfo):
     def vs2_load(self):
         if self.mask == 0:
             fd.write(f"    v%s%s_t data1_v = __riscv_vle%s_v_%s%s%s (mask, in1, vl);\n"
-                     % (a.vtype, suffix, a.sew, a.sign, suffix, mask))
+                     % (a.vtype, suffix, a.SEW, a.sign, suffix, mask))
         else:
             fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s (in1, vl);\n"
-                     % (a.vtype, suffix, a.sew, a.sign, suffix))
+                     % (a.vtype, suffix, a.SEW, a.sign, suffix))
 
     def unsign_vs1_load(self):
         if self.mask == 0:
             fd.write("    vuint%s_t data2_v = __riscv_vle%s_v_%s%s%s (mask, in2, vl);\n"
-                     % (suffix, a.sew, a.sign, suffix, mask))
+                     % (suffix, a.SEW, a.sign, suffix, mask))
         else:
             fd.write("    vuint%s_t data2_v = __riscv_vle%s_v_%s%s (in2, vl);\n"
-                     % (suffix, a.sew, a.sign, suffix))
+                     % (suffix, a.SEW, a.sign, suffix))
 
     def vs1_load(self):
         if self.mask == 0:
             fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_%s%s%s (mask, in2, vl);\n"
-                     % (a.vtype, suffix, a.sew, a.sign, suffix, mask))
+                     % (a.vtype, suffix, a.SEW, a.sign, suffix, mask))
         else:
             fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_%s%s (in2, vl);\n"
-                     % (a.vtype, suffix, a.sew, a.sign, suffix))
+                     % (a.vtype, suffix, a.SEW, a.sign, suffix))
 
     def ext_vd_load(self):
         if self.mask == 0:
@@ -163,20 +178,20 @@ class extra_inst_info(enums.InstInfo):
     def vd_load(self):
         if self.mask == 0:
             fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s%s (mask, out, vl);\n"
-                     % (a.vtype, suffix, a.sew, a.sign, suffix, mask))
+                     % (a.vtype, suffix, a.SEW, a.sign, suffix, mask))
         else:
             fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s (out, vl);\n"
-                     % (a.vtype, suffix, a.sew, a.sign, suffix))
+                     % (a.vtype, suffix, a.SEW, a.sign, suffix))
 
     # def mask_load(self):
     # todo: load mask
     def vd_store(self):
         if self.mask == 0:
             fd.write("        void __riscv_vse%s_v_%s%s (bool%s_t mask, %s%s_t *out, v%s%s_t out_v, size_t vl);\n"
-                     % (a.sew, iu, suffix, a.sew, a.vtype, a.sew, a.vtype, suffix))
+                     % (a.SEW, iu, suffix, a.SEW, a.vtype, a.SEW, a.vtype, suffix))
         else:
             fd.write("        void __riscv_vse%s_v_%s%s (%s%s_t *out, v%s%s_t out_v, size_t vl);\n"
-                     % (a.sew, iu, suffix, a.vtype, a.sew, a.vtype, suffix))
+                     % (a.SEW, iu, suffix, a.vtype, a.SEW, a.vtype, suffix))
 
     def ext_vd_store(self):
         if self.mask == 0:
@@ -277,99 +292,99 @@ class extra_inst_info(enums.InstInfo):
             case 'vmsbc':
                 fd.write(
                     "        out_v = __riscv_%s_v%s%s_%s%s_b%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, mask, iu, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, mask, iu, suffix, int(self.SEW / self.LMUL)))
             case 'vmsbc_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s%s_%s%s_b%s (data1_v, data2_v, mask, vl);\n"
-                    % (op, vx, mask, iu, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, mask, iu, suffix, int(self.SEW / self.LMUL)))
             case 'vmadc':
                 fd.write(
                     "        out_v = __riscv_%s_v%s%s_%s_b%s(data1_v, data2_v, vl);\n"
-                    % (op, vx, mask, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, mask, suffix, int(self.SEW / self.LMUL)))
             case 'vmadc_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s%s_%s_b%s (data1_v, data2_v, carryin, vl);\n"
-                    % (op, vx, mask, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, mask, suffix, int(self.SEW / self.LMUL)))
             case 'vmseq':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmseq_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsge':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsge_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsgt':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsgt_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsgtu':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsgtu_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsle':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsle_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmslt':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmslt_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsne':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmsne_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul), mask))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
             case 'vmulh':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
             case 'vmulh_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
             case 'vmulhsu':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
             case 'vmulhsu_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
             case 'vmsgeu':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
             case 'vmsgeu_m':
                 fd.write(
                     "        out_v = __riscv_%s_v%s_%s_b%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.sew / self.lmul)))
+                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
             case 'vmv':
                 fd.write(
                     "        out_v = __riscv_%s_v_%s_%s%s (src, vl);\n"
@@ -586,22 +601,22 @@ class extra_inst_info(enums.InstInfo):
                     % (op, vx, iu, suffix, mask))
 
     def jump_to_next_write_mask(self):
-        fd.write("        in1 += %s;\n" % int(self.sew / 8))
+        fd.write("        in1 += %s;\n" % int(self.SEW / 8))
         if op == 'vnot':
             return
         else:
-            fd.write("        in2 += %s;\n" % int(self.sew / 8))
-        fd.write("        out += %s;\n" % int(self.sew / 8))
-        fd.write("        mask += %s;\n" % int(self.sew / 8))
+            fd.write("        in2 += %s;\n" % int(self.SEW / 8))
+        fd.write("        out += %s;\n" % int(self.SEW / 8))
+        fd.write("        mask += %s;\n" % int(self.SEW / 8))
         fd.write("      }\n")
 
     def jump_to_next_write_wo_mask(self):
-        fd.write("        in1 += %s;\n" % int(self.sew / 8))
+        fd.write("        in1 += %s;\n" % int(self.SEW / 8))
         if op == 'vmv' or op == 'vneg':
             return
         else:
-            fd.write("        in2 += %s;\n" % int(self.sew / 8))
-        fd.write("        out += %s;\n" % int(self.sew / 8))
+            fd.write("        in2 += %s;\n" % int(self.SEW / 8))
+        fd.write("        out += %s;\n" % int(self.SEW / 8))
         fd.write("      }\n")
 
     def report_write(self):
@@ -641,27 +656,27 @@ class extra_inst_info(enums.InstInfo):
                 self.masked[i] = random.randint(0, 1)
 
     def vs2_data_write(self):
-        fd.write("    const %s%s_t data1[] = {\n" % (self.vtype, self.sew))
+        fd.write("    const %s%s_t data1[] = {\n" % (self.vtype, self.SEW))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data1)))
         fd.write("    };\n")
-        fd.write("    const %s%s_t *in1 = &data1[0];\n" % (self.vtype, self.sew))
+        fd.write("    const %s%s_t *in1 = &data1[0];\n" % (self.vtype, self.SEW))
 
     def vs1_data_write(self):
-        fd.write("    const %s%s_t data2[] = {\n" % (self.vtype, self.sew))
+        fd.write("    const %s%s_t data2[] = {\n" % (self.vtype, self.SEW))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data2)))
         fd.write("    };\n")
-        fd.write("    const %s%s_t *in2 = &data2[0];\n" % (self.vtype, self.sew))
+        fd.write("    const %s%s_t *in2 = &data2[0];\n" % (self.vtype, self.SEW))
 
     def unsign_vs1_data_write(self):
-        fd.write("    const uint%s_t data2[] = {\n" % (self.sew))
+        fd.write("    const uint%s_t data2[] = {\n" % (self.SEW))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data2)))
         fd.write("    };\n")
-        fd.write("    const uint%s_t *in2 = &data2[0];\n" % (self.sew))
+        fd.write("    const uint%s_t *in2 = &data2[0];\n" % (self.SEW))
 
     def vd_declaration_write(self):
-        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, self.sew, Q_array))
+        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, self.SEW, Q_array))
         # Declare the array of 10 elements
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.sew))
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.SEW))
 
     def ext_vd_declaration_write(self):
         fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, a.ext_sew, Q_array))
@@ -673,7 +688,7 @@ class extra_inst_info(enums.InstInfo):
         fd.write("    const %s out_data[] = {\n" % self.vtype)
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
         fd.write("    };\n")
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.sew))
+        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.SEW))
 
     def widen_vd_default_write(self):
         fd.write("    const %s out_data[] = {\n" % self.vtype)
@@ -682,18 +697,18 @@ class extra_inst_info(enums.InstInfo):
         fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, a.ext_sew))
     def vd_mask_default_write(self):
         # todo: load vd mask
-        fd.write("    const bool%s_t vd_mask_data[%s];\n" % (self.sew, Q_array))
-        fd.write("    const bool%s_t *vd_mask = &vd_mask_data[0];\n" % self.sew)
+        fd.write("    const bool%s_t vd_mask_data[%s];\n" % (self.SEW, Q_array))
+        fd.write("    const bool%s_t *vd_mask = &vd_mask_data[0];\n" % self.SEW)
 
     def mask_data_write(self):
         # todo: mask type
-        fd.write("    uint%s_t masked[] = {\n" % int(self.sew / self.lmul))
+        fd.write("    uint%s_t masked[] = {\n" % int(self.SEW / self.LMUL))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.masked)))
         fd.write("    };\n")
-        fd.write("    const uint%s_t *mask = &masked[0];\n" % int(self.sew / self.lmul))
+        fd.write("    const uint%s_t *mask = &masked[0];\n" % int(self.SEW / self.LMUL))
 
     def golden_by_python_write(self):
-        fd.write("    %s%s_t golden[] = {\n" % (self.vtype, self.sew))
+        fd.write("    %s%s_t golden[] = {\n" % (self.vtype, self.SEW))
         fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
         fd.write("    };\n")
 
@@ -764,7 +779,7 @@ class extra_inst_info(enums.InstInfo):
 
         if op in GeneralFormatOpList or op in SignOpList or op in UnsignOpList:
             if op == "vsra" or op == "vsrl" or op == "vsll":
-                fake_shift = int(math.log(2, self.sew))
+                fake_shift = int(math.log(2, self.SEW))
                 if self.mask:
                     for i in range(self.Q_A_E):
                         self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (2 ** fake_shift), self.vd_default[i],
@@ -777,17 +792,17 @@ class extra_inst_info(enums.InstInfo):
                     for i in range(self.Q_A_E):
                         self.golden[i] = op_list[op](self.data1[i], self.data2[i], self.vd_default[i])
                         if op == "vmulh" or op == "vmulhu" or op == "vmulhsu":
-                            self.golden[i] = self.golden[i] >> (2**self.sew)
+                            self.golden[i] = self.golden[i] >> (2**self.SEW)
                         else:
-                            self.golden[i] = self.golden[i] & (2**self.sew-1)
+                            self.golden[i] = self.golden[i] & (2**self.SEW-1)
                 else:
                     for i in range(self.Q_A_E):
                         self.golden[i] = op_list[op](
                             self.data1[i], self.data2[i], self.vd_default[i], self.masked[i])
                         if op == "vmulh" or op == "vmulhu" or op == "vmulhsu":
-                            self.golden[i] = self.golden[i] >> (2 ** self.sew)
+                            self.golden[i] = self.golden[i] >> (2 ** self.SEW)
                         else:
-                            self.golden[i] = self.golden[i] & (2 ** self.sew - 1)
+                            self.golden[i] = self.golden[i] & (2 ** self.SEW - 1)
         elif op in SpMaskOpList:
             for i in range(self.Q_A_E):
                 self.golden[i] = op_list[op](
@@ -827,7 +842,7 @@ class extra_inst_info(enums.InstInfo):
                 for i in range(self.Q_A_E):
                     if self.masked[i] == 1:
                         if self.data1[i] < 0:
-                            self.golden[i] = self.data1[i] + pow(2, self.sew) - 1
+                            self.golden[i] = self.data1[i] + pow(2, self.SEW) - 1
                         else:
                             self.golden[i] = self.data1[i]
                     else:
@@ -835,7 +850,7 @@ class extra_inst_info(enums.InstInfo):
             else:
                 for i in range(self.Q_A_E):
                     if self.data1[i] < 0:
-                        self.golden[i] = self.data1[i] + pow(2, self.sew) - 1
+                        self.golden[i] = self.data1[i] + pow(2, self.SEW) - 1
                     else:
                         self.golden[i] = self.data1[i]
 
@@ -845,11 +860,11 @@ for temp in GeneralFormatOpList:
         continue
     else:
         for suffix, vx, mask, iu in cross(_suffix, _vx, _mask, _iu):
-            a = extra_inst_info(iu)
-            a.OP = op
+            OP = op
             divider = suffix.split('m')
-            a.sew = int(divider[0])
-            a.lmul = utils.get_float_lmul(divider[1])
+            SEW = int(divider[0])
+            LMUL = utils.get_float_lmul(divider[1])
+            a = extra_inst_info(iu, SEW, LMUL, OP)
             filename = "testcase/%s_v%s_%s%s%s.c" % (op, vx, iu, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
             if mask != '_m':
@@ -910,8 +925,8 @@ for temp in SpMaskOpList:
             a = extra_inst_info(iu)
             a.OP = op
             divider = suffix.split('m')
-            a.sew = int(divider[0])
-            a.range = pow(2, a.sew)
+            a.SEW = int(divider[0])
+            a.range = pow(2, a.SEW)
             a.lmul = utils.get_float_lmul(divider[1])
             a.op_mask = op
             filename = "testcase/%s_v%sm_%s%s.c" % (op, vx, iu, suffix)
@@ -946,8 +961,8 @@ for temp in Sp2MaskOpList:
             a = extra_inst_info(iu)
             a.OP = op
             divider = suffix.split('m')
-            a.sew = int(divider[0])
-            a.range = pow(2, a.sew)
+            a.SEW = int(divider[0])
+            a.range = pow(2, a.SEW)
             a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s%s_%s%s.c" % (op, vx, mask, iu, suffix)
             with open(filename, 'w') as fd:
@@ -986,8 +1001,8 @@ for temp in SignOpList:
             a = extra_inst_info('i')
             a.OP = op
             divider = suffix.split('m')
-            a.sew = int(divider[0])
-            a.range = pow(2, a.sew)
+            a.SEW = int(divider[0])
+            a.range = pow(2, a.SEW)
             a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
@@ -1063,8 +1078,8 @@ for temp in UnsignOpList:
             a = extra_inst_info('u')
             a.OP = op
             divider = suffix.split('m')
-            a.sew = int(divider[0])
-            a.range = pow(2, a.sew)
+            a.SEW = int(divider[0])
+            a.range = pow(2, a.SEW)
             a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s_u%s%s.c" % (op, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
@@ -1126,8 +1141,8 @@ if op == 'vwmaccus':
         a = extra_inst_info(iu)
         a.OP = op
         divider = suffix.split('m')
-        a.sew = int(divider[0])
-        a.range = pow(2, a.sew)
+        a.SEW = int(divider[0])
+        a.range = pow(2, a.SEW)
         a.lmul = utils.get_float_lmul(divider[1])
         filename = "testcase/%s_vx_i%s%s.c" % (op, suffix, mask)
         a.op_mask = "%s%s" % (op, mask)
@@ -1195,8 +1210,8 @@ if op == 'vnsra' or op == 'vnsrl':
         a = extra_inst_info(iu)
         a.OP = op
         divider = suffix.split('m')
-        a.sew = int(divider[0])
-        a.range = pow(2, a.sew)
+        a.SEW = int(divider[0])
+        a.range = pow(2, a.SEW)
         a.lmul = utils.get_float_lmul(divider[1])
         a.op_mask = "%s%s" % (op, mask)
         if mask != '_m':
@@ -1258,8 +1273,8 @@ for temp in SpWUnsignOpList:
             a = extra_inst_info(iu)
             a.OP = op
             divider = suffix.split('m')
-            a.sew = int(divider[0])
-            a.range = pow(2, a.sew)
+            a.SEW = int(divider[0])
+            a.range = pow(2, a.SEW)
             a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_%s%s_u%s%s.c" % (op, wv, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
@@ -1317,8 +1332,8 @@ if op == 'vmv':
         a = extra_inst_info(iu)
         a.op_mask = op
         divider = suffix.split('m')
-        a.sew = int(divider[0])
-        a.range = pow(2, a.sew)
+        a.SEW = int(divider[0])
+        a.range = pow(2, a.SEW)
         a.lmul = utils.get_float_lmul(divider[1])
         filename = "testcase/%s_v_%s_%s%s.c" % (op, vx, iu, suffix)
         with open(filename, 'w') as fd:
@@ -1349,8 +1364,8 @@ if op == 'vneg' or op == 'vnot':
         a = extra_inst_info(iu)
         a.OP = op
         divider = suffix.split('m')
-        a.sew = int(divider[0])
-        a.range = pow(2, a.sew)
+        a.SEW = int(divider[0])
+        a.range = pow(2, a.SEW)
         a.lmul = utils.get_float_lmul(divider[1])
         if op == 'vneg':
             if iu == 'i':
@@ -1413,12 +1428,12 @@ if op == 'vsext' or op == 'vzext':
         a = extra_inst_info(iu)
         a.OP = op
         divider = suffix.split('m')
-        a.sew = int(divider[0])
-        a.ext_sew = int(a.sew / utils.get_float_lmul(ext))
+        a.SEW = int(divider[0])
+        a.ext_sew = int(a.SEW / utils.get_float_lmul(ext))
         a.lmul = utils.get_float_lmul(divider[1])
         a.ext_lmul = a.lmul / utils.get_float_lmul(ext)
         a.op_mask = "%s%s" % (op, mask)
-        if a.sew/utils.get_float_lmul(ext)<=64 and a.sew/a.lmul<=64 and a.lmul/utils.get_float_lmul(ext)<=8:
+        if a.SEW/utils.get_float_lmul(ext)<=64 and a.SEW/a.lmul<=64 and a.lmul/utils.get_float_lmul(ext)<=8:
             ext_suffix = "%sm%s" % (int(a.ext_sew), utils.get_string_lmul(a.ext_lmul))
             bool_width = int(a.ext_sew) / a.ext_lmul
             if op == 'vsext':
