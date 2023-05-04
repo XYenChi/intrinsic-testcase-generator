@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+sign_fix_i = ['i']
+sign_fix_u = ['u']
+sign_iu = ['i', 'u']
+type_vx = ['vv', 'vx']
+type_widen_vx = ['wv', 'wx']
 class Index:
     def __init__(self):
         self.op_name = ''

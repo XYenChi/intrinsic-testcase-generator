@@ -21,9 +21,9 @@ _vx = ['v', 'x']
 _wv = ['v', 'w']
 _iu = ['i', 'u']
 _ext = ['f2', 'f4', 'f8']
-_suffix = []
-_widen_suffix = []
-_narrow_suffix = []
+normal_suffix = []
+widen_suffix = []
+narrow_suffix = []
 # 'i' for signed int, 'u' for unsigned int
 
 _mask = ['', '_m']
@@ -73,17 +73,17 @@ def cross(*args):
 
 for sew, lmul in cross(constants.SEWS, constants.LMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        _suffix.append(f'{sew}m{lmul}')
+        normal_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 for sew, lmul in cross(constants.FSEWS, constants.WLMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        _widen_suffix.append(f'{sew}m{lmul}')
+        widen_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 for sew, lmul in cross(constants.WSEWS, constants.LMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        _widen_suffix.append(f'{sew}m{lmul}')
+        widen_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 class extra_inst_info(enums.InstInfo):
@@ -859,7 +859,7 @@ for temp in GeneralFormatOpList:
     if op != temp:
         continue
     else:
-        for suffix, vx, mask, iu in cross(_suffix, _vx, _mask, _iu):
+        for suffix, vx, mask, iu in cross(normal_suffix, _vx, _mask, _iu):
             OP = op
             divider = suffix.split('m')
             SEW = int(divider[0])
@@ -921,7 +921,7 @@ for temp in SpMaskOpList:
     if op != temp:
         continue
     else:
-        for suffix, vx, iu in cross(_suffix, _vx, _iu):
+        for suffix, vx, iu in cross(normal_suffix, _vx, _iu):
             a = extra_inst_info(iu)
             a.OP = op
             divider = suffix.split('m')
@@ -957,7 +957,7 @@ for temp in Sp2MaskOpList:
     if op != temp:
         continue
     else:
-        for vx, iu, suffix, mask in cross(_vx, _iu, _suffix, _middle_mask):
+        for vx, iu, suffix, mask in cross(_vx, _iu, normal_suffix, _middle_mask):
             a = extra_inst_info(iu)
             a.OP = op
             divider = suffix.split('m')
@@ -997,7 +997,7 @@ for temp in SignOpList:
     if op != temp:
         continue
     else:
-        for suffix, vx, mask in cross(_suffix, _vx, _mask):
+        for suffix, vx, mask in cross(normal_suffix, _vx, _mask):
             a = extra_inst_info('i')
             a.OP = op
             divider = suffix.split('m')
@@ -1074,7 +1074,7 @@ for temp in UnsignOpList:
     if op != temp:
         continue
     else:
-        for suffix, vx, mask in cross(_suffix, _vx, _mask):
+        for suffix, vx, mask in cross(normal_suffix, _vx, _mask):
             a = extra_inst_info('u')
             a.OP = op
             divider = suffix.split('m')
@@ -1135,7 +1135,7 @@ for temp in UnsignOpList:
 if op == 'vwmaccus':
     # WSignOpList = ['vnsra', 'vwmaccus']
     # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
-    for suffix, mask in cross(_widen_suffix, _mask):
+    for suffix, mask in cross(widen_suffix, _mask):
         # todo: sign scalar * unsign vector
         iu = 'i'
         a = extra_inst_info(iu)
@@ -1200,7 +1200,7 @@ if op == 'vwmaccus':
 if op == 'vnsra' or op == 'vnsrl':
     # WSignOpList = ['vnsra', 'vwmaccus']
     # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
-    for suffix, mask, vx in cross(_narrow_suffix, _mask, _vx):
+    for suffix, mask, vx in cross(narrow_suffix, _mask, _vx):
         if op == 'vnsra':
             iu = 'i'
             filename = "testcase/%s_w%s_i%s%s.c" % (op, vx, suffix, mask)
@@ -1268,7 +1268,7 @@ for temp in SpWUnsignOpList:
     # SpWUnsignOpList = ['vwaddu', 'vwsubu']
     # loop _wv, _vx , _suffix, _mask, with fixed u
     else:
-        for wv, vx, suffix, mask in cross(_wv, _vx, _widen_suffix, _mask):
+        for wv, vx, suffix, mask in cross(_wv, _vx, widen_suffix, _mask):
             iu = 'u'
             a = extra_inst_info(iu)
             a.OP = op
@@ -1328,7 +1328,7 @@ for temp in SpWUnsignOpList:
                     a.report_write()
 if op == 'vmv':
     # loop _iu, _suffix and _vx with "_"
-    for iu, suffix, vx in cross(_iu, _suffix, _vx):
+    for iu, suffix, vx in cross(_iu, normal_suffix, _vx):
         a = extra_inst_info(iu)
         a.op_mask = op
         divider = suffix.split('m')
@@ -1360,7 +1360,7 @@ if op == 'vneg' or op == 'vnot':
     # loop _suffix, _mask and only v, with fixed i
     # Sp2VOplist = ['vnot']
     # loop _suffix, _iu, _mask and only v
-    for suffix, mask, iu in cross(_suffix, _mask, _iu):
+    for suffix, mask, iu in cross(normal_suffix, _mask, _iu):
         a = extra_inst_info(iu)
         a.OP = op
         divider = suffix.split('m')
@@ -1420,7 +1420,7 @@ if op == 'vneg' or op == 'vnot':
 # ExtOpList = ['vsext', 'vzext']
 # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 if op == 'vsext' or op == 'vzext':
-    for suffix, ext, mask in cross(_suffix, _ext, _mask):
+    for suffix, ext, mask in cross(normal_suffix, _ext, _mask):
         if op == 'vsext':
             iu = 'i'
         else:

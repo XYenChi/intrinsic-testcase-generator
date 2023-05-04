@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import os
+
+import exe_op_generator
 import filter
 import sys
 
@@ -68,8 +70,8 @@ for file in filelist:
                         instance_operand_type_lists = set()
                         instance_suffix = set()
                         instance_name = set()
-                    elif (operand_type_lists_counter1 == operand_type_lists_counter2) & (sign_counter1 == sign_counter2) \
-                            & (function_counter1 == function_counter2) & (suffix_counter1 == suffix_counter2):
+                    elif (operand_type_lists_counter1 == operand_type_lists_counter2) & (sign_counter1 == sign_counter2
+                    ) & (function_counter1 == function_counter2) & (suffix_counter1 == suffix_counter2):
                         instance_sign.add(op_parser[2][0])
                         instance_operand_type_lists.add(op_parser[1])
                         instance_suffix.add(divided_suffix[1])
@@ -91,5 +93,33 @@ generate_file.write("sign:\n" + str(sign) + "\n")
 generate_file.write("suffix:\n" + str(suffix) + "\n")
 generate_file.write("special_set:\n" + str(special_set) + "\n")
 for i in op_instance_list:
-    generate_file.write(f"function name:\n{i.op_name}\noperand type:\n{i.operand_type}\nsign type:\n{i.sign_type}\n"
-                        f"suffix list:\n{i.suffix_list}\n")
+    generate_file.write(f"function name:\n{i.op_name}\noperand type:\n{sorted(i.operand_type)}\nsign type:\n"
+                        f"{sorted(i.sign_type)}\nsuffix list:\n{sorted(i.suffix_list)}\n")
+    if i.operand_type == filter.type_vx:
+        if i.sign_type == filter.sign_iu:
+            if i.suffix_list == exe_op_generator.suffix:
+                exe_op_generator.GeneralFormatOpList.append(i.op_name)
+            elif i.suffix_list == exe_op_generator.widen_suffix:
+                exe_op_generator.SpWsignOpList.append(i.op_name)
+            else:
+                special_set.add(i.op_name)
+                print("find a sign_iu suffix issue")
+        elif i.sign_type == filter.sign_fix_i:
+            if i.suffix_list == exe_op_generator.suffix:
+                exe_op_generator.SignOpList.append(i.op_name)
+            elif i.suffix_list == exe_op_generator.widen_suffix:
+                exe_op_generator.SpWsignOpList.append(i.op_name)
+            else:
+                special_set.add(i.op_name)
+                print("find a sign_fix_i suffix issue")
+        elif i.sign_type == filter.sign_fix_u:
+            if i.suffix_list == exe_op_generator.suffix:
+                exe_op_generator.UnsignOpList.append(i.op_name)
+            elif i.suffix_list == exe_op_generator.widen_suffix:
+                exe_op_generator.SpWUnsignOpList.append(i.op_name)
+            else:
+                special_set.add(i.op_name)
+                print("find a sign_fix_u suffix issue")
+generate_file.write("GeneralFormatOpList:\n" + str(exe_op_generator.GeneralFormatOpList) + "\n")
+generate_file.write("SignOpList:\n" + str(exe_op_generator.SignOpList) + "\n")
+generate_file.write("UnsignOpList:\n" + str(exe_op_generator.UnsignOpList) + "\n")
