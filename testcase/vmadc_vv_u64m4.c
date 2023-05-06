@@ -6,17 +6,17 @@
 #include "riscv_vector.h"
 int main(){
     const uint64_t data1[] = {
-    39, 48, 95, 108, 42, 122, 202, 58, 152, 197, 118, 102, 80, 148, 102, 3
+    70, 120, 117, 241, 229, 253, 7, 38, 197, 119, 118, 85, 63, 60, 140, 27
     };
     const uint64_t *in1 = &data1[0];
     const uint64_t data2[] = {
-    20, 13, 194, 100, 93, 224, 165, 195, 253, 24, 78, 222, 63, 207, 2, 209
+    25, 179, 169, 127, 164, 241, 70, 148, 226, 191, 149, 98, 42, 240, 89, 138
     };
     const uint64_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e64m4(avl);
     const uint out_data[] = {
-    1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0
+    0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1
     };
     const uint64_t *out = &out_data[0];
     vuint64m4_t data1_v = __riscv_vle64_v_u64m4 (in1, vl);

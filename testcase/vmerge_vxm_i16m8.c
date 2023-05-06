@@ -6,23 +6,24 @@
 #include "riscv_vector.h"
 int main(){
     const int16_t data1[] = {
-    -88, 127, 119, -113, 79, -45, -19, -66, -116, -12, 119, 48, 0, 29, -25, 14
+    49, 28, -103, -125, -94, -12, 81, -21, -77, -16, 5, -28, -122, -37, -19, -32
     };
     const int16_t *in1 = &data1[0];
     const int16_t data2[] = {
-    -64, 69, 55, 32, -6, -66, 23, 101, -118, -18, 84, -14, -86, 121, -95, 14
+    36, -60, -14, 47, -45, 104, 72, -101, -70, -97, -32, 30, 66, -51, 39, -3
     };
     const int16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m8(avl);
     uint2_t masked[] = {
-    1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0
+    1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0
     };
     const uint2_t *mask = &masked[0];
     vint16m8_t data1_v = __riscv_vle16_v_i16m8 (in1, vl);
     vint16m8_t data2_v = __riscv_vle16_v_i16m8 (in2, vl);
     vint16m8_t out_v = __riscv_vle16_v_i16m8 (out, vl);
     for (size_t n = 0; n < vl; n++) {
+        out_v = __riscv_vmerge_vxm_i16m8 (data1_v, data2_v, masked size_t vl);
         void __riscv_vse16_v_i16m8 (int16_t *out, vint16m8_t out_v, size_t vl);
         in1 += 2;
         in2 += 2;
@@ -30,7 +31,7 @@ int main(){
         mask += 2;
       }
     int16_t golden[] = {
-    -64, 127, 119, -113, 79, -45, 23, 101, -116, -18, 84, -14, 0, 121, -25, 14
+    36, 28, -103, -125, -45, -12, 72, -21, -70, -16, -32, 30, -122, -51, -19, -32
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

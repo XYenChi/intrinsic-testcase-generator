@@ -6,17 +6,17 @@
 #include "riscv_vector.h"
 int main(){
     const int16_t data1[] = {
-    -28, 106, -123, -58, 113, -6, -42, -29, -72, 75, 18, -120, 114, -38, -57, 20
+    47, -67, 56, 14, 48, 57, -85, 52, -17, 6, -79, -79, -72, -51, 21, 20
     };
     const int16_t *in1 = &data1[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16m8(avl);
     const int out_data[] = {
-    1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1
+    1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1
     };
     const int16_t *out = &out_data[0];
     uint2_t masked[] = {
-    0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1
+    0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1
     };
     const uint2_t *mask = &masked[0];
     vint16m8_t data1_v = __riscv_vle16_v_i16m8_m (mask, in1, vl);
@@ -26,7 +26,7 @@ int main(){
         void __riscv_vse16_v_i16m8 (bool16_t mask, int16_t *out, vint16m8_t out_v, size_t vl);
         in1 += 2;
     int16_t golden[] = {
-    1, -107, 122, 57, -114, 0, 0, 28, 0, 0, -19, 0, 1, 37, 56, -21
+    1, 1, -57, 1, 1, 1, 1, -53, 16, 1, 1, 78, 71, 1, 0, -21
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){

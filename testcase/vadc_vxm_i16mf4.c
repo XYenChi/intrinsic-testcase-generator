@@ -6,23 +6,24 @@
 #include "riscv_vector.h"
 int main(){
     const int16_t data1[] = {
-    -5, -104, -117, -82, -30, 94, 34, -15, 33, -113, -47, -74, 14, -100, 45, 1
+    40, -89, 27, 55, -43, -111, -80, -107, 125, 122, 80, -125, -32, 3, -72, 126
     };
     const int16_t *in1 = &data1[0];
     const int16_t data2[] = {
-    -22, -46, -11, 20, -58, -14, -4, -98, 71, -72, 104, -49, -93, 126, -27, 94
+    -30, -104, 94, -67, 113, -60, 45, 106, 27, -78, -90, 76, -23, -48, 2, 124
     };
     const int16_t *in2 = &data2[0];
     size_t avl = 64;
     size_t vl = __riscv_vsetvl_e16mf4(avl);
     uint64_t masked[] = {
-    0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0
+    0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
     };
     const uint64_t *mask = &masked[0];
     vint16mf4_t data1_v = __riscv_vle16_v_i16mf4 (in1, vl);
     vint16mf4_t data2_v = __riscv_vle16_v_i16mf4 (in2, vl);
     vint16mf4_t out_v = __riscv_vle16_v_i16mf4 (out, vl);
     for (size_t n = 0; n < vl; n++) {
+        out_v = __riscv_vadc_vxm_i16mf4 (data1_v, data2_v, masked, vl);
         void __riscv_vse16_v_i16mf4 (int16_t *out, vint16mf4_t out_v, size_t vl);
         in1 += 2;
         in2 += 2;
@@ -30,7 +31,7 @@ int main(){
         mask += 2;
       }
     int16_t golden[] = {
-    -27, -149, -127, -62, -88, 80, 31, -113, 105, -185, 57, -122, -79, 27, 18, 95
+    10, -192, 122, -11, 70, -171, -34, 0, 152, 44, -10, -49, -55, -45, -70, 250
     };
     int fail = 0;
     for (int i = 0; i < 16; i++){
