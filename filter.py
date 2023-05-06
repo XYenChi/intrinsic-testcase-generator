@@ -3,7 +3,10 @@ sign_fix_i = ['i']
 sign_fix_u = ['u']
 sign_iu = ['i', 'u']
 type_vx = ['vv', 'vx']
+only_v = ['v']
 type_widen_vx = ['wv', 'wx']
+type_vw_vx = ['vx', 'vv', 'wx', 'wv']
+
 class Index:
     def __init__(self):
         self.op_name = ''
@@ -18,4 +21,3 @@ class Index:
         self.suffix_list = set()
         self.suffix_type = ''
         # normal, narrow or widen
-
