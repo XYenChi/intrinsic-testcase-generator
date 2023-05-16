@@ -1,9 +1,11 @@
 """
 Generate execute file by operator
 """
+import filter
 import operator_py_function
 import random
 import sys
+import intrinsic_function_type
 sys.path.append("./rvv-intrinsic-doc/rvv-intrinsic-generator/rvv_intrinsic_gen")
 import math
 import utils
@@ -17,46 +19,11 @@ import constants
 op = sys.argv[1]
 Q_array = 16
 avl = 64
-vx_list = ['v', 'x']
-wv_list = ['v', 'w']
-iu_list = ['i', 'u']
-ext_list = ['f2', 'f4', 'f8']
-normal_suffix = []
-widen_suffix = []
-narrow_suffix = []
+
 # 'i' for signed int, 'u' for unsigned int
 
 mask_list = ['', '_m']
 middle_mask_list = ['', 'm']
-GeneralFormatOpList = ['vadd', 'vand', 'vmacc', 'vmadd', 'vmseq', 'vmsne', 'vmul', 'vnmsac', 'vnmsub', 'vor', 'vrsub',
-                       'vsll', 'vsub', 'vxor']
-# loop _vx, _iu, _suffix, _mask
-SpMaskOpList = ['vadc', 'vmerge']
-# loop _vx, _iu, _suffix, have to with middle mask
-Sp2MaskOpList = ['vmadc', 'vmsbc']
-# loop _vx, _iu, _suffix, and middle mask. don't have _mask
-SignOpList = ['vdiv', 'vmax', 'vmin', 'vmsge', 'vmsgt', 'vmsle', 'vmslt', 'vmulh', 'vmulhsu', 'vrem', 'vsra', 'vwmacc',
-              'vwmaccsu', 'vwmul', 'vwmulsu']
-# loop _vx, _suffix, _mask, with fixed i
-WSignOpList = ['vnsra', 'vwmaccus']
-# loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
-SpWsignOpList = ['vwadd', 'vwsub']
-# loop _wv, _vx , _suffix, _mask, with fixed i
-UnsignOpList = ['vdivu', 'vmaxu', 'vminu', 'vmsgeu', 'vmsgtu', 'vmsleu', 'vmsltu', 'vmulhu', 'vremu', 'vsrl', 'vwmaccu',
-                'vwmaccu', 'vwmulu']
-# loop _vx, _suffix, _mask with fixed u
-WUnsignOpList = ['vnsrl']
-# loop different position _vx , _suffix, _mask, with fixed u
-SpWUnsignOpList = ['vwaddu', 'vwsubu']
-# loop _wv, _vx , _suffix, _mask, with fixed u
-SpecialFormatList = ['vmv']
-# loop _iu, _suffix and _vx with "_"
-SpVOplist = ['vneg']
-# loop _suffix, _mask and only v, with fixed i
-Sp2VOplist = ['vnot']
-# loop _suffix, _iu, _mask and only v
-ExtOpList = ['vsext', 'vzext']
-# loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 
 def cross(*args):
     list = [()]
@@ -66,17 +33,17 @@ def cross(*args):
 
 for sew, lmul in cross(constants.SEWS, constants.LMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        normal_suffix.append(f'{sew}m{lmul}')
+        filter.normal_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 for sew, lmul in cross(constants.FSEWS, constants.WLMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        widen_suffix.append(f'{sew}m{lmul}')
+        filter.widen_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 for sew, lmul in cross(constants.WSEWS, constants.LMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        widen_suffix.append(f'{sew}m{lmul}')
+        filter.widen_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 class extra_inst_info(enums.InstInfo):
@@ -770,7 +737,7 @@ class extra_inst_info(enums.InstInfo):
             # "vzext": operator_py_function.zero_extesion_op,
         }
 
-        if op in GeneralFormatOpList or op in SignOpList or op in UnsignOpList:
+        if op in intrinsic_function_type.GeneralFormatOpList or op in intrinsic_function_type.SignOpList or op in intrinsic_function_type.UnsignOpList:
             if op == "vsra" or op == "vsrl" or op == "vsll":
                 fake_shift = int(math.log(2, self.SEW))
                 if self.mask:
@@ -848,7 +815,7 @@ class extra_inst_info(enums.InstInfo):
                         self.golden[i] = self.data1[i]
 
 
-for temp in GeneralFormatOpList:
+for temp in intrinsic_function_type.GeneralFormatOpList:
     if op != temp:
         continue
     else:
@@ -908,7 +875,7 @@ for temp in GeneralFormatOpList:
                     a.compute()
                     a.golden_by_python_write()
                     a.report_write()
-for temp in SpMaskOpList:
+for temp in intrinsic_function_type.SpMaskOpList:
     # SpMaskOpList = ['vadc', 'vmerge']
     # loop _vx, _iu, _suffix, have to with middle mask
     if op != temp:
@@ -944,7 +911,7 @@ for temp in SpMaskOpList:
                 a.compute()
                 a.golden_by_python_write()
                 a.report_write()
-for temp in Sp2MaskOpList:
+for temp in intrinsic_function_type.Sp2MaskOpList:
     # Sp2MaskOpList = ['vmadc', 'vmsbc']
     # loop _vx, _iu, _suffix, and middle mask. don't have _mask
     if op != temp:
@@ -1255,7 +1222,7 @@ if op == 'vnsra' or op == 'vnsrl':
                 a.compute()
                 a.golden_by_python_write()
                 a.report_write()
-for temp in SpWUnsignOpList:
+for temp in intrinsic_function_type.SpWUnsignOpList:
     if op != temp:
         continue
     # SpWUnsignOpList = ['vwaddu', 'vwsubu']
