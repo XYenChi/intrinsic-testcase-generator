@@ -1,5 +1,5 @@
 def add_op(a, b, c=None, m=None):
-    # vadd
+    # vadd vwadd
     if m == 0:
         return c
     else:

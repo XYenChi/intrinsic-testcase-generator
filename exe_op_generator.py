@@ -739,14 +739,13 @@ class extra_inst_info(enums.InstInfo):
 
         if op in intrinsic_function_type.GeneralFormatOpList or op in intrinsic_function_type.SignOpList or op in intrinsic_function_type.UnsignOpList:
             if op == "vsra" or op == "vsrl" or op == "vsll":
-                fake_shift = int(math.log(2, self.SEW))
                 if self.mask:
                     for i in range(self.Q_A_E):
-                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (2 ** fake_shift), self.vd_default[i],
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (self.SEW - 1), self.vd_default[i],
                                                      self.masked[i])
                 else:
                     for i in range(self.Q_A_E):
-                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (2 ** fake_shift), self.vd_default[i])
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (self.SEW - 1), self.vd_default[i])
             else:
                 if self.mask:
                     for i in range(self.Q_A_E):
