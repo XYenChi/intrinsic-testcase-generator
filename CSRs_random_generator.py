@@ -43,3 +43,18 @@ def int_rounding(result, xrm, gb):
             if result & (lsb - 1):
                 result |= lsb
     return result >> gb
+
+
+def sat_sub(vs2, vs1, sew, sat):
+    uvs2 = vs2 & (sew - 1)
+    uvs1 = vs1 & (sew - 1)
+    res = uvs2 - uvs1
+    sat = 0
+# Calculate overflowed result.(Don't change the sign bit of ux) */
+    ux = (uvs2 >> (sew - 1)) + ((1 << (sew - 1)) - 1)
+
+# Force compiler to use cmovns instruction
+    if ((uvs2 ^ uvs1) & (uvs2 ^ res)) <0:
+        res = ux
+        sat = 1
+        return res, sat

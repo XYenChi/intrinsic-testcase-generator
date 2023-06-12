@@ -82,6 +82,12 @@ class extra_inst_info(enums.InstInfo):
         self.random_gen()
         self.compute()
 
+
+    def csr_write(self):
+        fd.write("enum RVV_CSR {\nRVV_VSTART = 0,\nRVV_VXSAT,\nRVV_VXRM,\nRVV_VCSR,\n};\n")
+        # void __riscv_vwrite_csr(enum RVV_CSR csr, unsigned long value);
+        fd.write("void __riscv_vwrite_csr(%s, %s);" % (CSRs_random_generator.xrm, avl/8))
+
     def compiler_option_write(self):
         fd.write("/* { dg-do run } */\n")
         fd.write(

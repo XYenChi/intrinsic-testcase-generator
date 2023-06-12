@@ -1,5 +1,12 @@
 # Produced by spike_header_file_transformer.py, running spike_header_file_transformer.py again will override this file.def vaadd_op():
-def vaaddu_op():
+import CSRs_random_generator
+def vaaddu_op(vs2, vs1, xrm, vd=None, m=None):
+    if m == 0:
+        return vd
+    else:
+        res = vs2 + vs1
+        vd = CSRs_random_generator.int_rounding(res, xrm, 1)
+        return vd
 
 def vadc_op(vs2, vs1, carryin):
     return vs2 + vs1 + carryin
@@ -53,10 +60,20 @@ def vand_op(vs2, vs1, vd=None, m=None):
     vd = vs1 & vs2
     return vd
 
-def vasub_op():
-
-def vasubu_op():
-
+def vasub_op(vs2, vs1, xrm, vd=None, m=None):
+    if m == 0:
+        return vd
+    else:
+        res = vs2 - vs1
+        vd = CSRs_random_generator.int_rounding(res, xrm, 1)
+        return vd
+def vasubu_op(vs2, vs1, xrm, vd=None, m=None):
+    if m == 0:
+        return vd
+    else:
+        res = vs2 - vs1
+        vd = CSRs_random_generator.int_rounding(res, xrm, 1)
+        return vd
 def vcompress_op():
 
 def vcpop_op():
@@ -474,9 +491,19 @@ def vrsub_op(vs2, vs1, vd=None, m=None):
 # def vs2r_op():
 # def vs4r_op():
 # def vs8r_op():
-def vsadd_op():
-def vsaddu_op():
-def vsbc_op(vs2, vs1, c=None, m=None):
+def vsadd_op(vs2, vs1, vd, sew, m=None):
+    if m == 0:
+        return vd
+    else:
+        vd = min(vs2+vs1, pow(2, sew))
+        return vd
+def vsaddu_op(vs2, vs1, vd, sew, m=None):
+    if m == 0:
+        return vd
+    else:
+        vd = min(vs2+vs1, pow(2, sew))
+        return vd
+def vsbc_op(vs2, vs1, vd=None, m=None):
     if m == 1:
         return vs2 - vs1 - m
     else:
@@ -536,10 +563,34 @@ def vsrl_op(vs2, vs1, vd, sew, m=None):
 # def vsse32_op():
 # def vsse64_op():
 # def vsse8_op():
-def vssra_op():
-def vssrl_op():
-def vssub_op():
-def vssubu_op():
+def vssra_op(vs2, vs1, sew, xrm, vd=None, m=None):
+    if m == 0:
+        return vd
+    else:
+        sh = vs1 & (sew - 1)
+        val = vs2
+        vd = CSRs_random_generator.int_rounding(val, xrm, sh)
+        return vd
+
+def vssrl_op(vs2, vs1, sew, xrm, vd=None, m=None):
+    if m == 0:
+        return vd
+    else:
+        sh = vs1 & (sew - 1)
+        val = vs2
+        vd = CSRs_random_generator.int_rounding(val, xrm, sh)
+        return vd
+def vssub_op(vs2, vs1, sew, sat, vd=None, m=None):
+    if m == 0:
+        return vd
+    else:
+       return CSRs_random_generator.sat_sub(vs2, vs1, sew, sat)
+
+def vssubu_op(vs2, vs1, sew, sat, vd=None, m=None):
+    if m == 0:
+        return vd
+    else:
+       return CSRs_random_generator.sat_sub(vs2, vs1, sew, sat)
 def vsub_op(vs2, vs1, vd=None, m=None):
     # vsub
     if m == 0:
