@@ -22,6 +22,7 @@ special_set = set()
 operand_type_set = set()
 sign = set()
 suffix = set()
+C_example = []
 # to save operator instance
 op_instance_list = list()
 # to list all kinds of operand_type, sign_type and suffix_type for sorting and iterating.
@@ -42,6 +43,41 @@ def name_parser(line_string):
     divided_suffix = b.split(a, 1)
     function_factor = op_parser[0], op_parser[1], op_parser[2][0], divided_suffix[1], mask_parser[0]
     return function_factor
+
+
+def c_function_parser(line_string):
+    # to remove operand type and add "out = "
+    c_string = "out = "
+    function = []
+    param_list = []
+    function_param = line_string.split('(')
+    # function_param[0] : function name
+    # function_param[1] : param
+    param = function_param[1].split(', ')
+    function.append(function_param[0].split(' ')[1])
+    for p_sn in range(0, len(param)):
+        type_param = param[p_sn].split(' ')
+        # print(type_param[1])
+        remove = type_param[1].split(';')
+        param_list.append(remove[0])
+        # type_param[0] : type
+        # type_param[1] : param
+    # function[0]: function name, operand type, sign, sew+lmul and mask, like "__riscv_vwadd_wv_i32m1_m"
+    function.insert(1, '(')
+    for param in param_list:
+        function.append(param)
+    list_sn = 3
+    while True:
+        max_sn = len(function)
+        if list_sn < max_sn:
+            function.insert(list_sn, ', ')
+            list_sn += 2
+        else:
+            break
+    function.insert(len(function), ';')
+    for element in function:
+        c_string = c_string + "%s" % element
+    return c_string
 
 
 def judge(op_name):
@@ -143,6 +179,7 @@ for file in filelist:
                 if '__riscv_' not in line:
                     continue
                 mask = 0
+                C_example.append(c_function_parser(line))
                 inf = name_parser(line)
                 # inf[0]: function name op_parser[0],
                 # inf[1]: operand type, vector or scalar. op_parser[1],
@@ -184,35 +221,39 @@ for file in filelist:
                     x.mask = mask
                     op_instance_list.append(x)
 
-generate_file = open("collector_product.txt", "w")
+generate_file = open("05_Integer_collector_product.txt", "w")
 generate_file.write("function_set:\n" + str(function_set) + "\n")
 # generate_file.write("operand_type_lists:\n" + str(operand_type_set) + "\n")
 # generate_file.write("sign:\n" + str(sign) + "\n")
 # generate_file.write("suffix:\n" + str(suffix) + "\n")
 generate_file.write("special_set:\n" + str(special_set) + "\n")
-generate_file.write("sign_type_4_iterator:\n" + str(sign_type_4_iterator) + "\n")
-generate_file.write("operand_type_4_iterator:\n" + str(operand_type_4_iterator) + "\n")
-generate_file.write("suffix_type_4_iterator:\n" + str(suffix_type_4_iterator) + "\n")
+
 for i in op_instance_list:
     judge(i)
     generate_file.write(f"\nfunction name:\n{i.op_name}\noperand type:\n{sorted(i.operand_type)}\nsign type:\n"
                         f"{sorted(i.sign_type)}\nsuffix list:\n{sorted(i.suffix_list)}\nmask:\n{i.mask}\n")
 
 for i in op_instance_list:
-    if str(i.sign_type) not in sign_type_4_iterator:
-        sign_type_4_iterator.append(str(i.sign_type))
+    if i.sign_type not in sign_type_4_iterator:
+        sign_type_4_iterator.append(i.sign_type)
+        print(sign_type_4_iterator)
     else:
         continue
-    if str(i.operand_type) not in operand_type_4_iterator:
-        operand_type_4_iterator.append(str(i.operand_type))
+    if i.operand_type not in operand_type_4_iterator:
+        operand_type_4_iterator.append(i.operand_type)
+        print(operand_type_4_iterator)
     else:
         continue
-    if str(i.suffix_list) not in suffix_type_4_iterator:
-        suffix_type_4_iterator.append(str(sorted(i.suffix_list)))
+    if sorted(i.suffix_list) not in suffix_type_4_iterator:
+        suffix_type_4_iterator.append(sorted(i.suffix_list))
+        print(suffix_type_4_iterator)
     else:
         continue
-
-generate_python = open("intrinsic_function_type_1.py", "w")
+generate_file.write("sign_type_4_iterator:\n" + str(sign_type_4_iterator) + "\n")
+generate_file.write("operand_type_4_iterator:\n" + str(operand_type_4_iterator) + "\n")
+generate_file.write("suffix_type_4_iterator:\n" + str(suffix_type_4_iterator) + "\n")
+generate_file.write("C example:\n" + str(C_example) + "\n")
+generate_python = open("intrinsic_function_type_05.py", "w")
 generate_python.write("#!/usr/bin/env python3\n")
 generate_python.write("GeneralFormatOpList = " + str(filter.GeneralFormatOpList) + "\n")
 generate_python.write("SignOpList = " + str(filter.SignOpList) + "\n")
