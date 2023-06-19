@@ -221,7 +221,12 @@ for file in filelist:
                     x.mask = mask
                     op_instance_list.append(x)
 
-generate_file = open("05_Integer_collector_product.txt", "w")
+generate_file = open("product.txt", "a")
+c_function_template = open("c_template_lib.txt", "a")
+for strs in C_example:
+    c_function_template.writelines(strs)
+    c_function_template.write("\n")
+
 generate_file.write("function_set:\n" + str(function_set) + "\n")
 # generate_file.write("operand_type_lists:\n" + str(operand_type_set) + "\n")
 # generate_file.write("sign:\n" + str(sign) + "\n")
@@ -252,7 +257,6 @@ for i in op_instance_list:
 generate_file.write("sign_type_4_iterator:\n" + str(sign_type_4_iterator) + "\n")
 generate_file.write("operand_type_4_iterator:\n" + str(operand_type_4_iterator) + "\n")
 generate_file.write("suffix_type_4_iterator:\n" + str(suffix_type_4_iterator) + "\n")
-generate_file.write("C example:\n" + str(C_example) + "\n")
 generate_python = open("intrinsic_function_type_05.py", "w")
 generate_python.write("#!/usr/bin/env python3\n")
 generate_python.write("GeneralFormatOpList = " + str(filter.GeneralFormatOpList) + "\n")

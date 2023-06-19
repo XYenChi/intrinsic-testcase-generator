@@ -20,54 +20,58 @@ iu_list = ['i', 'u']
 ext_list = ['f2', 'f4', 'f8']
 
 # suffix type
-normal_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
-widen_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+normal_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1',
+                 '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+widen_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1',
+                '64m2', '64m4', '64m8']
 narrow_suffix = []
 
 GeneralFormatOpList = []
-    # 'vadd', 'vand', 'vmacc', 'vmadd', 'vmseq', 'vmsne', 'vmul', 'vnmsac', 'vnmsub', 'vor', 'vrsub',
-    #                    'vsll', 'vsub', 'vxor']
+# 'vadd', 'vand', 'vmacc', 'vmadd', 'vmseq', 'vmsne', 'vmul', 'vnmsac', 'vnmsub', 'vor', 'vrsub',
+#                    'vsll', 'vsub', 'vxor']
 # loop _vx, _iu, _suffix, _mask
 SpMaskOpList = []
-    # 'vadc', 'vmerge']
+# 'vadc', 'vmerge']
 # loop _vx, _iu, _suffix, have to with middle mask
 Sp2MaskOpList = []
-    # 'vmadc', 'vmsbc']
+# 'vmadc', 'vmsbc']
 # loop _vx, _iu, _suffix, and middle mask. don't have _mask
 SignOpList = []
-    # 'vdiv', 'vmax', 'vmin', 'vmsge', 'vmsgt', 'vmsle', 'vmslt', 'vmulh', 'vmulhsu', 'vrem', 'vsra', 'vwmacc',
-    #           'vwmaccsu', 'vwmul', 'vwmulsu']
+# 'vdiv', 'vmax', 'vmin', 'vmsge', 'vmsgt', 'vmsle', 'vmslt', 'vmulh', 'vmulhsu', 'vrem', 'vsra', 'vwmacc',
+#           'vwmaccsu', 'vwmul', 'vwmulsu']
 # loop _vx, _suffix, _mask, with fixed i
 WSignOpList = []
-    # 'vnsra', 'vwmaccus']
+# 'vnsra', 'vwmaccus']
 # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
 SpWsignOpList = []
-    # 'vwadd', 'vwsub']
+# 'vwadd', 'vwsub']
 # loop _wv, _vx , _suffix, _mask, with fixed i
 UnsignOpList = []
-    # 'vdivu', 'vmaxu', 'vminu', 'vmsgeu', 'vmsgtu', 'vmsleu', 'vmsltu', 'vmulhu', 'vremu', 'vsrl', 'vwmaccu',
-    #             'vwmaccu', 'vwmulu']
+# 'vdivu', 'vmaxu', 'vminu', 'vmsgeu', 'vmsgtu', 'vmsleu', 'vmsltu', 'vmulhu', 'vremu', 'vsrl', 'vwmaccu',
+#             'vwmaccu', 'vwmulu']
 # loop _vx, _suffix, _mask with fixed u
 WUnsignOpList = []
-    # 'vnsrl']
+# 'vnsrl']
 # loop different position _vx , _suffix, _mask, with fixed u
 SpWUnsignOpList = []
-    # 'vwaddu', 'vwsubu']
+# 'vwaddu', 'vwsubu']
 # loop _wv, _vx , _suffix, _mask, with fixed u
 SpecialFormatList = []
-    # 'vmv']
+# 'vmv']
 # loop _iu, _suffix and _vx with "_"
 SpVOplist = []
-    # 'vneg']
+# 'vneg']
 # loop _suffix, _mask and only v, with fixed i
 Sp2VOplist = []
-    # 'vnot']
+# 'vnot']
 # loop _suffix, _iu, _mask and only v
 ZeroExtOpList = []
-    # 'vzext']
+# 'vzext']
 # loop _ext, _suffix, _mask with fixed u
 SignExtOpList = []
-    # 'vsext']
+
+
+# 'vsext']
 # loop _ext, _suffix, _mask with fixed i
 class Index:
     def __init__(self):
