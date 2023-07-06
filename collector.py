@@ -17,6 +17,7 @@ def list_all_file(base):
 for i in list_all_file(location):
     filelist = i
 
+c_dir_file_name = 'c_dir_file_name'
 function_set = set()
 special_set = set()
 operand_type_set = set()
@@ -78,6 +79,11 @@ def c_function_parser(line_string):
     for element in function:
         c_string = c_string + "%s" % element
     return c_string
+
+
+def c_directory_auto_gen(function, file_name):
+    with open(file_name, "a") as fd:
+        fd.write("\"%s\": transformed_op_function.%s_op,\n" % (function, function))
 
 
 def judge(op_name):
@@ -221,13 +227,22 @@ for file in filelist:
                     x.mask = mask
                     op_instance_list.append(x)
 
-generate_file = open("product.txt", "a")
-c_function_template = open("c_template_lib.txt", "a")
+# generate_file = open("product.txt", "a")
+# generated 05~10
+
+generate_file = open("one_time_product.txt", "w")
+
+# c_function_template = open("c_template_lib.txt", "a")
+# generated 05~10
+
+c_function_template = open("one_time_c_template_lib.txt", "w")
 for strs in C_example:
     c_function_template.writelines(strs)
     c_function_template.write("\n")
 
 generate_file.write("function_set:\n" + str(function_set) + "\n")
+for i in function_set:
+    c_directory_auto_gen(i, c_dir_file_name)
 # generate_file.write("operand_type_lists:\n" + str(operand_type_set) + "\n")
 # generate_file.write("sign:\n" + str(sign) + "\n")
 # generate_file.write("suffix:\n" + str(suffix) + "\n")
@@ -257,7 +272,7 @@ for i in op_instance_list:
 generate_file.write("sign_type_4_iterator:\n" + str(sign_type_4_iterator) + "\n")
 generate_file.write("operand_type_4_iterator:\n" + str(operand_type_4_iterator) + "\n")
 generate_file.write("suffix_type_4_iterator:\n" + str(suffix_type_4_iterator) + "\n")
-generate_python = open("intrinsic_function_type_05.py", "w")
+generate_python = open("intrinsic_function_type_1.py", "w")
 generate_python.write("#!/usr/bin/env python3\n")
 generate_python.write("GeneralFormatOpList = " + str(filter.GeneralFormatOpList) + "\n")
 generate_python.write("SignOpList = " + str(filter.SignOpList) + "\n")

@@ -11,7 +11,7 @@
 #
 # unsigned long __riscv_vlenb();
 import random
-import exe_op_generator
+# import exe_op_generator
 
 vstart = random.randint(0, 255)
 vxsat = random.randint(0, 1)
@@ -22,7 +22,8 @@ vcsr = random.randint(0, 1)
 def csr_write(vxrm, fd):
     fd.write("enum RVV_CSR {\nRVV_VSTART = 0,\nRVV_VXSAT,\nRVV_VXRM,\nRVV_VCSR,\n};\n")
     # void __riscv_vwrite_csr(enum RVV_CSR csr, unsigned long value);
-    fd.write("void __riscv_vwrite_csr(%s, %s);" % (vxrm, exe_op_generator.avl / 8))
+    fd.write("void __riscv_vwrite_csr(%s, %s);" % (vxrm, 8))
+    # todo: connect to avl
 
 
 def int_rounding(result, xrm, gb):
