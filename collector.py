@@ -3,7 +3,7 @@
 import os
 import filter
 import sys
-
+import random
 filelist = set()
 location = './rvv-intrinsic-doc/auto-generated/intrinsic_funcs/'
 
@@ -37,17 +37,23 @@ def name_parser(line_string):
     # parse a line to produce a tuple contain intrinsic function
     return_type_parser = line_string.split('__riscv_')
     op_parser = return_type_parser[1].split('_')
-    mask_parser = op_parser[3].split(' ')
+    if op_parser[3] == 'rm':
+        mask_parser = op_parser[4].split(' ')
+        rounding_mode = op_parser[3]
+    else:
+        mask_parser = op_parser[3].split(' ')
+        rounding_mode = ''
     operand_type_parser = op_parser[2].split(' ')
     a = operand_type_parser[0][0]
     b = operand_type_parser[0]
     divided_suffix = b.split(a, 1)
-    function_factor = op_parser[0], op_parser[1], op_parser[2][0], divided_suffix[1], mask_parser[0]
+    function_factor = op_parser[0], op_parser[1], op_parser[2][0], divided_suffix[1], mask_parser[0], rounding_mode
     return function_factor
 
 
 def c_function_parser(line_string):
     # to remove operand type and add "out = "
+    # can deal with fix point file.
     c_string = "out = "
     function = []
     param_list = []
@@ -87,6 +93,8 @@ def c_directory_auto_gen(function, file_name):
 
 
 def judge(op_name):
+    if op_name.vxrm != 5:
+        filter.RMOpList.append(op_name.op_name)
     if op_name.operand_type == filter.type_vx:
         if op_name.sign_type == filter.sign_iu:
             if op_name.suffix_list == filter.normal_suffix:
@@ -185,6 +193,7 @@ for file in filelist:
                 if '__riscv_' not in line:
                     continue
                 mask = 0
+                vxrm = random.randint(0, 3)
                 C_example.append(c_function_parser(line))
                 inf = name_parser(line)
                 # inf[0]: function name op_parser[0],
@@ -192,6 +201,7 @@ for file in filelist:
                 # inf[2]: operand sign. op_parser[2][0],
                 # inf[3]: sew + lmul. divided_suffix[1],
                 # inf[4]: mask. mask_parser[0]
+                # inf[5]: xrm
                 if inf[3] == '':
                     special_set.add(inf[0])
                 elif inf[1] == 'rtz':
@@ -217,6 +227,10 @@ for file in filelist:
                                 mask = 1
                             else:
                                 continue
+                            if inf[5] == 'rm':
+                                vxrm = random.randint(0, 3)
+                            else:
+                                vxrm = 5
                         else:
                             continue
                     x = filter.Index()
@@ -225,6 +239,7 @@ for file in filelist:
                     x.operand_type = sorted(instance_operand_type_set)
                     x.suffix_list = sorted(instance_suffix)
                     x.mask = mask
+                    x.vxrm = vxrm
                     op_instance_list.append(x)
 
 # generate_file = open("product.txt", "a")
@@ -272,7 +287,7 @@ for i in op_instance_list:
 generate_file.write("sign_type_4_iterator:\n" + str(sign_type_4_iterator) + "\n")
 generate_file.write("operand_type_4_iterator:\n" + str(operand_type_4_iterator) + "\n")
 generate_file.write("suffix_type_4_iterator:\n" + str(suffix_type_4_iterator) + "\n")
-generate_python = open("intrinsic_function_type_1.py", "w")
+generate_python = open("intrinsic_function_type_06.py", "w")
 generate_python.write("#!/usr/bin/env python3\n")
 generate_python.write("GeneralFormatOpList = " + str(filter.GeneralFormatOpList) + "\n")
 generate_python.write("SignOpList = " + str(filter.SignOpList) + "\n")
@@ -289,3 +304,4 @@ generate_python.write("SpVOplist = " + str(filter.SpVOplist) + "\n")
 generate_python.write("Sp2VOplist = " + str(filter.Sp2VOplist) + "\n")
 generate_python.write("ZeroExtOpList = " + str(filter.ZeroExtOpList) + "\n")
 generate_python.write("SignExtOpList = " + str(filter.SignExtOpList) + "\n")
+generate_python.write("RMOpList = " + str(filter.RMOpList) + "\n")

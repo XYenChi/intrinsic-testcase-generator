@@ -1,10 +1,13 @@
 """
 Generate execute file by operator
 """
+import collector
 import filter
 import random
 import sys
 import intrinsic_function_type_05
+import intrinsic_function_type_06
+
 sys.path.append("./rvv-intrinsic-doc/rvv-intrinsic-generator/rvv_intrinsic_gen")
 import math
 import utils
@@ -80,7 +83,7 @@ class extra_inst_info(enums.InstInfo):
         self.golden = [0] * q_array
         self.random_gen()
         self.compute()
-        self.extra = None
+        self.vxrm = random.randint(0, 3)
         # todo: fix-point: save CSR
 
 
@@ -355,7 +358,7 @@ for temp in intrinsic_function_type_05.GeneralFormatOpList:
             SEW = int(divider[0])
             LMUL = utils.get_float_lmul(divider[1])
             a = extra_inst_info(iu, SEW, LMUL, OP)
-            filename = "testcase/%s_v%s_%s%s%s.c" % (op, vx, iu, suffix, mask)
+            filename = "testcase/%s_%s_%s%s%s.c" % (op, vx, iu, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
             if mask != '_m':
                 with open(filename, 'a') as fd:
@@ -373,7 +376,7 @@ for temp in intrinsic_function_type_05.GeneralFormatOpList:
                     C_lines_write.vs1_load(fd, a, suffix, mask)
                     C_lines_write.vd_load(fd, a, suffix, mask)
                     C_lines_write.pointer_iterator_write(fd)
-                    C_lines_write.parameter_seq_write(fd, a)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                     C_lines_write.vd_store(fd, a, suffix, iu, mask)
                     C_lines_write.jump_to_next_write_wo_mask(fd, a, op)
                     a.compute()
@@ -399,7 +402,7 @@ for temp in intrinsic_function_type_05.GeneralFormatOpList:
                     C_lines_write.vd_load(fd, a, suffix, mask)
                     # a.C_lines_write.specific_operator_c()
                     C_lines_write.pointer_iterator_write(fd)
-                    C_lines_write.parameter_seq_write(fd, a)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                     C_lines_write.vd_store(fd, a, suffix, iu, mask)
                     C_lines_write.jump_to_next_write_mask(fd, a, op)
                     a.compute()
@@ -434,7 +437,7 @@ for temp in intrinsic_function_type_05.SpMaskOpList:
                 C_lines_write.v1_load(fd, a, suffix, mask)
                 C_lines_write.vd_load(fd, a, suffix, mask)
                 # a.C_lines_write.specific_operator_c()
-                C_lines_write.parameter_seq_write(fd, a)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                 C_lines_write.vd_store(fd, a, suffix, iu, mask)
                 C_lines_write.jump_to_next_write_mask()
                 a.compute()
@@ -472,7 +475,7 @@ for temp in intrinsic_function_type_05.Sp2MaskOpList:
                 C_lines_write.vd_load(fd)
                 # a.C_lines_write.specific_operator_c()
                 C_lines_write.pointer_iterator_write(fd)
-                C_lines_write.parameter_seq_write(fd, a)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                 C_lines_write.vd_store(fd, a, suffix, iu, mask)
                 C_lines_write.jump_to_next_write_mask()
                 a.compute()
@@ -502,6 +505,9 @@ for temp in intrinsic_function_type_05.SignOpList:
                     # don't hava mask
                     C_lines_write.compiler_option_write(fd, a)
                     C_lines_write.c_header_file_write(fd)
+                    if temp in intrinsic_function_type_06.RMOpList:
+                        # must be fix point file sn, if not, plz edit.
+                        C_lines_write.csr_write(fd)
                     C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
                     C_lines_write.vs2_data_write(fd, a)
@@ -518,7 +524,7 @@ for temp in intrinsic_function_type_05.SignOpList:
                         C_lines_write.vs1_load(fd, a, suffix, mask)
                     C_lines_write.vd_load(fd, a, suffix, mask)
                     C_lines_write.pointer_iterator_write(fd)
-                    C_lines_write.parameter_seq_write(fd, a)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                     C_lines_write.vd_store(fd, a, suffix, iu, mask)
                     C_lines_write.jump_to_next_write_wo_mask(fd, a, op)
                     a.compute()
@@ -530,6 +536,9 @@ for temp in intrinsic_function_type_05.SignOpList:
                     # mask and have v0.mask[i] value
                     C_lines_write.compiler_option_write(fd, a)
                     C_lines_write.c_header_file_write(fd)
+                    if temp in intrinsic_function_type_06.RMOpList:
+                        # must be fix point file sn, if not, plz edit.
+                        C_lines_write.csr_write(fd)
                     C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
                     C_lines_write.vs2_data_write(fd, a)
@@ -551,7 +560,7 @@ for temp in intrinsic_function_type_05.SignOpList:
                     C_lines_write.vd_load(fd)
                     # a.C_lines_write.specific_operator_c()
                     C_lines_write.pointer_iterator_write(fd)
-                    C_lines_write.parameter_seq_write(fd, a)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                     C_lines_write.vd_store(fd, a, suffix, iu, mask)
                     C_lines_write.jump_to_next_write_mask(fd, a, op)
                     a.compute()
@@ -580,6 +589,9 @@ for temp in intrinsic_function_type_05.UnsignOpList:
                     # don't hava mask
                     C_lines_write.compiler_option_write(fd, a)
                     C_lines_write.c_header_file_write(fd)
+                    if temp in intrinsic_function_type_06.RMOpList:
+                        # must be fix point file sn, if not, plz edit.
+                        C_lines_write.csr_write(fd)
                     C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
                     C_lines_write.vs2_data_write(fd, a)
@@ -590,7 +602,7 @@ for temp in intrinsic_function_type_05.UnsignOpList:
                     C_lines_write.vs2_load(fd, a, suffix, mask)
                     C_lines_write.vs1_load(fd, a, suffix, mask)
                     C_lines_write.vd_load(fd)
-                    C_lines_write.parameter_seq_write(fd, a)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                     C_lines_write.vd_store(fd, a, suffix, iu, mask)
                     C_lines_write.jump_to_next_write_mask(fd, a)
                     a.compute()
@@ -602,6 +614,9 @@ for temp in intrinsic_function_type_05.UnsignOpList:
                     # mask and have v0.mask[i] value
                     C_lines_write.compiler_option_write(fd, a)
                     C_lines_write.c_header_file_write(fd)
+                    if temp in intrinsic_function_type_06.RMOpList:
+                        # must be fix point file sn, if not, plz edit.
+                        C_lines_write.csr_write(fd)
                     C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
                     C_lines_write.vs2_data_write(fd, a)
@@ -616,7 +631,7 @@ for temp in intrinsic_function_type_05.UnsignOpList:
                     C_lines_write.vd_load(fd, a, suffix, mask)
                     C_lines_write.pointer_iterator_write(fd)
                     # C_lines_write.specific_operator_c()
-                    C_lines_write.parameter_seq_write(fd, a)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                     C_lines_write.vd_store(fd, a, suffix, iu, mask)
                     C_lines_write.jump_to_next_write_mask()
                     a.compute()
@@ -654,7 +669,7 @@ if op == 'vwmaccus':
                 # scalar don't need load
                 C_lines_write.vd_load(fd, a, suffix, mask)
                 C_lines_write.pointer_iterator_write(fd)
-                C_lines_write.parameter_seq_write(fd, a)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                 C_lines_write.vd_store(fd, a, suffix, iu, mask)
                 C_lines_write.jump_to_next_write_wo_mask(fd, a, op)
                 a.compute()
@@ -681,7 +696,7 @@ if op == 'vwmaccus':
                 C_lines_write.vd_load(fd, a, suffix, mask)
                 C_lines_write.pointer_iterator_write(fd)
                 # C_lines_write.specific_operator_c()
-                C_lines_write.parameter_seq_write(fd, a)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                 C_lines_write.vd_store(fd, a, suffix, iu, mask)
                 C_lines_write.jump_to_next_write_mask(fd, a, op)
                 a.compute()
@@ -720,7 +735,7 @@ if op == 'vnsra' or op == 'vnsrl':
                 C_lines_write.vs1_load(fd, a, suffix, mask)
                 C_lines_write.vd_load(fd, a, suffix, mask)
                 C_lines_write.vd_load(fd)
-                C_lines_write.parameter_seq_write(fd, a)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                 C_lines_write.vd_store(fd, a, suffix, iu, mask)
                 C_lines_write.vd_store(fd, a, op)
                 a.compute()
@@ -746,7 +761,7 @@ if op == 'vnsra' or op == 'vnsrl':
                 C_lines_write.vd_load(fd, a, suffix, mask)
                 C_lines_write.pointer_iterator_write(fd)
                 # C_lines_write.specific_operator_c()
-                C_lines_write.parameter_seq_write(fd, a)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                 C_lines_write.vd_store(fd, a, suffix, iu, mask)
                 C_lines_write.jump_to_next_write_mask(fd, op)
                 a.compute()
@@ -784,7 +799,7 @@ for temp in intrinsic_function_type_05.SpWUnsignOpList:
                     C_lines_write.vs2_load(fd, a, suffix, mask)
                     C_lines_write.vd_load(fd, a, suffix, mask)
                     C_lines_write.pointer_iterator_write(fd)
-                    C_lines_write.parameter_seq_write(fd, a)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                     C_lines_write.vd_store(fd, a, suffix, iu, mask)
                     C_lines_write.vd_store(fd, a, op)
                     a.compute()
@@ -810,7 +825,7 @@ for temp in intrinsic_function_type_05.SpWUnsignOpList:
                     C_lines_write.vd_load(fd, a, suffix, mask)
                     C_lines_write.pointer_iterator_write(fd)
                     # C_lines_write.specific_operator_c()
-                    C_lines_write.parameter_seq_write(fd, a)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                     C_lines_write.vd_store(fd, a, suffix, iu, mask)
                     C_lines_write.jump_to_next_write_mask()
                     a.compute()
@@ -839,7 +854,7 @@ if op == 'vmv':
             C_lines_write.vs2_load(fd, a, suffix, mask)
             C_lines_write.vd_load(fd, a, suffix, mask)
             C_lines_write.pointer_iterator_write(fd)
-            C_lines_write.parameter_seq_write(fd, a)
+            C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
             C_lines_write.vd_store(fd, a, suffix, iu, mask)
             C_lines_write.vd_store(fd, a, op)
             a.compute()
@@ -877,7 +892,7 @@ if op == 'vmv':
                         C_lines_write.vs2_load(fd, a, suffix, mask)
                         C_lines_write.vd_load(fd, a, suffix, mask)
                         C_lines_write.pointer_iterator_write(fd)
-                        C_lines_write.parameter_seq_write(fd, a)
+                        C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                         C_lines_write.vd_store(fd, a, suffix, iu, mask)
                         C_lines_write.vd_store(fd, a, op)
                         a.compute()
@@ -901,7 +916,7 @@ if op == 'vmv':
                         C_lines_write.vd_load(fd, a, suffix, mask)
                         C_lines_write.pointer_iterator_write(fd)
                         # C_lines_write.specific_operator_c()
-                        C_lines_write.parameter_seq_write(fd, a)
+                        C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                         C_lines_write.vd_store(fd, a, suffix, iu, mask)
                         C_lines_write.jump_to_next_write_mask()
                         a.compute()
@@ -946,7 +961,7 @@ if op == 'vmv':
                             C_lines_write.vs2_load(fd, a, suffix, mask)
                             C_lines_write.ext_vd_load()
                             C_lines_write.pointer_iterator_write(fd)
-                            C_lines_write.parameter_seq_write(fd, a)
+                            C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                             C_lines_write.ext_vd_store()
                             C_lines_write.vd_store(fd, a, op)
                             a.compute()
@@ -970,7 +985,7 @@ if op == 'vmv':
                             C_lines_write.ext_vd_load()
                             C_lines_write.pointer_iterator_write(fd)
                             # C_lines_write.specific_operator_c()
-                            C_lines_write.parameter_seq_write(fd, a)
+                            C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
                             C_lines_write.ext_vd_store()
                             C_lines_write.jump_to_next_write_mask()
                             a.compute()

@@ -11,6 +11,11 @@ def c_header_file_write(fd):
     fd.write("#include \"riscv_vector.h\"\n")
 
 
+def csr_write(fd):
+    fd.write("enum __RISCV_VXRM {\n__RISCV_VXRM_RNU = 0,\n__RISCV_VXRM_RNE = 1,\n__RISCV_VXRM_RDN = 2,"
+             "\n__RISCV_VXRM_ROD = 3,\n};\n")
+
+
 def vl_set_write(fd, suffix):
     fd.write("    size_t avl = 64;\n")
     fd.write("    size_t vl = __riscv_vsetvl_e%s(avl);\n" % suffix)
@@ -89,18 +94,19 @@ def ext_vd_store(fd, a, ext_suffix, bool_width, iu, mask):
                  % (a.ext_sew, iu, ext_suffix, a.vtype, a.ext_sew, a.vtype, ext_suffix))
 
 
-def parameter_seq_write(fd, a):
-    library_name = 'c_template_lib.txt'
+def parameter_seq_write(fd, a, vx, suffix, iu):
+    library_name = 'one_time_c_template_lib.txt'
+    merger = f"{iu+suffix}"
     with open(library_name) as f:
         for line in f:
-            if a.OP in line:
-                if a.sign in line:
-                    if str(a.SEW) in line:
-                        if str(a.LMUL) in line:
-                            if a.mask == 0 & ("_m" not in line):
-                                fd.write(line)
-                            elif a.mask == 1 & ("_m" in line):
-                                fd.write(line)
+            if str(a.OP) in line:
+                if str(a.sign) in line:
+                    if vx in line:
+                        if merger in line:
+                            if a.mask == 1 & ("_m" not in line):
+                                fd.write(f"\t\t{line}")
+                            elif a.mask == 0 & ("_m" in line):
+                                fd.write(f"\t\t{line}")
                             else:
                                 continue
                         else:
@@ -110,7 +116,7 @@ def parameter_seq_write(fd, a):
                 else:
                     continue
             else:
-                continue
+                print("can't find line, please check collector.py")
 
 
 def jump_to_next_write_mask(fd, a, op):

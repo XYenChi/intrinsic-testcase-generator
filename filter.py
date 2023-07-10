@@ -70,6 +70,7 @@ ZeroExtOpList = []
 # loop _ext, _suffix, _mask with fixed u
 SignExtOpList = []
 
+RMOpList = []
 
 # 'vsext']
 # loop _ext, _suffix, _mask with fixed i
@@ -86,4 +87,5 @@ class Index:
         # fixed i or u or both i and u
         self.suffix_list = set()
         self.suffix_type = ''
+        self.vxrm = None
         # normal, narrow or widen

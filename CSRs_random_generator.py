@@ -1,30 +1,13 @@
 # Read/Write URW vector CSRs Usage:
-# enum RVV_CSR {
-#   RVV_VSTART = 0,
-#   RVV_VXSAT,
-#   RVV_VXRM,
-#   RVV_VCSR,
+# enum __RISCV_VXRM {
+#   __RISCV_VXRM_RNU = 0,
+#   __RISCV_VXRM_RNE = 1,
+#   __RISCV_VXRM_RDN = 2,
+#   __RISCV_VXRM_ROD = 3,
 # };
 #
-# unsigned long __riscv_vread_csr(enum RVV_CSR csr);
-# void __riscv_vwrite_csr(enum RVV_CSR csr, unsigned long value);
-#
-# unsigned long __riscv_vlenb();
-import random
+
 # import exe_op_generator
-
-vstart = random.randint(0, 255)
-vxsat = random.randint(0, 1)
-vxrm = random.randint(0, 3)
-vcsr = random.randint(0, 1)
-
-
-def csr_write(vxrm, fd):
-    fd.write("enum RVV_CSR {\nRVV_VSTART = 0,\nRVV_VXSAT,\nRVV_VXRM,\nRVV_VCSR,\n};\n")
-    # void __riscv_vwrite_csr(enum RVV_CSR csr, unsigned long value);
-    fd.write("void __riscv_vwrite_csr(%s, %s);" % (vxrm, 8))
-    # todo: connect to avl
-
 
 def int_rounding(result, xrm, gb):
     # todo: what is gb ?
@@ -58,11 +41,11 @@ def sat_sub(vs2, vs1, sew, sat):
     uvs1 = vs1 & (sew - 1)
     res = uvs2 - uvs1
     sat = 0
-# Calculate overflowed result.(Don't change the sign bit of ux) */
+    # Calculate overflowed result.(Don't change the sign bit of ux) */
     ux = (uvs2 >> (sew - 1)) + ((1 << (sew - 1)) - 1)
 
-# Force compiler to use cmovns instruction
-    if ((uvs2 ^ uvs1) & (uvs2 ^ res)) <0:
+    # Force compiler to use cmovns instruction
+    if ((uvs2 ^ uvs1) & (uvs2 ^ res)) < 0:
         res = ux
         sat = 1
         return res, sat
