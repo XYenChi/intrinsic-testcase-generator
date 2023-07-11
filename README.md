@@ -40,10 +40,33 @@ out -> out_data
 out_data == golden
    
 ### Golden data calculate   
-a means vs2   
-b means vs1   
-c means vd_default   
+vs2 means vs2   
+vs1 means vs1   
+vd means vd_default
+sew means sew
+xrm means vxrm
 m means mask
+
+### How to use
+The generator have not been finished, but the brain storge of author have been used up.
+Let me note the file usage.
+#### collector.py :    
+`python3 collector.py {intrinsic function file serial number}`   
+For example, if you want to parse the [05_vector_integer_arithmetic_functions.md](rvv-intrinsic-doc%2Fauto-generated%2Fintrinsic_funcs%2F05_vector_integer_arithmetic_functions.md) ,just `python3 collector.py 05`   
+the script parse all the intrinsic functions in the file and sort out them by factors that need to iterate, then save them in [intrinsic_function_type_1.py](intrinsic_function_type_1.py).
+Now here are only 05~07 files can be parsed and sorted.   
+#### CSRs_random_generator.py :
+This file deal with the fix-point instruction that need CSR and rounding. Now need to write C program to read and write.   
+#### exe_op_generator.py:
+The main program to generate testcases.   
+`python3 exe_op_generator.py {what instruction}`    
+like `vadd`. Iterate all the situation could be used. I really hope that I could optimize this program to generate randomly eventually.   
+#### spike_header_file_transformer.py:   
+Collect all the spike head file that start with "v". Generally it is one-time.
+#### transformed_op_function.py:   
+Product of spike_header_file_transformer.py. Maintained manually to take the place of operator_py_function.py.   
+#### operator_py_function.py:
+Functions called by exe_op_generator.py to calculate golden data.   
 
 ### nouns
 #### SEW

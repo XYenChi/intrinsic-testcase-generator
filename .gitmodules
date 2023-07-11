@@ -1,3 +1,6 @@
 [submodule "rvv-intrinsic-doc"]
 	path = rvv-intrinsic-doc
 	url = https://github.com/riscv-non-isa/rvv-intrinsic-doc.git
+[submodule "riscv-isa-sim"]
+	path = riscv-isa-sim
+	url = git@github.com:riscv-software-src/riscv-isa-sim.git

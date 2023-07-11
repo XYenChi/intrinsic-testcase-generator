@@ -1,0 +1,4324 @@
+function_set:
+{'vmsge', 'vmseq', 'vmulhsu', 'vmsle', 'vdiv', 'vwsub', 'vsext', 'vmulh', 'vremu', 'vsbc', 'vadc', 'vneg', 'vmaxu', 'vrsub', 'vminu', 'vmsne', 'vor', 'vmacc', 'vmulhu', 'vsra', 'vand', 'vsub', 'vmsgeu', 'vmul', 'vnot', 'vmsgtu', 'vdivu', 'vwmaccu', 'vmadc', 'vmsleu', 'vnmsac', 'vmsgt', 'vzext', 'vwmul', 'vmslt', 'vmsbc', 'vmsltu', 'vadd', 'vwmulu', 'vwaddu', 'vxor', 'vwsubu', 'vmin', 'vmax', 'vwmacc', 'vnsra', 'vmerge', 'vwmaccus', 'vwmaccsu', 'vsrl', 'vwmulsu', 'vnmsub', 'vnsrl', 'vmadd', 'vwadd', 'vsll', 'vrem'}
+special_set:
+{'vmv'}
+
+function name:
+vmsge
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vmseq
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vmulhsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsle
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdiv
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsub
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vsext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmulh
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vremu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsbc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vneg
+operand type:
+['v']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmaxu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrsub
+operand type:
+['vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vminu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsne
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmulhu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsra
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vand
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgeu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmul
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnot
+operand type:
+['v']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgtu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdivu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmadc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsleu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsac
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vzext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwmul
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmslt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsbc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsltu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmulu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwaddu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vxor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsubu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmin
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmax
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vnsra
+operand type:
+['wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmerge
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccus
+operand type:
+['vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwmaccsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vsrl
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmulsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vnmsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnsrl
+operand type:
+['wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwadd
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vsll
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrem
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+sign_type_4_iterator:
+[['i'], ['i', 'u'], ['u']]
+operand_type_4_iterator:
+[['vv', 'vx']]
+suffix_type_4_iterator:
+[['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']]
+function_set:
+{'vmulhu', 'vadc', 'vmin', 'vsext', 'vwmaccu', 'vwmulu', 'vmsgt', 'vnsra', 'vrem', 'vadd', 'vwsubu', 'vsll', 'vmsgeu', 'vmslt', 'vmsne', 'vmulh', 'vnsrl', 'vwmul', 'vor', 'vnot', 'vnmsac', 'vsbc', 'vzext', 'vmax', 'vsra', 'vmsle', 'vwmaccsu', 'vremu', 'vnmsub', 'vand', 'vmsleu', 'vxor', 'vmsgtu', 'vdivu', 'vdiv', 'vmsbc', 'vsrl', 'vmsltu', 'vwmaccus', 'vmerge', 'vwaddu', 'vwmulsu', 'vminu', 'vwadd', 'vmul', 'vrsub', 'vmsge', 'vmacc', 'vwmacc', 'vneg', 'vsub', 'vwsub', 'vmadd', 'vmseq', 'vmaxu', 'vmulhsu', 'vmadc'}
+special_set:
+{'vmv'}
+
+function name:
+vmulhu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmin
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwmaccu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwmulu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsgt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnsra
+operand type:
+['wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrem
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsubu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vsll
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgeu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmslt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsne
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmulh
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnsrl
+operand type:
+['wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmul
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnot
+operand type:
+['v']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsac
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsbc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vzext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmax
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsra
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsle
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vremu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vand
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsleu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vxor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgtu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdivu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdiv
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsbc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsrl
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsltu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccus
+operand type:
+['vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmerge
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwaddu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwmulsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vminu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwadd
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmul
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrsub
+operand type:
+['vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsge
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vneg
+operand type:
+['v']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsub
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmseq
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmaxu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmulhsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmadc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+sign_type_4_iterator:
+[['u'], ['i', 'u'], ['i']]
+operand_type_4_iterator:
+[['vv', 'vx'], ['vvm', 'vxm']]
+suffix_type_4_iterator:
+[['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']]
+function_set:
+{'vand', 'vwmaccus', 'vdivu', 'vnmsac', 'vwmulu', 'vmsbc', 'vsll', 'vwmulsu', 'vmacc', 'vmsgtu', 'vwmul', 'vxor', 'vnsra', 'vnot', 'vadc', 'vmseq', 'vdiv', 'vmerge', 'vwaddu', 'vsbc', 'vminu', 'vwsubu', 'vmin', 'vzext', 'vmsle', 'vnmsub', 'vwsub', 'vmsne', 'vmaxu', 'vor', 'vmsltu', 'vmax', 'vsext', 'vsub', 'vmslt', 'vadd', 'vmadc', 'vmul', 'vremu', 'vnsrl', 'vrem', 'vneg', 'vmulhsu', 'vmulhu', 'vwmacc', 'vwmaccsu', 'vmadd', 'vsra', 'vmsleu', 'vsrl', 'vmsgt', 'vmsgeu', 'vrsub', 'vwmaccu', 'vmulh', 'vmsge', 'vwadd'}
+special_set:
+{'vmv'}
+
+function name:
+vand
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccus
+operand type:
+['vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vdivu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsac
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmulu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsbc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsll
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmulsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgtu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmul
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vxor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnsra
+operand type:
+['wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnot
+operand type:
+['v']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmseq
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdiv
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmerge
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwaddu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vsbc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vminu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsubu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmin
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vzext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsle
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsub
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsne
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmaxu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsltu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmax
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmslt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmadc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmul
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vremu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnsrl
+operand type:
+['wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrem
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vneg
+operand type:
+['v']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmulhsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmulhu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwmaccsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsra
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsleu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsrl
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgeu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrsub
+operand type:
+['vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmulh
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsge
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwadd
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+sign_type_4_iterator:
+[['i', 'u'], ['i'], ['u']]
+operand_type_4_iterator:
+[['vv', 'vx'], ['vx']]
+suffix_type_4_iterator:
+[['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8'], ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']]
+function_set:
+{'vrem', 'vnmsac', 'vadc', 'vwmaccus', 'vmulhsu', 'vwmulu', 'vsrl', 'vmacc', 'vnsrl', 'vmul', 'vsext', 'vmsle', 'vdiv', 'vwmulsu', 'vmin', 'vremu', 'vnmsub', 'vmsge', 'vmsltu', 'vmsgeu', 'vsll', 'vneg', 'vdivu', 'vwsubu', 'vnsra', 'vzext', 'vmulhu', 'vwmaccu', 'vmseq', 'vor', 'vand', 'vsub', 'vmax', 'vmsgtu', 'vmulh', 'vmerge', 'vmadd', 'vsbc', 'vmslt', 'vminu', 'vmaxu', 'vmsleu', 'vmsbc', 'vsra', 'vxor', 'vwmul', 'vnot', 'vrsub', 'vwmacc', 'vmadc', 'vwaddu', 'vwmaccsu', 'vwsub', 'vmsgt', 'vwadd', 'vadd', 'vmsne'}
+special_set:
+{'vmv'}
+
+function name:
+vrem
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsac
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccus
+operand type:
+['vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmulhsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmulu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vsrl
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnsrl
+operand type:
+['wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmul
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsle
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdiv
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmulsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmin
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vremu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsge
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsltu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgeu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsll
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vneg
+operand type:
+['v']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdivu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsubu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vnsra
+operand type:
+['wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vzext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmulhu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmseq
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vand
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmax
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgtu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmulh
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmerge
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsbc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmslt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vminu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmaxu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsleu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsbc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsra
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vxor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmul
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vnot
+operand type:
+['v']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrsub
+operand type:
+['vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmadc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwaddu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwmaccsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwsub
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsgt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwadd
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsne
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+sign_type_4_iterator:
+[['i'], ['i', 'u'], ['u']]
+operand_type_4_iterator:
+[['vv', 'vx']]
+suffix_type_4_iterator:
+[['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']]
+function_set:
+{'vnsra', 'vmaxu', 'vmin', 'vwsubu', 'vmadc', 'vremu', 'vmacc', 'vmsbc', 'vnmsac', 'vwmaccsu', 'vmulhsu', 'vmax', 'vmsge', 'vmsgeu', 'vmsle', 'vrsub', 'vmslt', 'vwmaccu', 'vmsgt', 'vnot', 'vwadd', 'vmadd', 'vsrl', 'vsra', 'vmulhu', 'vand', 'vadd', 'vsbc', 'vwsub', 'vsll', 'vneg', 'vmerge', 'vwmacc', 'vmsltu', 'vsub', 'vor', 'vwmulsu', 'vminu', 'vadc', 'vsext', 'vmsne', 'vmul', 'vmseq', 'vxor', 'vdivu', 'vzext', 'vwmul', 'vwaddu', 'vmsgtu', 'vdiv', 'vmulh', 'vnsrl', 'vwmulu', 'vrem', 'vnmsub', 'vwmaccus', 'vmsleu'}
+special_set:
+{'vmv'}
+
+function name:
+vnsra
+operand type:
+['wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmaxu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmin
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsubu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmadc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vremu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsbc
+operand type:
+['vv', 'vvm', 'vx', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsac
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmulhsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmax
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsge
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsgeu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmsle
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrsub
+operand type:
+['vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmslt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsgt
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnot
+operand type:
+['v']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwadd
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsrl
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsra
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmulhu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vand
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadd
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsbc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwsub
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vsll
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vneg
+operand type:
+['v']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmerge
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmacc
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsltu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmulsu
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vminu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vadc
+operand type:
+['vvm', 'vxm']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsne
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmul
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmseq
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vxor
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdivu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vzext
+operand type:
+['vf2', 'vf4', 'vf8']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwmul
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vwaddu
+operand type:
+['vv', 'vx', 'wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsgtu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vdiv
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmulh
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnsrl
+operand type:
+['wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmulu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vrem
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnmsub
+operand type:
+['vv', 'vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vwmaccus
+operand type:
+['vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmsleu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+sign_type_4_iterator:
+[['i'], ['u'], ['i', 'u']]
+operand_type_4_iterator:
+[['wv', 'wx'], ['vv', 'vx'], ['vv', 'vvm', 'vx', 'vxm']]
+suffix_type_4_iterator:
+[['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8'], ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']]
+function_set:
+{'vasubu', 'vsaddu', 'vsadd', 'vsmul', 'vssra', 'vnclipu', 'vssrl', 'vssub', 'vssubu', 'vaaddu', 'vasub', 'vaadd', 'vnclip'}
+special_set:
+set()
+
+function name:
+vasubu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsaddu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsadd
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsmul
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vssra
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnclipu
+operand type:
+['wv', 'wx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vssrl
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vssub
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vssubu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vaaddu
+operand type:
+['vv', 'vx']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vasub
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vaadd
+operand type:
+['vv', 'vx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vnclip
+operand type:
+['wv', 'wx']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32mf2', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+sign_type_4_iterator:
+[['u'], ['i']]
+operand_type_4_iterator:
+[['vv', 'vx']]
+suffix_type_4_iterator:
+[['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']]
+function_set:
+{'vfwmul', 'vfwnmacc', 'vfrsqrt7', 'vfwnmsac', 'vfnmsac', 'vfmerge', 'vfsqrt', 'vfmsac', 'vfwmsac', 'vfwadd', 'vfmax', 'vfdiv', 'vmerge', 'vfsgnj', 'vfnmacc', 'vfsgnjn', 'vmfne', 'vfabs', 'vfmin', 'vfneg', 'vfmsub', 'vfnmadd', 'vmfle', 'vfwmacc', 'vfclass', 'vfrdiv', 'vmfeq', 'vfrec7', 'vfrsub', 'vmfgt', 'vmflt', 'vfadd', 'vfsgnjx', 'vmfge', 'vfsub', 'vfnmsub', 'vfmacc', 'vfwsub', 'vfmul', 'vfmadd'}
+special_set:
+{'vncvt', 'vfwcvt', 'vfncvt', 'vmv', 'vwcvt', 'vwcvtu', 'vfcvt', 'vfmv'}
+
+function name:
+vfwmul
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfwnmacc
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfrsqrt7
+operand type:
+['v']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfwnmsac
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfnmsac
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfmerge
+operand type:
+['vfm']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfsqrt
+operand type:
+['v']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfmsac
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfwmsac
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfwadd
+operand type:
+['vf', 'vv', 'wf', 'wv']
+sign type:
+['f']
+suffix list:
+['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfmax
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfdiv
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmerge
+operand type:
+['vvm']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfsgnj
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfnmacc
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfsgnjn
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmfne
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfabs
+operand type:
+['v']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfmin
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfneg
+operand type:
+['v']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfmsub
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfnmadd
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmfle
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfwmacc
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfclass
+operand type:
+['v']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfrdiv
+operand type:
+['vf']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmfeq
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfrec7
+operand type:
+['v']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfrsub
+operand type:
+['vf']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmfgt
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmflt
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfadd
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfsgnjx
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vmfge
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfsub
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfnmsub
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfmacc
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfwsub
+operand type:
+['vf', 'vv', 'wf', 'wv']
+sign type:
+['f']
+suffix list:
+['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfmul
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vfmadd
+operand type:
+['vf', 'vv']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+sign_type_4_iterator:
+[['f'], ['u']]
+operand_type_4_iterator:
+[['vf', 'vv'], ['v']]
+suffix_type_4_iterator:
+[['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8'], ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']]
+function_set:
+{'vwredsum', 'vfredusum', 'vfredmin', 'vfwredusum', 'vredor', 'vredmaxu', 'vfwredosum', 'vfredmax', 'vwredsumu', 'vredminu', 'vredxor', 'vredmax', 'vfredosum', 'vredsum', 'vredmin', 'vredand'}
+special_set:
+set()
+
+function name:
+vwredsum
+operand type:
+['vs']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vfredusum
+operand type:
+['vs']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+0
+
+function name:
+vfredmin
+operand type:
+['vs']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+0
+
+function name:
+vfwredusum
+operand type:
+['vs']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2']
+mask:
+0
+
+function name:
+vredor
+operand type:
+['vs']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vredmaxu
+operand type:
+['vs']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vfwredosum
+operand type:
+['vs']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2']
+mask:
+0
+
+function name:
+vfredmax
+operand type:
+['vs']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+0
+
+function name:
+vwredsumu
+operand type:
+['vs']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vredminu
+operand type:
+['vs']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vredxor
+operand type:
+['vs']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vredmax
+operand type:
+['vs']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vfredosum
+operand type:
+['vs']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+0
+
+function name:
+vredsum
+operand type:
+['vs']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vredmin
+operand type:
+['vs']
+sign type:
+['i']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+
+function name:
+vredand
+operand type:
+['vs']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+0
+sign_type_4_iterator:
+[['i'], ['f'], ['i', 'u'], ['u']]
+operand_type_4_iterator:
+[['vs']]
+suffix_type_4_iterator:
+[['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']]
+function_set:
+{'vmxnor', 'vmandn', 'vmnor', 'vid', 'vsm', 'vlm', 'vmsbf', 'vmsif', 'vfirst', 'vmset', 'vcpop', 'vmxor', 'vmand', 'vmsof', 'vmnot', 'vmnand', 'vmclr', 'vmorn', 'vmmv', 'viota', 'vmor'}
+special_set:
+set()
+
+function name:
+vmxnor
+operand type:
+['mm']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+0
+
+function name:
+vmandn
+operand type:
+['mm']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+0
+
+function name:
+vmnor
+operand type:
+['mm']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+0
+
+function name:
+vid
+operand type:
+['v']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vsm
+operand type:
+['v']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vlm
+operand type:
+['v']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmsbf
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmsif
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vfirst
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmset
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vcpop
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmxor
+operand type:
+['mm']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmand
+operand type:
+['mm']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmsof
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmnot
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmnand
+operand type:
+['mm']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmclr
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmorn
+operand type:
+['mm']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+vmmv
+operand type:
+['m']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+
+function name:
+viota
+operand type:
+['m']
+sign type:
+['u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vmor
+operand type:
+['mm']
+sign type:
+['b']
+suffix list:
+['1', '16', '2', '32', '4', '64', '8']
+mask:
+1
+sign_type_4_iterator:
+[['b'], ['u']]
+operand_type_4_iterator:
+[['mm'], ['v']]
+suffix_type_4_iterator:
+[['1', '16', '2', '32', '4', '64', '8'], ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']]
+function_set:
+{'vfslide1down', 'vslidedown', 'vslideup', 'vslide1up', 'vrgather', 'vrgatherei16', 'vslide1down', 'vcompress', 'vfslide1up'}
+special_set:
+{'vmv', 'vfmv'}
+
+function name:
+vfslide1down
+operand type:
+['vf']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+
+function name:
+vslidedown
+operand type:
+['vx']
+sign type:
+['f', 'i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vslideup
+operand type:
+['vx']
+sign type:
+['f', 'i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vslide1up
+operand type:
+['vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrgather
+operand type:
+['vv', 'vx']
+sign type:
+['f', 'i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vrgatherei16
+operand type:
+['vv']
+sign type:
+['f', 'i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vslide1down
+operand type:
+['vx']
+sign type:
+['i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vcompress
+operand type:
+['vm']
+sign type:
+['f', 'i', 'u']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+mask:
+1
+
+function name:
+vfslide1up
+operand type:
+['vf']
+sign type:
+['f']
+suffix list:
+['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
+mask:
+1
+sign_type_4_iterator:
+[['f'], ['f', 'i', 'u'], ['i', 'u']]
+operand_type_4_iterator:
+[['vf'], ['vx']]
+suffix_type_4_iterator:
+[['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8'], ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']]

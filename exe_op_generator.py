@@ -1,62 +1,31 @@
 """
 Generate execute file by operator
 """
-import operator_py_function
+import collector
+import filter
 import random
 import sys
+import intrinsic_function_type_05
+import intrinsic_function_type_06
+
 sys.path.append("./rvv-intrinsic-doc/rvv-intrinsic-generator/rvv_intrinsic_gen")
 import math
 import utils
 import generator
 import enums
 import constants
-
-
+import C_lines_write
+import transformed_op_function
 # set VLEN as 64 bit
 
 op = sys.argv[1]
-Q_array = 16
+q_array = 16
 avl = 64
-vx_list = ['v', 'x']
-wv_list = ['v', 'w']
-iu_list = ['i', 'u']
-ext_list = ['f2', 'f4', 'f8']
-normal_suffix = []
-widen_suffix = []
-narrow_suffix = []
+
 # 'i' for signed int, 'u' for unsigned int
 
 mask_list = ['', '_m']
 middle_mask_list = ['', 'm']
-GeneralFormatOpList = ['vadd', 'vand', 'vmacc', 'vmadd', 'vmseq', 'vmsne', 'vmul', 'vnmsac', 'vnmsub', 'vor', 'vrsub',
-                       'vsll', 'vsub', 'vxor']
-# loop _vx, _iu, _suffix, _mask
-SpMaskOpList = ['vadc', 'vmerge']
-# loop _vx, _iu, _suffix, have to with middle mask
-Sp2MaskOpList = ['vmadc', 'vmsbc']
-# loop _vx, _iu, _suffix, and middle mask. don't have _mask
-SignOpList = ['vdiv', 'vmax', 'vmin', 'vmsge', 'vmsgt', 'vmsle', 'vmslt', 'vmulh', 'vmulhsu', 'vrem', 'vsra', 'vwmacc',
-              'vwmaccsu', 'vwmul', 'vwmulsu']
-# loop _vx, _suffix, _mask, with fixed i
-WSignOpList = ['vnsra', 'vwmaccus']
-# loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
-SpWsignOpList = ['vwadd', 'vwsub']
-# loop _wv, _vx , _suffix, _mask, with fixed i
-UnsignOpList = ['vdivu', 'vmaxu', 'vminu', 'vmsgeu', 'vmsgtu', 'vmsleu', 'vmsltu', 'vmulhu', 'vremu', 'vsrl', 'vwmaccu',
-                'vwmaccu', 'vwmulu']
-# loop _vx, _suffix, _mask with fixed u
-WUnsignOpList = ['vnsrl']
-# loop different position _vx , _suffix, _mask, with fixed u
-SpWUnsignOpList = ['vwaddu', 'vwsubu']
-# loop _wv, _vx , _suffix, _mask, with fixed u
-SpecialFormatList = ['vmv']
-# loop _iu, _suffix and _vx with "_"
-SpVOplist = ['vneg']
-# loop _suffix, _mask and only v, with fixed i
-Sp2VOplist = ['vnot']
-# loop _suffix, _iu, _mask and only v
-ExtOpList = ['vsext', 'vzext']
-# loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
 
 def cross(*args):
     list = [()]
@@ -66,17 +35,17 @@ def cross(*args):
 
 for sew, lmul in cross(constants.SEWS, constants.LMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        normal_suffix.append(f'{sew}m{lmul}')
+        filter.normal_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 for sew, lmul in cross(constants.FSEWS, constants.WLMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        widen_suffix.append(f'{sew}m{lmul}')
+        filter.widen_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 for sew, lmul in cross(constants.WSEWS, constants.LMULS):
     if sew/utils.get_float_lmul(lmul) <= 64:
-        widen_suffix.append(f'{sew}m{lmul}')
+        filter.widen_suffix.append(f'{sew}m{lmul}')
     else:
         continue
 class extra_inst_info(enums.InstInfo):
@@ -105,532 +74,21 @@ class extra_inst_info(enums.InstInfo):
             self.min = 0
         self.Q_A_E = 16
         self.range = pow(2, self.SEW)
-        self.masked = [0] * Q_array
-        self.data1 = [0] * Q_array
-        self.data2 = [0] * Q_array
-        self.vd_default = [0] * Q_array
-        self.out = [0] * Q_array
+        self.masked = [0] * q_array
+        self.data1 = [0] * q_array
+        self.data2 = [0] * q_array
+        self.vd_default = [0] * q_array
+        self.out = [0] * q_array
         self.val = None
-        self.golden = [0] * Q_array
+        self.golden = [0] * q_array
         self.random_gen()
         self.compute()
+        self.vxrm = random.randint(0, 3)
+        # todo: fix-point: save CSR
 
-    def compiler_option_write(self):
-        fd.write("/* { dg-do run } */\n")
-        fd.write(
-            "/* { dg-options \"-march=rv64gcv -mabi=lp64d -O3 -fno-schedule-insns -fno-schedule-insns2 -w\" } */\n")
-
-    def c_header_file_write(self):
-        fd.write("#include <stdlib.h>\n")
-        fd.write("#include <stdio.h>\n")
-        fd.write("#include <string.h>\n")
-        fd.write("#include \"riscv_vector.h\"\n")
-
-    def vl_set_write(self):
-        fd.write("    size_t avl = 64;\n")
-        fd.write("    size_t vl = __riscv_vsetvl_e%s(avl);\n" % suffix)
-
-    def c_main_entry_write(self):
-        fd.write("int main(){\n")
-
-    def pointer_iterator_write(self):
-        fd.write("    for (size_t n = 0; n < vl; n++) {\n")
-
-    def vs2_load(self):
-        if self.mask == 0:
-            fd.write(f"    v%s%s_t data1_v = __riscv_vle%s_v_%s%s%s (mask, in1, vl);\n"
-                     % (a.vtype, suffix, a.SEW, a.sign, suffix, mask))
-        else:
-            fd.write("    v%s%s_t data1_v = __riscv_vle%s_v_%s%s (in1, vl);\n"
-                     % (a.vtype, suffix, a.SEW, a.sign, suffix))
-
-    def unsign_vs1_load(self):
-        if self.mask == 0:
-            fd.write("    vuint%s_t data2_v = __riscv_vle%s_v_%s%s%s (mask, in2, vl);\n"
-                     % (suffix, a.SEW, a.sign, suffix, mask))
-        else:
-            fd.write("    vuint%s_t data2_v = __riscv_vle%s_v_%s%s (in2, vl);\n"
-                     % (suffix, a.SEW, a.sign, suffix))
-
-    def vs1_load(self):
-        if self.mask == 0:
-            fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_%s%s%s (mask, in2, vl);\n"
-                     % (a.vtype, suffix, a.SEW, a.sign, suffix, mask))
-        else:
-            fd.write("    v%s%s_t data2_v = __riscv_vle%s_v_%s%s (in2, vl);\n"
-                     % (a.vtype, suffix, a.SEW, a.sign, suffix))
-
-    def ext_vd_load(self):
-        if self.mask == 0:
-            fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s%s (mask, out, vl);\n"
-                     % (a.vtype, ext_suffix, a.ext_sew, a.sign, ext_suffix, mask))
-        else:
-            fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s (out, vl);\n"
-                     % (a.vtype, ext_suffix, a.ext_sew, a.sign, ext_suffix))
-
-    def vd_load(self):
-        if self.mask == 0:
-            fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s%s (mask, out, vl);\n"
-                     % (a.vtype, suffix, a.SEW, a.sign, suffix, mask))
-        else:
-            fd.write("    v%s%s_t out_v = __riscv_vle%s_v_%s%s (out, vl);\n"
-                     % (a.vtype, suffix, a.SEW, a.sign, suffix))
-
-    # def mask_load(self):
-    # todo: load mask
-    def vd_store(self):
-        if self.mask == 0:
-            fd.write("        void __riscv_vse%s_v_%s%s (bool%s_t mask, %s%s_t *out, v%s%s_t out_v, size_t vl);\n"
-                     % (a.SEW, iu, suffix, a.SEW, a.vtype, a.SEW, a.vtype, suffix))
-        else:
-            fd.write("        void __riscv_vse%s_v_%s%s (%s%s_t *out, v%s%s_t out_v, size_t vl);\n"
-                     % (a.SEW, iu, suffix, a.vtype, a.SEW, a.vtype, suffix))
-
-    def ext_vd_store(self):
-        if self.mask == 0:
-            fd.write("        void __riscv_vse%s_v_%s%s (bool%s_t mask, %s%s_t *out, v%s%s_t out_v, size_t vl);\n"
-                     % (a.ext_sew, iu, ext_suffix, bool_width, a.vtype, a.ext_sew, a.vtype, ext_suffix))
-        else:
-            fd.write("        void __riscv_vse%s_v_%s%s (%s%s_t *out, v%s%s_t out_v, size_t vl);\n"
-                     % (a.ext_sew, iu, ext_suffix, a.vtype, a.ext_sew, a.vtype, ext_suffix))
-    def parameter_seq_write(self):
-        # todo: generate all the operate by default
-        # else:
-        #    for op in IntegerOpList:
-        #        return "    vint%s_t out = __riscv_%s_v%s_i%s (" % (suffix, op, vx, suffix)
-
-        match self.op_mask:
-            case 'vadd':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, vl);\n" % (op, vx, iu, suffix, mask))
-            #case 'vadd_m':
-            #    fd.write(
-            #        "        out_v = __riscv_%s_v%s_%s%s%s (mask, data1_v, data2_v, vl);\n"
-            #        % (op, vx, iu, suffix, mask))
-            case 'vsub':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vsub_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vmul':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vmul_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vdiv':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vdiv_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vdivu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vdivu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-
-            case 'vmax':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vmax_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vmin':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vmin_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vrem':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vrem_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vadc':
-                fd.write(
-                    "        out_v = __riscv_%s_v%sm_i%s (data1_v, data2_v, masked, vl);\n" % (op, vx, suffix))
-            case 'vsbc':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vsbc_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, data2_v, vl);\n" % (op, vx, suffix, mask))
-            case 'vmerge':
-                fd.write(
-                    "        out_v = __riscv_%s_v%sm_%s%s (data1_v, data2_v, masked size_t vl);\n"
-                    % (op, vx, iu, suffix))
-            case 'vmacc':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vmacc_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vmadd':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-                # default vd will be passed as out_data
-            case 'vmadd_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vmsbc':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s%s_%s%s_b%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, mask, iu, suffix, int(self.SEW / self.LMUL)))
-            case 'vmsbc_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s%s_%s%s_b%s (data1_v, data2_v, mask, vl);\n"
-                    % (op, vx, mask, iu, suffix, int(self.SEW / self.LMUL)))
-            case 'vmadc':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s%s_%s_b%s(data1_v, data2_v, vl);\n"
-                    % (op, vx, mask, suffix, int(self.SEW / self.LMUL)))
-            case 'vmadc_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s%s_%s_b%s (data1_v, data2_v, carryin, vl);\n"
-                    % (op, vx, mask, suffix, int(self.SEW / self.LMUL)))
-            case 'vmseq':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmseq_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsge':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsge_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsgt':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsgt_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsgtu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsgtu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsle':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsle_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmslt':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmslt_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsne':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmsne_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL), mask))
-            case 'vmulh':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
-            case 'vmulh_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
-            case 'vmulhsu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
-            case 'vmulhsu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
-            case 'vmsgeu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
-            case 'vmsgeu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s_b%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, int(self.SEW / self.LMUL)))
-            case 'vmv':
-                fd.write(
-                    "        out_v = __riscv_%s_v_%s_%s%s (src, vl);\n"
-                    % (op, vx, iu, suffix))
-            case 'vneg':
-                fd.write(
-                    "        out_v = __riscv_%s_v_%s (data1_v, vl);\n"
-                    % (op, suffix))
-            case 'vneg_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v_%s (mask, data1_v, vl);\n"
-                    % (op, suffix))
-            case 'vnmsac':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-                # default vd will be passed as out_data
-            case 'vnmsac_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vnmsub':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-                # default vd will be passed as out_data
-            case 'vnmsub_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vnot':
-                fd.write(
-                    "        out_v = __riscv_%s_v_%s%s (data1_v, vl);\n"
-                    % (op, iu, suffix))
-            case 'vnot_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v_%s%s (mask, data1_v, vl);\n"
-                    % (op, iu, suffix))
-            case 'vnsra':
-                fd.write(
-                    "        out_v = __riscv_%s_w%s_%s%s (data1_v, shift, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vnsra_m':
-                fd.write(
-                    "        out_v = __riscv_%s_w%s_%s%s (mask, data1_v, shift, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vnsrl':
-                fd.write(
-                    "        out_v = __riscv_%s_w%s_%s%s (data1_v, shift, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vnsrl_m':
-                fd.write(
-                    "        out_v = __riscv_%s_w%s_%s%s (mask, data1_v, shift, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vor':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vor_m':
-                fd.write(
-                    "        out_v = __riscv_%s_w%s_%s%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, iu, mask))
-            case 'vremu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_u%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vremu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_u%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vrsub':
-                fd.write(
-                    "        out_v = __riscv_%s_vx_%s%s%s (data1_v, data2_v, vl);\n"
-                    % (op, iu, suffix, mask))
-            case 'vrsub_m':
-                fd.write(
-                    "        out_v = __riscv_%s_vx_%s%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, iu, suffix, mask))
-            case 'vsext':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, vl);\n"
-                    % (op, ext, ext_suffix, mask))
-            case 'vsext_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, vl);\n"
-                    % (op, ext, ext_suffix, mask))
-            case 'vzext':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_u%s%s (data1_v, vl);\n"
-                    % (op, ext, ext_suffix, mask))
-            case 'vzext_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_u%s%s (mask, data1_v, vl);\n"
-                    % (op, ext, ext_suffix, mask))
-            case 'vnsll':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, shift, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vnsll_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, data1_v, shift, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vsra':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (data1_v, shift, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vsra_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, data1_v, shift, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vsrl':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, shift, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vsrl_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, data1_v, shift, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vwadd':
-                fd.write(
-                    "        out_v = __riscv_%s_%s%s_i%s%s (data1_v, data2_v, vl);\n"
-                    % (op, wv, vx, suffix, mask))
-            case 'vwadd_m':
-                fd.write(
-                    "        out_v = __riscv_%s_%s%s_i%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, wv, vx, suffix, mask))
-            case 'vwaddu':
-                fd.write(
-                    "        out_v = __riscv_%s_%s%s_u%s%s (data1_v, data2_v, vl);\n"
-                    % (op, wv, vx, suffix, mask))
-            case 'vwaddu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_%s%s_u%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, wv, vx, suffix, mask))
-            case 'vwmacc':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmacc_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmaccsu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmaccsu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmaccu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_u%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmaccu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_u%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmaccus':
-                fd.write(
-                    "        out_v = __riscv_%s_vx_i%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, suffix, mask))
-            case 'vwmaccus_m':
-                fd.write(
-                    "        out_v = __riscv_%s_vx_i%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, suffix, mask))
-            case 'vwmul':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmul_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmulsu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmulsu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_i%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmulu':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_u%s%s (out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwmulu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_u%s%s (mask, out_data, data1_v, data2_v, vl);\n"
-                    % (op, vx, suffix, mask))
-            case 'vwsub':
-                fd.write(
-                    "        out_v = __riscv_%s_%s%s_i%s%s (data1_v, data2_v, vl);\n"
-                    % (op, wv, vx, suffix, mask))
-            case 'vwsub_m':
-                fd.write(
-                    "        out_v = __riscv_%s_%s%s_i%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, wv, vx, suffix, mask))
-            case 'vwsubu':
-                fd.write(
-                    "        out_v = __riscv_%s_%s%s_u%s%s (data1_v, data2_v, vl);\n"
-                    % (op, wv, vx, suffix, mask))
-            case 'vwsubu_m':
-                fd.write(
-                    "        out_v = __riscv_%s_%s%s_u%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, wv, vx, suffix, mask))
-            case 'vxor':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-            case 'vxor_m':
-                fd.write(
-                    "        out_v = __riscv_%s_v%s_%s%s%s (mask, data1_v, data2_v, vl);\n"
-                    % (op, vx, iu, suffix, mask))
-
-    def jump_to_next_write_mask(self):
-        fd.write("        in1 += %s;\n" % int(self.SEW / 8))
-        if op == 'vnot':
-            return
-        else:
-            fd.write("        in2 += %s;\n" % int(self.SEW / 8))
-        fd.write("        out += %s;\n" % int(self.SEW / 8))
-        fd.write("        mask += %s;\n" % int(self.SEW / 8))
-        fd.write("      }\n")
-
-    def jump_to_next_write_wo_mask(self):
-        fd.write("        in1 += %s;\n" % int(self.SEW / 8))
-        if op == 'vmv' or op == 'vneg':
-            return
-        else:
-            fd.write("        in2 += %s;\n" % int(self.SEW / 8))
-        fd.write("        out += %s;\n" % int(self.SEW / 8))
-        fd.write("      }\n")
-
-    def report_write(self):
-        fd.write("    int fail = 0;\n")
-        fd.write("    for (int i = 0; i < %d; i++){\n" % Q_array)
-        fd.write("        if (golden[i] != out_data[i]) {\n")
-        fd.write("            printf (\"idx=%d golden=%d out=%d\\n\", i, golden[i], out_data[i]);\n")
-        fd.write("            fail++;\n")
-        fd.write("            }\n")
-        fd.write("        }\n")
-        fd.write("    if (fail) {\n")
-        # fd.write("    printf(\"FAIL\\n\");\n")
-        fd.write("        return 1;\n")
-        fd.write("    } else {\n")
-        # fd.write("    printf(\"PASS\\n\");\n")
-        fd.write("        return 0;\n")
-        fd.write("    }\n")
-        fd.write("}\n")
 
     def random_gen(self):
-        for i in range(Q_array):
+        for i in range(q_array):
             self.data1[i] = random.randint(self.min, self.max)
             if op == "vmulhsu":
                 self.data2[i] = random.randint(0, 2*self.max)
@@ -648,138 +106,177 @@ class extra_inst_info(enums.InstInfo):
                 # if vm = 0, only when v0.mask[i] = 1, calculate would continue.
                 self.masked[i] = random.randint(0, 1)
 
-    def vs2_data_write(self):
-        fd.write("    const %s%s_t data1[] = {\n" % (self.vtype, self.SEW))
-        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data1)))
-        fd.write("    };\n")
-        fd.write("    const %s%s_t *in1 = &data1[0];\n" % (self.vtype, self.SEW))
 
-    def vs1_data_write(self):
-        fd.write("    const %s%s_t data2[] = {\n" % (self.vtype, self.SEW))
-        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data2)))
-        fd.write("    };\n")
-        fd.write("    const %s%s_t *in2 = &data2[0];\n" % (self.vtype, self.SEW))
-
-    def unsign_vs1_data_write(self):
-        fd.write("    const uint%s_t data2[] = {\n" % (self.SEW))
-        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.data2)))
-        fd.write("    };\n")
-        fd.write("    const uint%s_t *in2 = &data2[0];\n" % (self.SEW))
-
-    def vd_declaration_write(self):
-        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, self.SEW, Q_array))
-        # Declare the array of 10 elements
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.SEW))
-
-    def ext_vd_declaration_write(self):
-        fd.write("    const %s%s_t out_data[%s];\n" % (self.vtype, a.ext_sew, Q_array))
-        # Declare the array of 10 elements
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, a.ext_sew))
-
-
-    def vd_default_write(self):
-        fd.write("    const %s out_data[] = {\n" % self.vtype)
-        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
-        fd.write("    };\n")
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, self.SEW))
-
-    def widen_vd_default_write(self):
-        fd.write("    const %s out_data[] = {\n" % self.vtype)
-        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.vd_default)))
-        fd.write("    };\n")
-        fd.write("    const %s%s_t *out = &out_data[0];\n" % (self.vtype, a.ext_sew))
-    def vd_mask_default_write(self):
-        # todo: load vd mask
-        fd.write("    const bool%s_t vd_mask_data[%s];\n" % (self.SEW, Q_array))
-        fd.write("    const bool%s_t *vd_mask = &vd_mask_data[0];\n" % self.SEW)
-
-    def mask_data_write(self):
-        # todo: mask type
-        fd.write("    uint%s_t masked[] = {\n" % int(self.SEW / self.LMUL))
-        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.masked)))
-        fd.write("    };\n")
-        fd.write("    const uint%s_t *mask = &masked[0];\n" % int(self.SEW / self.LMUL))
-
-    def golden_by_python_write(self):
-        fd.write("    %s%s_t golden[] = {\n" % (self.vtype, self.SEW))
-        fd.write("    %s\n" % ", ".join(map(lambda x: str(x), self.golden)))
-        fd.write("    };\n")
 
     def compute(self):
         op_list = {
-            "vadd": operator_py_function.add_op,
-            "vwadd": operator_py_function.add_op,
-            "vwaddu": operator_py_function.add_op,
-            "vand": operator_py_function.and_op,
-            "vsub": operator_py_function.sub_op,
-            "vwsub": operator_py_function.sub_op,
-            "vwsubu": operator_py_function.sub_op,
-            "vmul": operator_py_function.mul_op,
-            "vwmul":operator_py_function.mul_op,
-            "vmulh": operator_py_function.mul_op,
-            "vmulhu": operator_py_function.mul_op,
-            "vmulsu": operator_py_function.mul_op,
-            "vmulhsu": operator_py_function.mul_op,
-            "vwmulsu": operator_py_function.mul_op,
-            "vwmulu": operator_py_function.mul_op,
-            "vdiv": operator_py_function.div_op,
-            "vdivu": operator_py_function.div_op,
-            "vmax": operator_py_function.max_op,
-            "vmaxu": operator_py_function.max_op,
-            "vmin": operator_py_function.min_op,
-            "vminu": operator_py_function.min_op,
-            "vrem": operator_py_function.reminder,
-            "vremu": operator_py_function.reminder,
-            "vadc": operator_py_function.add_with_carry_op,
-            "vsbc": operator_py_function.sub_with_borrow_op,
-            "vmerge": operator_py_function.merge_op,
-            "vmacc": operator_py_function.multiply_add_overwrite_addend_op,
-            "vwmacc": operator_py_function.multiply_add_overwrite_addend_op,
-            "vwmaccu": operator_py_function.multiply_add_overwrite_addend_op,
-            "vwmaccus": operator_py_function.multiply_add_overwrite_addend_op,
-            "vwmaccsu": operator_py_function.multiply_add_overwrite_addend_op,
-            "vmadd": operator_py_function.multiply_add_overwrite_multiplicand_op,
-            "vmsbc": operator_py_function.multiply_sbc_overwrite_multiplicand_op,
-            "vmseq": operator_py_function.equal_to_op,
-            "vmv": operator_py_function.move_op,
-            "vneg": operator_py_function.neg_op,
-            "vnot": operator_py_function.not_op,
-            "vmadc": operator_py_function.add_with_carry_return_mask_op,
-            "vnmsac": operator_py_function.nmsac_op,
-            "vnmsub": operator_py_function.nmsub_op,
-            "vor": operator_py_function.or_op,
-            "vxor": operator_py_function.xor_op,
-            "vsra": operator_py_function.shift_right_op,
-            "vnsra": operator_py_function.shift_right_op,
-            "vsrl": operator_py_function.shift_right_op,
-            "vnsrl": operator_py_function.shift_right_op,
-            "vsll": operator_py_function.shift_left_op,
-            "vnsll": operator_py_function.shift_left_op,
-            "vmsge": operator_py_function.greater_equal_op,
-            "vmsle": operator_py_function.less_equal_op,
-            "vmsleu": operator_py_function.less_equal_op,
-            "vmslt": operator_py_function.less_than_op,
-            "vmsltu": operator_py_function.less_than_op,
-            "vmsgt": operator_py_function.greater_than_op,
-            "vmsne": operator_py_function.not_equal_to_op,
-            "vrsub": operator_py_function.reverse_sub_op,
-            "vmsgeu": operator_py_function.greater_equal_op,
-            "vmsgtu": operator_py_function.greater_than_op
-            # don't need
-            # "vsext": operator_py_function.sign_extesion_op,
-            # "vzext": operator_py_function.zero_extesion_op,
+            # "vneg": transformed_op_function.vneg_op,
+            # "vadc": transformed_op_function.vadc_op,
+            # "vnmsub": transformed_op_function.vnmsub_op,
+            # "vremu": transformed_op_function.vremu_op,
+            # "vmsltu": transformed_op_function.vmsltu_op,
+            # "vsext": transformed_op_function.vsext_op,
+            # "vnot": transformed_op_function.vnot_op,
+            # "vwmaccsu": transformed_op_function.vwmaccsu_op,
+            # "vrsub": transformed_op_function.vrsub_op,
+            # "vwmulu": transformed_op_function.vwmulu_op,
+            # "vwmaccus": transformed_op_function.vwmaccus_op,
+            # "vrem": transformed_op_function.vrem_op,
+            # "vmsne": transformed_op_function.vmsne_op,
+            # "vsbc": transformed_op_function.vsbc_op,
+            # "vmsleu": transformed_op_function.vmsleu_op,
+            # "vminu": transformed_op_function.vminu_op,
+            # "vmsgtu": transformed_op_function.vmsgtu_op,
+            # "vwsubu": transformed_op_function.vwsubu_op,
+            # "vwmul": transformed_op_function.vwmul_op,
+            # "vmsbc": transformed_op_function.vmsbc_op,
+            # "vnsra": transformed_op_function.vnsra_op,
+            # "vwmacc": transformed_op_function.vwmacc_op,
+            # "vmsle": transformed_op_function.vmsle_op,
+            # "vxor": transformed_op_function.vxor_op,
+            # "vdivu": transformed_op_function.vdivu_op,
+            # "vmin": transformed_op_function.vmin_op,
+            # "vnmsac": transformed_op_function.vnmsac_op,
+            # "vor": transformed_op_function.vor_op,
+            # "vmulhsu": transformed_op_function.vmulhsu_op,
+            # "vmseq": transformed_op_function.vmseq_op,
+            # "vwmaccu": transformed_op_function.vwmaccu_op,
+            # "vmsgt": transformed_op_function.vmsgt_op,
+            # "vsra": transformed_op_function.vsra_op,
+            # "vwadd": transformed_op_function.vwadd_op,
+            # "vmulh": transformed_op_function.vmulh_op,
+            # "vsub": transformed_op_function.vsub_op,
+            # "vsll": transformed_op_function.vsll_op,
+            # "vmacc": transformed_op_function.vmacc_op,
+            # "vmul": transformed_op_function.vmul_op,
+            # "vmadc": transformed_op_function.vmadc_op,
+            # "vsrl": transformed_op_function.vsrl_op,
+            # "vwsub": transformed_op_function.vwsub_op,
+            # "vdiv": transformed_op_function.vdiv_op,
+            # "vmsge": transformed_op_function.vmsge_op,
+            # "vmaxu": transformed_op_function.vmaxu_op,
+            # "vmadd": transformed_op_function.vmadd_op,
+            # "vmerge": transformed_op_function.vmerge_op,
+            # "vnsrl": transformed_op_function.vnsrl_op,
+            # "vzext": transformed_op_function.vzext_op,
+            # "vmax": transformed_op_function.vmax_op,
+            "vadd": transformed_op_function.vadd_op,
+            # "vmulhu": transformed_op_function.vmulhu_op,
+            # "vand": transformed_op_function.vand_op,
+            # "vmsgeu": transformed_op_function.vmsgeu_op,
+            # "vwaddu": transformed_op_function.vwaddu_op,
+            # "vmslt": transformed_op_function.vmslt_op,
+            # "vwmulsu": transformed_op_function.vwmulsu_op,
+            # "vnclipu": transformed_op_function.vnclipu_op,
+            # "vsmul": transformed_op_function.vsmul_op,
+            # "vasub": transformed_op_function.vasub_op,
+            # "vaaddu": transformed_op_function.vaaddu_op,
+            # "vsadd": transformed_op_function.vsadd_op,
+            # "vnclip": transformed_op_function.vnclip_op,
+            # "vssubu": transformed_op_function.vssubu_op,
+            # "vaadd": transformed_op_function.vaadd_op,
+            # "vssub": transformed_op_function.vssub_op,
+            # "vasubu": transformed_op_function.vasubu_op,
+            # "vsaddu": transformed_op_function.vsaddu_op,
+            # "vssrl": transformed_op_function.vssrl_op,
+            # "vssra": transformed_op_function.vssra_op,
+            # "vfwsub": transformed_op_function.vfwsub_op,
+            # "vfwadd": transformed_op_function.vfwadd_op,
+            # "vfnmsac": transformed_op_function.vfnmsac_op,
+            # "vmfgt": transformed_op_function.vmfgt_op,
+            # "vfabs": transformed_op_function.vfabs_op,
+            # "vfclass": transformed_op_function.vfclass_op,
+            # "vfwmsac": transformed_op_function.vfwmsac_op,
+            # "vmfge": transformed_op_function.vmfge_op,
+            # "vfmacc": transformed_op_function.vfmacc_op,
+            # "vfmsub": transformed_op_function.vfmsub_op,
+            # "vmfeq": transformed_op_function.vmfeq_op,
+            # "vfmul": transformed_op_function.vfmul_op,
+            # "vmfle": transformed_op_function.vmfle_op,
+            # "vfnmsub": transformed_op_function.vfnmsub_op,
+            # "vfneg": transformed_op_function.vfneg_op,
+            # "vmflt": transformed_op_function.vmflt_op,
+            # "vfmerge": transformed_op_function.vfmerge_op,
+            # "vfsgnjn": transformed_op_function.vfsgnjn_op,
+            # "vfmin": transformed_op_function.vfmin_op,
+            # "vfnmacc": transformed_op_function.vfnmacc_op,
+            # "vfrsqrt7": transformed_op_function.vfrsqrt7_op,
+            # "vfsgnj": transformed_op_function.vfsgnj_op,
+            # "vfrsub": transformed_op_function.vfrsub_op,
+            # "vfrdiv": transformed_op_function.vfrdiv_op,
+            # "vfwmul": transformed_op_function.vfwmul_op,
+            # "vfwnmsac": transformed_op_function.vfwnmsac_op,
+            # "vfwmacc": transformed_op_function.vfwmacc_op,
+            # "vfsub": transformed_op_function.vfsub_op,
+            # "vfmadd": transformed_op_function.vfmadd_op,
+            # "vfdiv": transformed_op_function.vfdiv_op,
+            # "vfmsac": transformed_op_function.vfmsac_op,
+            # "vfmax": transformed_op_function.vfmax_op,
+            # "vfadd": transformed_op_function.vfadd_op,
+            # "vfrec7": transformed_op_function.vfrec7_op,
+            # "vmfne": transformed_op_function.vmfne_op,
+            # "vfsqrt": transformed_op_function.vfsqrt_op,
+            # "vfwnmacc": transformed_op_function.vfwnmacc_op,
+            # "vmerge": transformed_op_function.vmerge_op,
+            # "vfnmadd": transformed_op_function.vfnmadd_op,
+            # "vfsgnjx": transformed_op_function.vfsgnjx_op,
+            # "vredxor": transformed_op_function.vredxor_op,
+            # "vredsum": transformed_op_function.vredsum_op,
+            # "vwredsumu": transformed_op_function.vwredsumu_op,
+            # "vredor": transformed_op_function.vredor_op,
+            # "vredmaxu": transformed_op_function.vredmaxu_op,
+            # "vfredmax": transformed_op_function.vfredmax_op,
+            # "vfredmin": transformed_op_function.vfredmin_op,
+            # "vredminu": transformed_op_function.vredminu_op,
+            # "vredmax": transformed_op_function.vredmax_op,
+            # "vredmin": transformed_op_function.vredmin_op,
+            # "vfwredusum": transformed_op_function.vfwredusum_op,
+            # "vfredosum": transformed_op_function.vfredosum_op,
+            # "vfredusum": transformed_op_function.vfredusum_op,
+            # "vfwredosum": transformed_op_function.vfwredosum_op,
+            # "vredand": transformed_op_function.vredand_op,
+            # "vwredsum": transformed_op_function.vwredsum_op,
+            # "vmorn": transformed_op_function.vmorn_op,
+            # "vmsof": transformed_op_function.vmsof_op,
+            # "vmnor": transformed_op_function.vmnor_op,
+            # "viota": transformed_op_function.viota_op,
+            # "vmor": transformed_op_function.vmor_op,
+            # "vmclr": transformed_op_function.vmclr_op,
+            # "vmmv": transformed_op_function.vmmv_op,
+            # "vmsif": transformed_op_function.vmsif_op,
+            # "vmset": transformed_op_function.vmset_op,
+            # "vlm": transformed_op_function.vlm_op,
+            # "vcpop": transformed_op_function.vcpop_op,
+            # "vfirst": transformed_op_function.vfirst_op,
+            # "vmxor": transformed_op_function.vmxor_op,
+            # "vmxnor": transformed_op_function.vmxnor_op,
+            # "vmnand": transformed_op_function.vmnand_op,
+            # "vmandn": transformed_op_function.vmandn_op,
+            # "vid": transformed_op_function.vid_op,
+            # "vmnot": transformed_op_function.vmnot_op,
+            # "vsm": transformed_op_function.vsm_op,
+            # "vmand": transformed_op_function.vmand_op,
+            # "vmsbf": transformed_op_function.vmsbf_op,
+            # "vrgatherei16": transformed_op_function.vrgatherei16_op,
+            # "vrgather": transformed_op_function.vrgather_op,
+            # "vslide1down": transformed_op_function.vslide1down_op,
+            # "vcompress": transformed_op_function.vcompress_op,
+            # "vslide1up": transformed_op_function.vslide1up_op,
+            # "vslideup": transformed_op_function.vslideup_op,
+            # "vfslide1up": transformed_op_function.vfslide1up_op,
+            # "vfslide1down": transformed_op_function.vfslide1down_op,
+            # "vslidedown": transformed_op_function.vslidedown_op
         }
 
-        if op in GeneralFormatOpList or op in SignOpList or op in UnsignOpList:
+        if op in intrinsic_function_type_05.GeneralFormatOpList or op in intrinsic_function_type_05.SignOpList or op in intrinsic_function_type_05.UnsignOpList:
             if op == "vsra" or op == "vsrl" or op == "vsll":
-                fake_shift = int(math.log(2, self.SEW))
                 if self.mask:
                     for i in range(self.Q_A_E):
-                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (2 ** fake_shift), self.vd_default[i],
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (self.SEW - 1), self.vd_default[i],
                                                      self.masked[i])
                 else:
                     for i in range(self.Q_A_E):
-                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (2 ** fake_shift), self.vd_default[i])
+                        self.golden[i] = op_list[op](self.data1[i], self.data2[i] & (self.SEW - 1), self.vd_default[i])
             else:
                 if self.mask:
                     for i in range(self.Q_A_E):
@@ -847,8 +344,11 @@ class extra_inst_info(enums.InstInfo):
                     else:
                         self.golden[i] = self.data1[i]
 
-
-for temp in GeneralFormatOpList:
+normal_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
+vx_list = ['vv', 'vx']
+mask_list = ['', '_m']
+iu_list = ['i', 'u']
+for temp in intrinsic_function_type_05.GeneralFormatOpList:
     if op != temp:
         continue
     else:
@@ -858,57 +358,57 @@ for temp in GeneralFormatOpList:
             SEW = int(divider[0])
             LMUL = utils.get_float_lmul(divider[1])
             a = extra_inst_info(iu, SEW, LMUL, OP)
-            filename = "testcase/%s_v%s_%s%s%s.c" % (op, vx, iu, suffix, mask)
+            filename = "testcase/%s_%s_%s%s%s.c" % (op, vx, iu, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
             if mask != '_m':
-                with open(filename, 'w') as fd:
+                with open(filename, 'a') as fd:
                     a.mask = 1
                     # don't hava mask
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
+                    C_lines_write.compiler_option_write(fd)
+                    C_lines_write.c_header_file_write(fd)
+                    C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
-                    a.vs2_data_write()
-                    a.vs1_data_write()
-                    a.vl_set_write()
-                    a.vd_declaration_write()
-                    a.vs2_load()
-                    a.vs1_load()
-                    a.vd_load()
-                    a.pointer_iterator_write()
-                    a.parameter_seq_write()
-                    a.vd_store()
-                    a.jump_to_next_write_wo_mask()
+                    C_lines_write.vs2_data_write(fd, a)
+                    C_lines_write.vs1_data_write(fd, a)
+                    C_lines_write.vl_set_write(fd, suffix)
+                    C_lines_write.vd_declaration_write(fd, a, q_array)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
+                    C_lines_write.vs1_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd, a, suffix, mask)
+                    C_lines_write.pointer_iterator_write(fd)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                    C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                    C_lines_write.jump_to_next_write_wo_mask(fd, a, op)
                     a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
+                    C_lines_write.golden_by_python_write(fd, a)
+                    C_lines_write.report_write(fd, q_array)
             else:
                 with open(filename, 'w') as fd:
                     a.mask = 0
                     # mask and have v0.mask[i] value
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
+                    C_lines_write.compiler_option_write(fd)
+                    C_lines_write.c_header_file_write(fd)
+                    C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
-                    a.vs2_data_write()
-                    a.vs1_data_write()
-                    a.vl_set_write()
-                    a.vd_default_write()
+                    C_lines_write.vs2_data_write(fd, a)
+                    C_lines_write.vs1_data_write(fd, a)
+                    C_lines_write.vl_set_write(fd, suffix)
+                    C_lines_write.vd_default_write(fd, a)
                     # set vd default value if v0.mask[i] = 0, golden = default
                     a.mask_gen()
-                    a.mask_data_write()
-                    a.vs2_load()
-                    a.vs1_load()
-                    a.vd_load()
-                    a.pointer_iterator_write()
-                    # a.specific_operator_c()
-                    a.parameter_seq_write()
-                    a.vd_store()
-                    a.jump_to_next_write_mask()
+                    C_lines_write.mask_data_write(fd, a)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
+                    C_lines_write.vs1_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd, a, suffix, mask)
+                    # a.C_lines_write.specific_operator_c()
+                    C_lines_write.pointer_iterator_write(fd)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                    C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                    C_lines_write.jump_to_next_write_mask(fd, a, op)
                     a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
-for temp in SpMaskOpList:
+                    C_lines_write.golden_by_python_write(fd, a)
+                    C_lines_write.report_write(fd, q_array)
+for temp in intrinsic_function_type_05.SpMaskOpList:
     # SpMaskOpList = ['vadc', 'vmerge']
     # loop _vx, _iu, _suffix, have to with middle mask
     if op != temp:
@@ -924,27 +424,26 @@ for temp in SpMaskOpList:
             a.op_mask = op
             filename = "testcase/%s_v%sm_%s%s.c" % (op, vx, iu, suffix)
             with open(filename, 'w') as fd:
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
+                C_lines_write.compiler_option_write(fd, a)
+                C_lines_write.c_header_file_write(fd)
+                C_lines_write.c_main_entry_write(fd)
                 a.random_gen()
-                a.vs2_data_write()
-                a.vs1_data_write()
-                a.vl_set_write()
+                C_lines_write.vs2_data_write(fd, a)
+                C_lines_write.vs1_data_write(fd, a)
+                C_lines_write.vl_set_write(fd, suffix)
                 a.mask_gen()
-                a.mask_data_write()
-                a.vs2_load()
-                a.vs1_load()
-                a.vd_load()
-                a.pointer_iterator_write()
-                # a.specific_operator_c()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_mask()
+                C_lines_write.mask_data_write(fd, a)
+                C_lines_write.vs2_load(fd, a, suffix, mask)
+                C_lines_write.v1_load(fd, a, suffix, mask)
+                C_lines_write.vd_load(fd, a, suffix, mask)
+                # a.C_lines_write.specific_operator_c()
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                C_lines_write.jump_to_next_write_mask()
                 a.compute()
-                a.golden_by_python_write()
-                a.report_write()
-for temp in Sp2MaskOpList:
+                C_lines_write.golden_by_python_write(fd, a)
+                C_lines_write.report_write(fd, q_array)
+for temp in intrinsic_function_type_05.Sp2MaskOpList:
     # Sp2MaskOpList = ['vmadc', 'vmsbc']
     # loop _vx, _iu, _suffix, and middle mask. don't have _mask
     if op != temp:
@@ -959,30 +458,30 @@ for temp in Sp2MaskOpList:
             a.lmul = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s%s_%s%s.c" % (op, vx, mask, iu, suffix)
             with open(filename, 'w') as fd:
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
+                C_lines_write.compiler_option_write(fd, a)
+                C_lines_write.c_header_file_write(fd)
+                C_lines_write.c_main_entry_write(fd)
                 a.random_gen()
-                a.vs2_data_write()
-                a.vs1_data_write()
-                a.vl_set_write()
-                a.vd_default_write()
+                C_lines_write.vs2_data_write(fd, a)
+                C_lines_write.vs1_data_write(fd, a)
+                C_lines_write.vl_set_write(fd, suffix)
+                C_lines_write.vd_default_write()
                 # set vd default value if v0.mask[i] = 0, golden = default
-                # a.mask_gen()
-                # a.mask_data_write()
+                # a.a.mask_gen()
+                # a.C_lines_write.mask_data_write()
                 # todo: a special mask write function if masked, write 1s, else 0s.
-                a.vs2_load()
-                a.vs1_load()
-                a.vd_load()
-                a.pointer_iterator_write()
-                # a.specific_operator_c()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_mask()
+                C_lines_write.vs2_load(fd, a, suffix, mask)
+                C_lines_write.v1_load(fd, a, suffix, mask)
+                C_lines_write.vd_load(fd)
+                # a.C_lines_write.specific_operator_c()
+                C_lines_write.pointer_iterator_write(fd)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                C_lines_write.jump_to_next_write_mask()
                 a.compute()
-                a.golden_by_python_write()
-                a.report_write()
-for temp in SignOpList:
+                C_lines_write.golden_by_python_write(fd, a)
+                C_lines_write.report_write(fd, q_array)
+for temp in intrinsic_function_type_05.SignOpList:
     # SignOpList = ['vdiv', 'vmax', 'vmin', 'vmsge', 'vmsgt', 'vmsle', 'vmslt', 'vmulh', 'vmulhsu', 'vrem',
     #              'vsra', 'vwmacc',
     #              'vwmaccsu', 'vwmul', 'vwmulsu']
@@ -991,12 +490,12 @@ for temp in SignOpList:
         continue
     else:
         for suffix, vx, mask in cross(normal_suffix, vx_list, mask_list):
-            a = extra_inst_info('i')
-            a.OP = op
             divider = suffix.split('m')
+            a = extra_inst_info('i', int(divider[0]), utils.get_float_lmul(divider[1]), op)
+            a.OP = op
             a.SEW = int(divider[0])
             a.range = pow(2, a.SEW)
-            a.lmul = utils.get_float_lmul(divider[1])
+            a.LMUL = utils.get_float_lmul(divider[1])
             filename = "testcase/%s_v%s_i%s%s.c" % (op, vx, suffix, mask)
             a.op_mask = "%s%s" % (op, mask)
             iu = 'i'
@@ -1004,63 +503,70 @@ for temp in SignOpList:
                 with open(filename, 'w') as fd:
                     a.mask = 1
                     # don't hava mask
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
+                    C_lines_write.compiler_option_write(fd, a)
+                    C_lines_write.c_header_file_write(fd)
+                    if temp in intrinsic_function_type_06.RMOpList:
+                        # must be fix point file sn, if not, plz edit.
+                        C_lines_write.csr_write(fd)
+                    C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
-                    a.vs2_data_write()
+                    C_lines_write.vs2_data_write(fd, a)
                     if op == "vmulhsu" or op == "vwmaccsu":
-                        a.unsign_vs1_data_write()
+                        C_lines_write.unsign_vs1_data_write(fd, a)
                     else:
-                        a.vs1_data_write()
-                    a.vl_set_write()
-                    a.vd_declaration_write()
-                    a.vs2_load()
+                        C_lines_write.vs1_data_write(fd, a)
+                    C_lines_write.vl_set_write(fd, suffix)
+                    C_lines_write.vd_declaration_write(fd, a, q_array)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
                     if op == "vmulhsu" or "vwmaccsu":
-                        a.unsign_vs1_load()
+                        C_lines_write.unsign_vs1_load()
                     else:
-                        a.vs1_load()
-                    a.vd_load()
-                    a.pointer_iterator_write()
-                    a.parameter_seq_write()
-                    a.vd_store()
-                    a.jump_to_next_write_wo_mask()
+                        C_lines_write.vs1_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd, a, suffix, mask)
+                    C_lines_write.pointer_iterator_write(fd)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                    C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                    C_lines_write.jump_to_next_write_wo_mask(fd, a, op)
                     a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
+                    C_lines_write.golden_by_python_write(fd, a)
+                    C_lines_write.report_write(fd, q_array)
             else:
                 with open(filename, 'w') as fd:
                     a.mask = 0
                     # mask and have v0.mask[i] value
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
+                    C_lines_write.compiler_option_write(fd, a)
+                    C_lines_write.c_header_file_write(fd)
+                    if temp in intrinsic_function_type_06.RMOpList:
+                        # must be fix point file sn, if not, plz edit.
+                        C_lines_write.csr_write(fd)
+                    C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
-                    a.vs2_data_write()
+                    C_lines_write.vs2_data_write(fd, a)
                     if op == "vmulhsu" or "vwmaccsu":
-                        a.unsign_vs1_data_write()
+                        C_lines_write.unsign_vs1_data_write(fd, a)
                     else:
-                        a.vs1_data_write()
-                    a.vl_set_write()
-                    a.vd_default_write()
+                        C_lines_write.vs1_data_write(fd, a)
+                    C_lines_write.vl_set_write(fd, suffix)
+                    C_lines_write.vd_default_write(fd, a)
                     # set vd default value if v0.mask[i] = 0, golden = default
                     a.mask_gen()
-                    a.mask_data_write()
-                    a.vs2_load()
+                    C_lines_write.mask_data_write(fd, a)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
                     if op == "vmulhsu" or "vwmaccsu":
-                        a.unsign_vs1_load()
+                        C_lines_write.unsign_vs1_load(fd, a, suffix, mask)
                     else:
-                        a.vs1_load()
-                    a.vd_load()
-                    a.pointer_iterator_write()
-                    # a.specific_operator_c()
-                    a.parameter_seq_write()
-                    a.vd_store()
-                    a.jump_to_next_write_mask()
+                        C_lines_write.vs1_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd)
+                    # a.C_lines_write.specific_operator_c()
+                    C_lines_write.pointer_iterator_write(fd)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                    C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                    C_lines_write.jump_to_next_write_mask(fd, a, op)
                     a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
-for temp in UnsignOpList:
+                    C_lines_write.golden_by_python_write(fd, a)
+                    C_lines_write.report_write(fd, q_array)
+for temp in intrinsic_function_type_05.UnsignOpList:
     # UnsignOpList = ['vdivu', 'vmaxu', 'vminu', 'vmsgeu', 'vmsgtu', 'vmsleu', 'vmsltu', 'vmulhu', 'vremu', 'vsrl',
     # 'vwmaccu', 'vwmaccu', 'vwmulu']
     # loop _vx, _suffix, _mask with fixed u
@@ -1079,52 +585,58 @@ for temp in UnsignOpList:
             iu = 'u'
             if mask != '_m':
                 with open(filename, 'w') as fd:
-                    a.mask = 1
+                    C_lines_write.mask = 1
                     # don't hava mask
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
+                    C_lines_write.compiler_option_write(fd, a)
+                    C_lines_write.c_header_file_write(fd)
+                    if temp in intrinsic_function_type_06.RMOpList:
+                        # must be fix point file sn, if not, plz edit.
+                        C_lines_write.csr_write(fd)
+                    C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
-                    a.vs2_data_write()
-                    a.vs1_data_write()
-                    a.vl_set_write()
-                    a.vd_declaration_write()
-                    a.vs2_load()
-                    a.vs1_load()
-                    a.vd_load()
-                    a.pointer_iterator_write()
-                    a.parameter_seq_write()
-                    a.vd_store()
-                    a.jump_to_next_write_wo_mask()
+                    C_lines_write.vs2_data_write(fd, a)
+                    C_lines_write.vs1_data_write(fd, a)
+                    C_lines_write.vl_set_write(fd, suffix)
+                    C_lines_write.vd_declaration_write(fd, a, q_array)
+                    C_lines_write.vs1_data_write(fd, a, suffix, mask)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
+                    C_lines_write.vs1_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                    C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                    C_lines_write.jump_to_next_write_mask(fd, a)
                     a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
+                    C_lines_write.golden_by_python_write(fd, a)
+                    C_lines_write.report_write(fd, q_array)
             else:
                 with open(filename, 'w') as fd:
                     a.mask = 0
                     # mask and have v0.mask[i] value
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
+                    C_lines_write.compiler_option_write(fd, a)
+                    C_lines_write.c_header_file_write(fd)
+                    if temp in intrinsic_function_type_06.RMOpList:
+                        # must be fix point file sn, if not, plz edit.
+                        C_lines_write.csr_write(fd)
+                    C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
-                    a.vs2_data_write()
-                    a.vs1_data_write()
-                    a.vl_set_write()
-                    a.vd_default_write()
+                    C_lines_write.vs2_data_write(fd, a)
+                    C_lines_write.vs1_data_write(fd, a)
+                    C_lines_write.vl_set_write(fd, suffix)
+                    C_lines_write.vd_default_write(fd, a)
                     # set vd default value if v0.mask[i] = 0, golden = default
                     a.mask_gen()
-                    a.mask_data_write()
-                    a.vs2_load()
-                    a.vs1_load()
-                    a.vd_load()
-                    a.pointer_iterator_write()
-                    # a.specific_operator_c()
-                    a.parameter_seq_write()
-                    a.vd_store()
-                    a.jump_to_next_write_mask()
+                    C_lines_write.mask_data_write(fd, a)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
+                    C_lines_write.vs1_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd, a, suffix, mask)
+                    C_lines_write.pointer_iterator_write(fd)
+                    # C_lines_write.specific_operator_c()
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                    C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                    C_lines_write.jump_to_next_write_mask()
                     a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
+                    C_lines_write.golden_by_python_write(fd, a)
+                    C_lines_write.report_write(fd, q_array)
 if op == 'vwmaccus':
     # WSignOpList = ['vnsra', 'vwmaccus']
     # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
@@ -1144,52 +656,52 @@ if op == 'vwmaccus':
             with open(filename, 'w') as fd:
                 a.mask = 1
                 # don't hava mask
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
+                C_lines_write.compiler_option_write(fd, a)
+                C_lines_write.c_header_file_write(fd)
+                C_lines_write.c_main_entry_write(fd)
                 a.random_gen()
-                a.vs2_data_write()
-                a.vs1_data_write()
-                a.vl_set_write()
-                a.vd_declaration_write()
-                a.vs2_load()
-                # a.vs1_load()
+                C_lines_write.vs2_data_write(fd, a)
+                C_lines_write.vs1_data_write(fd, a)
+                C_lines_write.vl_set_write(fd, suffix)
+                C_lines_write.vd_declaration_write(fd, a, q_array)
+                C_lines_write.vs2_load(fd, a, suffix, mask)
+                # C_lines_write.vs2_load(fd, a, suffix, mask)
                 # scalar don't need load
-                a.vd_load()
-                a.pointer_iterator_write()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_wo_mask()
+                C_lines_write.vd_load(fd, a, suffix, mask)
+                C_lines_write.pointer_iterator_write(fd)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                C_lines_write.jump_to_next_write_wo_mask(fd, a, op)
                 a.compute()
-                a.golden_by_python_write()
-                a.report_write()
+                C_lines_write.golden_by_python_write(fd, a)
+                C_lines_write.report_write(fd, q_array)
         else:
             with open(filename, 'w') as fd:
                 a.mask = 0
                 # mask and have v0.mask[i] value
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
+                C_lines_write.compiler_option_write(fd, a)
+                C_lines_write.c_header_file_write(fd)
+                C_lines_write.c_main_entry_write(fd)
                 a.random_gen()
-                a.vs2_data_write()
-                a.vs1_data_write()
-                a.vl_set_write()
-                a.vd_default_write()
+                C_lines_write.vs2_data_write(fd, a)
+                C_lines_write.vs1_data_write(fd, a)
+                C_lines_write.vl_set_write(fd, suffix)
+                C_lines_write.vd_default_write(fd, a)
                 # set vd default value if v0.mask[i] = 0, golden = default
                 a.mask_gen()
-                a.mask_data_write()
-                a.vs2_load()
-                # a.vs1_load()
+                C_lines_write.mask_data_write(fd ,a)
+                C_lines_write.vs1_data_write(fd, a, suffix, mask)
+                # C_lines_write.vs2_load(fd, a, suffix, mask)
                 # scalar don't need load
-                a.vd_load()
-                a.pointer_iterator_write()
-                # a.specific_operator_c()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_mask()
+                C_lines_write.vd_load(fd, a, suffix, mask)
+                C_lines_write.pointer_iterator_write(fd)
+                # C_lines_write.specific_operator_c()
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                C_lines_write.jump_to_next_write_mask(fd, a, op)
                 a.compute()
-                a.golden_by_python_write()
-                a.report_write()
+                C_lines_write.golden_by_python_write(fd, a)
+                C_lines_write.report_write(fd, q_array)
 if op == 'vnsra' or op == 'vnsrl':
     # WSignOpList = ['vnsra', 'vwmaccus']
     # loop different position _vx(vnsra) or fixed vx , _suffix, _mask, with fixed i
@@ -1209,53 +721,53 @@ if op == 'vnsra' or op == 'vnsrl':
         a.op_mask = "%s%s" % (op, mask)
         if mask != '_m':
             with open(filename, 'w') as fd:
-                a.mask = 1
+                C_lines_write.mask = 1
                 # don't hava mask
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
+                C_lines_write.compiler_option_write(fd, a)
+                C_lines_write.c_header_file_write(fd)
+                C_lines_write.c_main_entry_write(fd)
                 a.random_gen()
-                a.vs2_data_write()
-                a.vs1_data_write()
-                a.vl_set_write()
-                a.vd_declaration_write()
-                a.vs2_load()
-                a.vs1_load()
-                a.vd_load()
-                a.pointer_iterator_write()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_wo_mask()
+                C_lines_write.vs2_data_write(fd, a)
+                C_lines_write.vs1_data_write(fd, a)
+                C_lines_write.vl_set_write(fd, suffix)
+                C_lines_write.vd_declaration_write(fd, a, q_array)
+                C_lines_write.vs2_load(fd, a, suffix, mask)
+                C_lines_write.vs1_load(fd, a, suffix, mask)
+                C_lines_write.vd_load(fd, a, suffix, mask)
+                C_lines_write.vd_load(fd)
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                C_lines_write.vd_store(fd, a, op)
                 a.compute()
-                a.golden_by_python_write()
-                a.report_write()
+                C_lines_write.golden_by_python_write(fd, a)
+                C_lines_write.report_write(fd, q_array)
         else:
             with open(filename, 'w') as fd:
-                a.mask = 0
+                C_lines_write.mask = 0
                 # mask and have v0.mask[i] value
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
+                C_lines_write.compiler_option_write(fd, a)
+                C_lines_write.c_header_file_write(fd)
+                C_lines_write.c_main_entry_write(fd)
                 a.random_gen()
-                a.vs2_data_write()
-                a.vs1_data_write()
-                a.vl_set_write()
-                a.vd_default_write()
+                C_lines_write.vs2_data_write(fd, a)
+                C_lines_write.vs1_data_write(fd, a)
+                C_lines_write.vl_set_write(fd, suffix)
+                C_lines_write.vd_default_write()
                 # set vd default value if v0.mask[i] = 0, golden = default
                 a.mask_gen()
-                a.mask_data_write()
-                a.vs2_load()
-                a.vs1_load()
-                a.vd_load()
-                a.pointer_iterator_write()
-                # a.specific_operator_c()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_mask()
+                C_lines_write.mask_data_write()
+                C_lines_write.vs2_load(fd, a, suffix, mask)
+                C_lines_write.vs1_load(fd, a, suffix, mask)
+                C_lines_write.vd_load(fd, a, suffix, mask)
+                C_lines_write.pointer_iterator_write(fd)
+                # C_lines_write.specific_operator_c()
+                C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                C_lines_write.jump_to_next_write_mask(fd, op)
                 a.compute()
-                a.golden_by_python_write()
-                a.report_write()
-for temp in SpWUnsignOpList:
+                C_lines_write.golden_by_python_write(fd, a)
+                C_lines_write.report_write(fd, q_array)
+for temp in intrinsic_function_type_05.SpWUnsignOpList:
     if op != temp:
         continue
     # SpWUnsignOpList = ['vwaddu', 'vwsubu']
@@ -1275,50 +787,50 @@ for temp in SpWUnsignOpList:
                 with open(filename, 'w') as fd:
                     a.mask = 1
                     # don't hava mask
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
+                    C_lines_write.compiler_option_write(fd, a)
+                    C_lines_write.c_header_file_write(fd)
+                    C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
-                    a.vs2_data_write()
-                    a.vs1_data_write()
-                    a.vl_set_write()
-                    a.vd_declaration_write()
-                    a.vs2_load()
-                    a.vs1_load()
-                    a.vd_load()
-                    a.pointer_iterator_write()
-                    a.parameter_seq_write()
-                    a.vd_store()
-                    a.jump_to_next_write_wo_mask()
+                    C_lines_write.vs2_data_write(fd, a)
+                    C_lines_write.vs1_data_write(fd, a)
+                    C_lines_write.vl_set_write(fd, suffix)
+                    C_lines_write.vd_declaration_write(fd, a, q_array)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd, a, suffix, mask)
+                    C_lines_write.pointer_iterator_write(fd)
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                    C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                    C_lines_write.vd_store(fd, a, op)
                     a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
+                    C_lines_write.golden_by_python_write(fd, a)
+                    C_lines_write.report_write(fd, q_array)
             else:
                 with open(filename, 'w') as fd:
                     a.mask = 0
                     # mask and have v0.mask[i] value
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
+                    C_lines_write.compiler_option_write(fd, a)
+                    C_lines_write.c_header_file_write(fd)
+                    C_lines_write.c_main_entry_write(fd)
                     a.random_gen()
-                    a.vs2_data_write()
-                    a.vs1_data_write()
-                    a.vl_set_write()
-                    a.vd_default_write()
+                    C_lines_write.vs2_data_write(fd, a)
+                    C_lines_write.vs1_data_write(fd, a)
+                    C_lines_write.vl_set_write(fd, suffix)
+                    C_lines_write.vd_default_write()
                     # set vd default value if v0.mask[i] = 0, golden = default
                     a.mask_gen()
-                    a.mask_data_write()
-                    a.vs2_load()
-                    a.vs1_load()
-                    a.vd_load()
-                    a.pointer_iterator_write()
-                    # a.specific_operator_c()
-                    a.parameter_seq_write()
-                    a.vd_store()
-                    a.jump_to_next_write_mask()
+                    C_lines_write.mask_data_write()
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
+                    C_lines_write.vs2_load(fd, a, suffix, mask)
+                    C_lines_write.vd_load(fd, a, suffix, mask)
+                    C_lines_write.pointer_iterator_write(fd)
+                    # C_lines_write.specific_operator_c()
+                    C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                    C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                    C_lines_write.jump_to_next_write_mask()
                     a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
+                    C_lines_write.golden_by_python_write(fd, a)
+                    C_lines_write.report_write(fd, q_array)
 if op == 'vmv':
     # loop _iu, _suffix and _vx with "_"
     for iu, suffix, vx in cross(iu_list, normal_suffix, vx_list):
@@ -1332,152 +844,152 @@ if op == 'vmv':
         with open(filename, 'w') as fd:
             a.mask = 1
             # don't hava mask
-            a.compiler_option_write()
-            a.c_header_file_write()
-            a.c_main_entry_write()
+            C_lines_write.compiler_option_write(fd, a)
+            C_lines_write.c_header_file_write(fd)
+            C_lines_write.c_main_entry_write(fd)
             a.random_gen()
-            a.vs2_data_write()
-            a.vl_set_write()
-            a.vd_declaration_write()
-            a.vs2_load()
-            a.vd_load()
-            a.pointer_iterator_write()
-            a.parameter_seq_write()
-            a.vd_store()
-            a.jump_to_next_write_wo_mask()
+            C_lines_write.vs2_data_write(fd, a)
+            C_lines_write.vl_set_write(fd, suffix)
+            C_lines_write.vd_declaration_write(fd, a, q_array)
+            C_lines_write.vs2_load(fd, a, suffix, mask)
+            C_lines_write.vd_load(fd, a, suffix, mask)
+            C_lines_write.pointer_iterator_write(fd)
+            C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+            C_lines_write.vd_store(fd, a, suffix, iu, mask)
+            C_lines_write.vd_store(fd, a, op)
             a.compute()
-            a.golden_by_python_write()
-            a.report_write()
-if op == 'vneg' or op == 'vnot':
-    # SpVOplist = ['vneg']
-    # loop _suffix, _mask and only v, with fixed i
-    # Sp2VOplist = ['vnot']
-    # loop _suffix, _iu, _mask and only v
-    for suffix, mask, iu in cross(normal_suffix, mask_list, iu_list):
-        a = extra_inst_info(iu)
-        a.OP = op
-        divider = suffix.split('m')
-        a.SEW = int(divider[0])
-        a.range = pow(2, a.SEW)
-        a.lmul = utils.get_float_lmul(divider[1])
-        if op == 'vneg':
-            if iu == 'i':
-                filename = "testcase/%s_v_i%s%s.c" % (op, suffix, mask)
-        else:
-            filename = "testcase/%s_v_%s%s%s.c" % (op, iu, suffix, mask)
-        a.op_mask = "%s%s" % (op, mask)
-        if mask != '_m':
-            with open(filename, 'w') as fd:
-                a.mask = 1
-                # don't hava mask
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
-                a.random_gen()
-                a.vs2_data_write()
-                a.vl_set_write()
-                a.vd_declaration_write()
-                a.vs2_load()
-                a.vd_load()
-                a.pointer_iterator_write()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_wo_mask()
-                a.compute()
-                a.golden_by_python_write()
-                a.report_write()
-        else:
-            with open(filename, 'w') as fd:
-                a.mask = 0
-                # mask and have v0.mask[i] value
-                a.compiler_option_write()
-                a.c_header_file_write()
-                a.c_main_entry_write()
-                a.random_gen()
-                a.vs2_data_write()
-                a.vl_set_write()
-                a.vd_default_write()
-                # set vd default value if v0.mask[i] = 0, golden = default
-                a.mask_gen()
-                a.mask_data_write()
-                a.vs2_load()
-                a.vd_load()
-                a.pointer_iterator_write()
-                # a.specific_operator_c()
-                a.parameter_seq_write()
-                a.vd_store()
-                a.jump_to_next_write_mask()
-                a.compute()
-                a.golden_by_python_write()
-                a.report_write()
-# ExtOpList = ['vsext', 'vzext']
-# loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
-if op == 'vsext' or op == 'vzext':
-    for suffix, ext, mask in cross(normal_suffix, ext_list, mask_list):
-        if op == 'vsext':
-            iu = 'i'
-        else:
-            iu = 'u'
-        a = extra_inst_info(iu)
-        a.OP = op
-        divider = suffix.split('m')
-        a.SEW = int(divider[0])
-        a.ext_sew = int(a.SEW / utils.get_float_lmul(ext))
-        a.lmul = utils.get_float_lmul(divider[1])
-        a.ext_lmul = a.lmul / utils.get_float_lmul(ext)
-        a.op_mask = "%s%s" % (op, mask)
-        if a.SEW/utils.get_float_lmul(ext)<=64 and a.SEW/a.lmul<=64 and a.lmul/utils.get_float_lmul(ext)<=8:
-            ext_suffix = "%sm%s" % (int(a.ext_sew), utils.get_string_lmul(a.ext_lmul))
-            bool_width = int(a.ext_sew) / a.ext_lmul
-            if op == 'vsext':
-                a.sign = 'i'
-                filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, ext_suffix, mask)
-            else:
-                a.sign = 'u'
-                filename = "testcase/%s_v%s_u%s%s.c" % (op, ext, ext_suffix, mask)
-            if mask != '_m':
-                with open(filename, 'w') as fd:
-                    a.mask = 1
-                    # don't hava mask
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
-                    a.random_gen()
-                    a.vs2_data_write()
-                    a.vl_set_write()
-                    a.ext_vd_declaration_write()
-                    a.vs2_load()
-                    a.ext_vd_load()
-                    a.pointer_iterator_write()
-                    a.parameter_seq_write()
-                    a.ext_vd_store()
-                    a.jump_to_next_write_wo_mask()
-                    a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
-            else:
-                with open(filename, 'w') as fd:
-                    a.mask = 0
-                    # mask and have v0.mask[i] value
-                    a.compiler_option_write()
-                    a.c_header_file_write()
-                    a.c_main_entry_write()
-                    a.random_gen()
-                    a.vs2_data_write()
-                    a.vl_set_write()
-                    a.ext_vd_declaration_write()
-                    # set vd default value if v0.mask[i] = 0, golden = default
-                    a.mask_gen()
-                    a.mask_data_write()
-                    a.vs2_load()
-                    a.ext_vd_load()
-                    a.pointer_iterator_write()
-                    # a.specific_operator_c()
-                    a.parameter_seq_write()
-                    a.ext_vd_store()
-                    a.jump_to_next_write_mask()
-                    a.compute()
-                    a.golden_by_python_write()
-                    a.report_write()
-        else:
-            continue
+            C_lines_write.golden_by_python_write(fd, a)
+            C_lines_write.report_write(fd, q_array)
+        if op == 'vneg' or op == 'vnot':
+            # SpVOplist = ['vneg']
+            # loop _suffix, _mask and only v, with fixed i
+            # Sp2VOplist = ['vnot']
+            # loop _suffix, _iu, _mask and only v
+            for suffix, mask, iu in cross(normal_suffix, mask_list, iu_list):
+                a = extra_inst_info(iu)
+                OP = op
+                divider = suffix.split('m')
+                SEW = int(divider[0])
+                range = pow(2, SEW)
+                lmul = utils.get_float_lmul(divider[1])
+                if op == 'vneg':
+                    if iu == 'i':
+                        filename = "testcase/%s_v_i%s%s.c" % (op, suffix, mask)
+                else:
+                    filename = "testcase/%s_v_%s%s%s.c" % (op, iu, suffix, mask)
+                op_mask = "%s%s" % (op, mask)
+                if mask != '_m':
+                    with open(filename, 'w') as fd:
+                        a.mask = 1
+                        # don't hava mask
+                        C_lines_write.compiler_option_write(fd, a)
+                        C_lines_write.c_header_file_write(fd)
+                        C_lines_write.c_main_entry_write(fd)
+                        a.random_gen()
+                        C_lines_write.vs2_data_write(fd, a)
+                        C_lines_write.vl_set_write(fd, suffix)
+                        C_lines_write.vd_declaration_write(fd, a, q_array)
+                        C_lines_write.vs2_load(fd, a, suffix, mask)
+                        C_lines_write.vd_load(fd, a, suffix, mask)
+                        C_lines_write.pointer_iterator_write(fd)
+                        C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                        C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                        C_lines_write.vd_store(fd, a, op)
+                        a.compute()
+                        C_lines_write.golden_by_python_write(fd, a)
+                        C_lines_write.report_write(fd, q_array)
+                else:
+                    with open(filename, 'w') as fd:
+                        a.mask = 0
+                        # mask and have v0.mask[i] value
+                        C_lines_write.compiler_option_write(fd, a)
+                        C_lines_write.c_header_file_write(fd)
+                        C_lines_write.c_main_entry_write(fd)
+                        a.random_gen()
+                        C_lines_write.vs2_data_write(fd, a)
+                        C_lines_write.vl_set_write(fd, suffix)
+                        C_lines_write.vd_default_write()
+                        # set vd default value if v0.mask[i] = 0, golden = default
+                        a.mask_gen()
+                        a.mask_data_write()
+                        C_lines_write.vs2_load(fd, a, suffix, mask)
+                        C_lines_write.vd_load(fd, a, suffix, mask)
+                        C_lines_write.pointer_iterator_write(fd)
+                        # C_lines_write.specific_operator_c()
+                        C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                        C_lines_write.vd_store(fd, a, suffix, iu, mask)
+                        C_lines_write.jump_to_next_write_mask()
+                        a.compute()
+                        C_lines_write.golden_by_python_write(fd, a)
+                        C_lines_write.report_write(fd, q_array)
+        # ExtOpList = ['vsext', 'vzext']
+        # loop _ext, _suffix, _mask with fixed i(vsext) or u(vzext)
+        if op == 'vsext' or op == 'vzext':
+            for suffix, ext, mask in cross(normal_suffix, ext_list, mask_list):
+                if op == 'vsext':
+                    iu = 'i'
+                else:
+                    iu = 'u'
+                a = extra_inst_info(iu)
+                OP = op
+                divider = suffix.split('m')
+                SEW = int(divider[0])
+                C_lines_write.ext_sew = int(SEW / utils.get_float_lmul(ext))
+                lmul = utils.get_float_lmul(divider[1])
+                C_lines_write.ext_lmul = lmul / utils.get_float_lmul(ext)
+                op_mask = "%s%s" % (op, mask)
+                if SEW / utils.get_float_lmul(ext) <= 64 and SEW / lmul <= 64 and lmul / utils.get_float_lmul(ext) <= 8:
+                    ext_suffix = "%sm%s" % (int(C_lines_write.ext_sew), utils.get_string_lmul(C_lines_write.ext_lmul))
+                    bool_width = int(C_lines_write.ext_sew) / C_lines_write.ext_lmul
+                    if op == 'vsext':
+                        a.sign = 'i'
+                        filename = "testcase/%s_v%s_i%s%s.c" % (op, ext, ext_suffix, mask)
+                    else:
+                        a.sign = 'u'
+                        filename = "testcase/%s_v%s_u%s%s.c" % (op, ext, ext_suffix, mask)
+                    if mask != '_m':
+                        with open(filename, 'w') as fd:
+                            a.mask = 1
+                            # don't hava mask
+                            C_lines_write.compiler_option_write(fd, a)
+                            C_lines_write.c_header_file_write(fd)
+                            C_lines_write.c_main_entry_write(fd)
+                            a.random_gen()
+                            C_lines_write.vs2_data_write(fd, a)
+                            C_lines_write.vl_set_write(fd, suffix)
+                            C_lines_write.ext_vd_declaration_write()
+                            C_lines_write.vs2_load(fd, a, suffix, mask)
+                            C_lines_write.ext_vd_load()
+                            C_lines_write.pointer_iterator_write(fd)
+                            C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                            C_lines_write.ext_vd_store()
+                            C_lines_write.vd_store(fd, a, op)
+                            a.compute()
+                            C_lines_write.golden_by_python_write(fd, a)
+                            C_lines_write.report_write(fd, q_array)
+                    else:
+                        with open(filename, 'w') as fd:
+                            a.mask = 0
+                            # mask and have v0.mask[i] value
+                            C_lines_write.compiler_option_write(fd, a)
+                            C_lines_write.c_header_file_write(fd)
+                            C_lines_write.c_main_entry_write(fd)
+                            a.random_gen()
+                            C_lines_write.vs2_data_write(fd, a)
+                            C_lines_write.vl_set_write(fd, suffix)
+                            C_lines_write.ext_vd_declaration_write()
+                            # set vd default value if v0.mask[i] = 0, golden = default
+                            a.mask_gen()
+                            a.mask_data_write()
+                            C_lines_write.vs2_load(fd, a, suffix, mask)
+                            C_lines_write.ext_vd_load()
+                            C_lines_write.pointer_iterator_write(fd)
+                            # C_lines_write.specific_operator_c()
+                            C_lines_write.parameter_seq_write(fd, a, vx, suffix, iu)
+                            C_lines_write.ext_vd_store()
+                            C_lines_write.jump_to_next_write_mask()
+                            a.compute()
+                            C_lines_write.golden_by_python_write(fd, a)
+                            C_lines_write.report_write(fd, q_array)
+                else:
+                    continue
