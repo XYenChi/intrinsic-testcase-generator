@@ -4,6 +4,7 @@ import os
 import filter
 import sys
 import random
+
 filelist = set()
 location = './rvv-intrinsic-doc/auto-generated/intrinsic_funcs/'
 
@@ -51,6 +52,30 @@ def name_parser(line_string):
     return function_factor
 
 
+def reduction_function_parser(line_string):
+    # todo: edit judge function
+    return_type_parser = line_string.split('__riscv_')
+    op_parser = return_type_parser[1].split('_')
+    first_suffix = []
+    second_suffix = []
+    mask_second_suffix = op_parser[4].split(' ')
+    if mask_second_suffix[0] == 't':
+        second_suffix = (op_parser[3].split(' '))[0]
+        first_suffix = op_parser[2]
+    elif mask_second_suffix[0] == 'm':
+        second_suffix = op_parser[3]
+        first_suffix = op_parser[2]
+    else:
+        print("find a special format")
+    operand_type_parser = op_parser[2].split(' ')
+    a = operand_type_parser[0][0]
+    b = operand_type_parser[0]
+    divided_suffix = b.split(a, 1)
+    function_factor = op_parser[0], op_parser[1], op_parser[2][0], divided_suffix[1], mask_second_suffix[0], \
+        first_suffix, second_suffix
+    return function_factor
+
+
 def c_function_parser(line_string):
     # to remove operand type and add "out = "
     # can deal with fix point file.
@@ -93,8 +118,6 @@ def c_directory_auto_gen(function, file_name):
 
 
 def judge(op_name):
-    if op_name.vxrm != 5:
-        filter.RMOpList.append(op_name.op_name)
     if op_name.operand_type == filter.type_vx:
         if op_name.sign_type == filter.sign_iu:
             if op_name.suffix_list == filter.normal_suffix:
@@ -105,6 +128,8 @@ def judge(op_name):
                 special_set.add(op_name.op_name)
                 print("find a sign_iu suffix issue")
         elif op_name.sign_type == filter.sign_fix_i:
+            if op_name.vxrm != 5:
+                filter.RMOpList.append(op_name.op_name)
             if op_name.operand_type == filter.only_v:
                 filter.SpVOplist.append(op_name.op_name)
             elif op_name.operand_type == filter.type_vx:
@@ -116,6 +141,8 @@ def judge(op_name):
                 special_set.add(op_name.op_name)
                 print("find a sign_fix_i suffix issue")
         elif op_name.sign_type == filter.sign_fix_u:
+            if op_name.vxrm != 5:
+                filter.RMOpList.append(op_name.op_name)
             if op_name.suffix_list == filter.normal_suffix:
                 filter.UnsignOpList.append(op_name.op_name)
             elif op_name.suffix_list == filter.widen_suffix:
@@ -178,8 +205,45 @@ def judge(op_name):
                 print("find a middle mask and suffix issue")
         else:
             print("find a middle mask and sign issue")
-
-    # elif i.operand_type == filter.type_widen_vx:
+    elif op_name.operand_type == filter.type_vf:
+        if op_name.sign_type == filter.float:
+            if op_name.suffix_list == filter.widen_suffix:
+                filter.FloatOpList.append(op_name.op_name)
+            elif op_name.suffix_list == filter.widen_widen_suffix:
+                filter.FloatWOpList.append(op_name.op_name)
+            else:
+                print("find a float point suffix issue")
+        else:
+            print("find a float point type issue")
+    elif op_name.operand_type == filter.only_v:
+        if op_name.sign_type == filter.float:
+            if op_name.suffix_list == filter.widen_suffix:
+                filter.FloatVOpList.append(op_name.op_name)
+            else:
+                print("find a float point only v suffix issue.")
+        elif op_name.sign_type == filter.sign_fix_u:
+            if op_name.suffix_list == filter.widen_suffix:
+                filter.FloatUOpList.append(op_name.op_name)
+            else:
+                print("find a float point unsign only v suffix issue.")
+        else:
+            print("find a float point only v type issue")
+    elif op_name.operand_type == filter.type_f:
+        if op_name.sign_type == filter.float:
+            if op_name.suffix_list == filter.widen_suffix:
+                filter.FloatFOpList.append(op_name.op_name)
+            else:
+                print("find a float point vf suffix issue.")
+        else:
+            print("find a float sign type issue")
+    elif op_name.operand_type == filter.type_vw_vf:
+        if op_name.sign_type == filter.float:
+            if op_name.suffix_list == filter.widen_widen_suffix:
+                filter.FloatWWOpList.append(op_name.op_name)
+            else:
+                print("find a float point widen suffix isuue.")
+        else:
+            print("find a float point widen issue.")
 
 
 for file in filelist:
@@ -287,7 +351,7 @@ for i in op_instance_list:
 generate_file.write("sign_type_4_iterator:\n" + str(sign_type_4_iterator) + "\n")
 generate_file.write("operand_type_4_iterator:\n" + str(operand_type_4_iterator) + "\n")
 generate_file.write("suffix_type_4_iterator:\n" + str(suffix_type_4_iterator) + "\n")
-generate_python = open("intrinsic_function_type_06.py", "w")
+generate_python = open("intrinsic_function_type_07.py", "w")
 generate_python.write("#!/usr/bin/env python3\n")
 generate_python.write("GeneralFormatOpList = " + str(filter.GeneralFormatOpList) + "\n")
 generate_python.write("SignOpList = " + str(filter.SignOpList) + "\n")
@@ -305,3 +369,9 @@ generate_python.write("Sp2VOplist = " + str(filter.Sp2VOplist) + "\n")
 generate_python.write("ZeroExtOpList = " + str(filter.ZeroExtOpList) + "\n")
 generate_python.write("SignExtOpList = " + str(filter.SignExtOpList) + "\n")
 generate_python.write("RMOpList = " + str(filter.RMOpList) + "\n")
+generate_python.write("FloatOpList = " + str(filter.FloatOpList) + "\n")
+generate_python.write("FloatVOpList = " + str(filter.FloatVOpList) + "\n")
+generate_python.write("FloatWOpList = " + str(filter.FloatWOpList) + "\n")
+generate_python.write("FloatUOpList = " + str(filter.FloatUOpList) + "\n")
+generate_python.write("FloatFOpList = " + str(filter.FloatFOpList) + "\n")
+generate_python.write("FloatWWOpList = " + str(filter.FloatWWOpList) + "\n")

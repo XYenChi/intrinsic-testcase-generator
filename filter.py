@@ -3,12 +3,16 @@
 sign_fix_i = ['i']
 sign_fix_u = ['u']
 sign_iu = ['i', 'u']
+float = ['f']
 
 # operand type
 type_vx = ['vv', 'vx']
+type_vf = ['vv', 'vf']
+type_f = ['vf']
 only_v = ['v']
 type_widen_vx = ['wv', 'wx']
 type_vw_vx = ['vx', 'vv', 'wx', 'wv']
+type_vw_vf = ['vf', 'vv', 'wf', 'wv']
 type_extension = ['vf2', 'vf4', 'vf8']
 type_middle_mask = ['vvm', 'vxm']
 type_middle_mask_and_normal_vx = ['vv', 'vvm', 'vx', 'vxm']
@@ -16,6 +20,7 @@ type_middle_mask_and_normal_vx = ['vv', 'vvm', 'vx', 'vxm']
 # todo: Change the exe_op_generator variant name to iterate
 vx_list = ['v', 'x']
 wv_list = ['v', 'w']
+vf_list = ['v', 'w']
 iu_list = ['i', 'u']
 ext_list = ['f2', 'f4', 'f8']
 
@@ -24,6 +29,7 @@ normal_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2
                  '64m2', '64m4', '64m8', '8m1', '8m2', '8m4', '8m8', '8mf2', '8mf4', '8mf8']
 widen_suffix = ['16m1', '16m2', '16m4', '16m8', '16mf2', '16mf4', '32m1', '32m2', '32m4', '32m8', '32mf2', '64m1',
                 '64m2', '64m4', '64m8']
+widen_widen_suffix = ['32m1', '32m2', '32m4', '32m8', '32mf2', '64m1', '64m2', '64m4', '64m8']
 narrow_suffix = []
 
 GeneralFormatOpList = []
@@ -72,6 +78,17 @@ SignExtOpList = []
 
 RMOpList = []
 
+FloatOpList = []
+
+FloatVOpList = []
+
+FloatWOpList = []
+
+FloatUOpList = []
+
+FloatFOpList = []
+
+FloatWWOpList = []
 # 'vsext']
 # loop _ext, _suffix, _mask with fixed i
 class Index:
